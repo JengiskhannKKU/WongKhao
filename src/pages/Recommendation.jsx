@@ -6,12 +6,14 @@ import { createPageUrl } from '@/utils';
 import { ArrowLeft, Check, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
+import { adjustRecipeByAI } from '@/lib/openai';
 
 import MenuHeader from '@/components/recommendation/MenuHeader';
 import ImpactPanel from '@/components/recommendation/ImpactPanel';
 import ModificationList from '@/components/recommendation/ModificationList';
 import TasteRetention from '@/components/recommendation/TasteRetention';
 import ActionButtons from '@/components/recommendation/ActionButtons';
+import AiPromptBox from '@/components/recommendation/AiPromptBox';
 
 // Sample menu for demo
 const sampleMenu = {
@@ -34,6 +36,7 @@ export default function Recommendation() {
   const [menu, setMenu] = useState(sampleMenu);
   const [loading, setLoading] = useState(false);
   const [adjusting, setAdjusting] = useState(false);
+  const [aiLoading, setAiLoading] = useState(false);
   const [impacts, setImpacts] = useState({
     sodium: -22,
     sugar: -15,
@@ -121,6 +124,21 @@ export default function Recommendation() {
     toast.success('ปรับสูตรเรียบร้อย!');
   };
 
+  const handleAiPrompt = async (prompt) => {
+    setAiLoading(true);
+    try {
+      const result = await adjustRecipeByAI(menu, prompt);
+      setModifications(result.modifications);
+      setTasteRetention(result.tasteRetention);
+      toast.success('AI ปรับสูตรเรียบร้อย!');
+    } catch (error) {
+      console.error('AI adjustment error:', error);
+      toast.error('ไม่สามารถปรับสูตรด้วย AI ได้ กรุณาลองใหม่');
+    } finally {
+      setAiLoading(false);
+    }
+  };
+
   const handleOrder = () => {
     toast.success('กำลังนำคุณไปยังร้านค้า...');
   };
@@ -172,9 +190,6 @@ export default function Recommendation() {
           {/* Menu Header */}
           <MenuHeader menu={menu} />
 
-          {/* Impact Panel */}
-          <ImpactPanel impacts={impacts} />
-
           {/* Modifications */}
           <ModificationList modifications={modifications} />
 
@@ -190,6 +205,12 @@ export default function Recommendation() {
           ) : (
             <ActionButtons onAdjust={handleAdjust} onOrder={handleOrder} />
           )}
+
+          {/* AI Prompt Box */}
+          <AiPromptBox
+            onSubmit={handleAiPrompt}
+            disabled={aiLoading}
+          />
         </div>
       </div>
 
