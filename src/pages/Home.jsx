@@ -69,9 +69,7 @@ export default function Home() {
           animate={{ opacity: 1, y: 0 }}
           className="flex items-center gap-3 mb-auto"
         >
-          <div className="w-12 h-12 bg-gradient-to-br from-teal-600 to-teal-700 rounded-2xl flex items-center justify-center shadow-lg shadow-teal-200">
-            <Utensils className="w-6 h-6 text-white" />
-          </div>
+          <img src="/logo.png" alt="WongKhao Logo" className="w-12 h-12 rounded-2xl object-contain" />
           <div>
             <h1 className="text-xl font-bold text-slate-800">WongKhao</h1>
             <p className="text-xs text-slate-600">วงข้าว</p>
