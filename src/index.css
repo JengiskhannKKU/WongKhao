@@ -2,30 +2,50 @@
 @tailwind components;
 @tailwind utilities;
 
+@font-face {
+  font-family: 'TH-Chara';
+  src: url('@/TH-Chara/TH-Chara ver 2.00.ttf') format('truetype'),
+    url('@/TH-Chara/TH-Chara ver 2.00.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 0 0% 3.9%;
+    --background: 140 30% 98%;
+    /* Light Mint tinted background */
+    --foreground: 0 0% 10%;
+    /* Dark Gray text */
     --card: 0 0% 100%;
-    --card-foreground: 0 0% 3.9%;
+    --card-foreground: 0 0% 10%;
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 3.9%;
-    --primary: 0 0% 9%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 0 0% 96.1%;
-    --secondary-foreground: 0 0% 9%;
-    --muted: 0 0% 96.1%;
-    --muted-foreground: 0 0% 45.1%;
-    --accent: 0 0% 96.1%;
-    --accent-foreground: 0 0% 9%;
+    --popover-foreground: 0 0% 10%;
+
+    /* Primary Color (Dark Green) */
+    --primary: 145 46% 26%;
+    /* #2D6A4F */
+    --primary-foreground: 0 0% 100%;
+
+    /* Secondary Color (Fresh Green) */
+    --secondary: 139 50% 41%;
+    /* #34A853 / #28A745 */
+    --secondary-foreground: 0 0% 100%;
+
+    /* Used for icons or less prominent accents */
+    --muted: 140 10% 90%;
+    --muted-foreground: 0 0% 45%;
+    /* #757575 */
+
+    --accent: 140 20% 96%;
+    --accent-foreground: 145 46% 26%;
+
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 89.8%;
-    --input: 0 0% 89.8%;
-    --ring: 0 0% 3.9%;
-    --chart-1: 12 76% 61%;
-    --chart-2: 173 58% 39%;
-    --chart-3: 197 37% 24%;
+
+    --border: 140 10% 90%;
+    --input: 140 10% 90%;
+    --ring: 145 46% 30%;
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
     --radius: 0.5rem;
@@ -84,5 +104,9 @@
 
   body {
     @apply bg-background text-foreground;
+    font-family: 'TH-Chara', 'Kanit', sans-serif;
+    font-size: 20px;
+    /* Adjusted slightly size considering general spacing, we can make it 22px again if needed */
+    color: #1A1A1A;
   }
 }

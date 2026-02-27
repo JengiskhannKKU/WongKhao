@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Heart, MessageCircle, TrendingDown, Flame, Award } from 'lucide-react';
+import Icon from '@/components/ui/Icon';
 import { Badge } from '@/components/ui/badge';
 
 const regionLabels = {
@@ -44,7 +44,7 @@ export default function PostCard({ post, onCheer }) {
         </div>
         {post.challenge_id && (
           <Badge className="bg-amber-100 text-amber-700 border-0">
-            <Award className="w-3 h-3 mr-1" />
+            <Icon name="emoji_events" className="w-3 h-3 mr-1" />
             Challenge
           </Badge>
         )}
@@ -64,13 +64,13 @@ export default function PostCard({ post, onCheer }) {
           <div className="flex gap-2">
             {post.sodium_reduced && (
               <div className="bg-emerald-500/90 backdrop-blur-sm rounded-full px-3 py-1 flex items-center gap-1">
-                <TrendingDown className="w-3 h-3 text-white" />
+                <Icon name="trending_down" className="w-3 h-3 text-white" />
                 <span className="text-xs font-semibold text-white">-{post.sodium_reduced}% เค็ม</span>
               </div>
             )}
             {post.calories_reduced && (
               <div className="bg-orange-500/90 backdrop-blur-sm rounded-full px-3 py-1 flex items-center gap-1">
-                <Flame className="w-3 h-3 text-white" />
+                <Icon name="local_fire_department" className="w-3 h-3 text-white" />
                 <span className="text-xs font-semibold text-white">-{post.calories_reduced}% แคล</span>
               </div>
             )}
@@ -90,7 +90,7 @@ export default function PostCard({ post, onCheer }) {
             onClick={() => setShowCheers(!showCheers)}
             className={`flex items-center gap-1 ${cheered ? 'text-rose-500' : 'text-slate-500'}`}
           >
-            <Heart className={`w-5 h-5 ${cheered ? 'fill-current' : ''}`} />
+            <Icon name="favorite" className={`w-5 h-5 ${cheered ? 'text-rose-500' : ''}`} filled={cheered} />
             <span className="text-sm font-medium">{post.cheer_count || 0}</span>
           </button>
 

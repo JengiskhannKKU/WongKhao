@@ -1,12 +1,12 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, Flame, Salad, Droplets, X } from 'lucide-react';
+import Icon from '@/components/ui/Icon';
 
 const moods = [
-  { id: 'comfort', label: 'สบาย ๆ', icon: Sparkles, color: 'bg-blue-500' },
-  { id: 'spicy', label: 'เผ็ดจัด', icon: Flame, color: 'bg-orange-500' },
-  { id: 'healthy', label: 'ควบคุมน้ำหนัก', icon: Salad, color: 'bg-emerald-500' },
-  { id: 'low_sodium', label: 'ลดเค็ม', icon: Droplets, color: 'bg-cyan-500' }
+  { id: 'comfort', label: 'สบาย ๆ', icon: 'auto_awesome', color: 'bg-blue-500' },
+  { id: 'spicy', label: 'เผ็ดจัด', icon: 'local_fire_department', color: 'bg-orange-500' },
+  { id: 'healthy', label: 'ควบคุมน้ำหนัก', icon: 'restaurant', color: 'bg-emerald-500' },
+  { id: 'low_sodium', label: 'ลดเค็ม', icon: 'water_drop', color: 'bg-cyan-500' }
 ];
 
 export default function MoodSelector({ isOpen, onClose, onSelect, selectedMood }) {
@@ -31,10 +31,10 @@ export default function MoodSelector({ isOpen, onClose, onSelect, selectedMood }
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-lg font-semibold text-slate-800">วันนี้อยากกินแบบไหน?</h3>
               <button onClick={onClose} className="p-2 rounded-full hover:bg-slate-100">
-                <X className="w-5 h-5 text-slate-500" />
+                <Icon name="close" className="w-5 h-5 text-slate-500" />
               </button>
             </div>
-            
+
             <div className="grid grid-cols-2 gap-3">
               {moods.map((mood) => (
                 <motion.button
@@ -44,14 +44,13 @@ export default function MoodSelector({ isOpen, onClose, onSelect, selectedMood }
                     onClose();
                   }}
                   whileTap={{ scale: 0.95 }}
-                  className={`p-4 rounded-2xl border-2 transition-all ${
-                    selectedMood === mood.id
+                  className={`p-4 rounded-2xl border-2 transition-all ${selectedMood === mood.id
                       ? 'border-slate-800 bg-slate-50'
                       : 'border-slate-100 bg-white hover:border-slate-200'
-                  }`}
+                    }`}
                 >
                   <div className={`w-12 h-12 ${mood.color} rounded-xl flex items-center justify-center mb-3 mx-auto`}>
-                    <mood.icon className="w-6 h-6 text-white" />
+                    <Icon name={mood.icon} className="w-6 h-6 text-white" />
                   </div>
                   <p className="font-medium text-slate-700">{mood.label}</p>
                 </motion.button>

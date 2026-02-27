@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { localStore } from '@/api/localStore';
-import { Users, Trophy, Newspaper, Plus, Camera, X, Loader2, TrendingDown, Flame, Sparkles } from 'lucide-react';
+import Icon from '@/components/ui/Icon';
 import PostCard from '@/components/community/PostCard';
 import ChallengeCard from '@/components/community/ChallengeCard';
 import ClanWar from '@/components/community/ClanWar';
 
 const tabs = [
-  { key: 'feed', label: 'ฟีด', icon: Newspaper },
-  { key: 'challenges', label: 'ชาเลนจ์', icon: Trophy },
-  { key: 'leaderboard', label: 'อันดับ', icon: Users },
+  { key: 'feed', label: 'ฟีด', icon: 'newspaper' },
+  { key: 'challenges', label: 'ชาเลนจ์', icon: 'emoji_events' },
+  { key: 'leaderboard', label: 'อันดับ', icon: 'group' },
 ];
 
 export default function Community() {
@@ -144,7 +144,7 @@ export default function Community() {
             onClick={() => setShowNewPost(true)}
             className="w-10 h-10 rounded-2xl bg-gradient-to-br from-teal-600 to-teal-700 flex items-center justify-center shadow-lg shadow-teal-200 active:scale-95 transition-transform"
           >
-            <Plus className="w-5 h-5 text-white" />
+            <Icon name="add" className="w-5 h-5 text-white" />
           </button>
         </div>
 
@@ -158,11 +158,11 @@ export default function Community() {
                 key={tab.key}
                 onClick={() => setActiveTab(tab.key)}
                 className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-sm font-medium transition-all ${isActive
-                    ? 'bg-teal-600 text-white shadow-md'
-                    : 'text-slate-500 hover:text-slate-700'
+                  ? 'bg-teal-600 text-white shadow-md'
+                  : 'text-slate-500 hover:text-slate-700'
                   }`}
               >
-                <Icon className="w-4 h-4" />
+                <Icon name={tab.icon} className="w-4 h-4" />
                 {tab.label}
               </button>
             );
@@ -182,7 +182,7 @@ export default function Community() {
               {/* Quick stats */}
               <div className="bg-gradient-to-r from-teal-600 to-teal-700 rounded-2xl p-4 text-white">
                 <div className="flex items-center gap-2 mb-2">
-                  <Sparkles className="w-5 h-5" />
+                  <Icon name="auto_awesome" className="w-5 h-5" />
                   <span className="font-semibold">สรุปชุมชนวันนี้</span>
                 </div>
                 <div className="flex justify-between">
@@ -232,7 +232,7 @@ export default function Community() {
               {/* Active challenges header */}
               <div className="flex items-center gap-2">
                 <div className="w-8 h-8 rounded-xl bg-amber-100 flex items-center justify-center">
-                  <Trophy className="w-4 h-4 text-amber-700" />
+                  <Icon name="emoji_events" className="w-4 h-4 text-amber-700" />
                 </div>
                 <div>
                   <h2 className="font-bold text-slate-800">ชาเลนจ์ที่เปิดอยู่</h2>
@@ -244,7 +244,7 @@ export default function Community() {
               {joinedChallenges.length > 0 && (
                 <div>
                   <h3 className="text-sm font-semibold text-teal-700 mb-2 flex items-center gap-1">
-                    <Flame className="w-4 h-4" />
+                    <Icon name="local_fire_department" className="w-4 h-4" />
                     ชาเลนจ์ของฉัน
                   </h3>
                   <div className="space-y-3">
@@ -308,7 +308,7 @@ export default function Community() {
               {/* Sodium impact stats */}
               <div className="bg-white rounded-2xl p-4 border border-slate-100">
                 <h3 className="font-bold text-slate-800 mb-3 flex items-center gap-2">
-                  <TrendingDown className="w-5 h-5 text-emerald-600" />
+                  <Icon name="trending_down" className="w-5 h-5 text-emerald-600" />
                   ผลกระทบรวมของชุมชน
                 </h3>
                 <div className="grid grid-cols-2 gap-3">
@@ -346,9 +346,9 @@ export default function Community() {
                     .map((prov, index) => (
                       <div key={prov.id} className="flex items-center gap-3 py-2 border-b border-slate-50 last:border-0">
                         <span className={`w-7 h-7 rounded-lg flex items-center justify-center text-sm font-bold ${index === 0 ? 'bg-amber-100 text-amber-700' :
-                            index === 1 ? 'bg-slate-100 text-slate-600' :
-                              index === 2 ? 'bg-orange-100 text-orange-700' :
-                                'bg-slate-50 text-slate-400'
+                          index === 1 ? 'bg-slate-100 text-slate-600' :
+                            index === 2 ? 'bg-orange-100 text-orange-700' :
+                              'bg-slate-50 text-slate-400'
                           }`}>
                           {index + 1}
                         </span>
@@ -390,7 +390,7 @@ export default function Community() {
               <div className="flex items-center justify-between mb-5">
                 <h2 className="text-lg font-bold text-slate-800">แชร์เมนูสุขภาพ</h2>
                 <button onClick={() => setShowNewPost(false)} className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center">
-                  <X className="w-4 h-4 text-slate-500" />
+                  <Icon name="close" className="w-4 h-4 text-slate-500" />
                 </button>
               </div>
 
@@ -439,7 +439,7 @@ export default function Community() {
                       className="flex-1 px-4 py-3 rounded-2xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
                     />
                     <button className="w-12 h-12 rounded-2xl border border-slate-200 flex items-center justify-center text-slate-400">
-                      <Camera className="w-5 h-5" />
+                      <Icon name="photo_camera" className="w-5 h-5" />
                     </button>
                   </div>
                 </div>
@@ -448,12 +448,12 @@ export default function Community() {
                   onClick={handleCreatePost}
                   disabled={!newPostData.menu_name || posting}
                   className={`w-full py-3.5 rounded-2xl font-semibold text-sm flex items-center justify-center gap-2 transition-all ${newPostData.menu_name && !posting
-                      ? 'bg-teal-600 text-white hover:bg-teal-700 active:scale-[0.98]'
-                      : 'bg-slate-200 text-slate-400 cursor-not-allowed'
+                    ? 'bg-teal-600 text-white hover:bg-teal-700 active:scale-[0.98]'
+                    : 'bg-slate-200 text-slate-400 cursor-not-allowed'
                     }`}
                 >
                   {posting ? (
-                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <Icon name="progress_activity" className="w-4 h-4 animate-spin" />
                   ) : (
                     <>โพสต์เลย 🎉</>
                   )}

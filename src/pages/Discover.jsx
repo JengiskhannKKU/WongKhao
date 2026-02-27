@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { localStore } from '@/api/localStore';
 import { createPageUrl } from '@/utils';
-import { Sliders } from 'lucide-react';
+import Icon from '@/components/ui/Icon';
 
 import MenuCard from '@/components/swipe/MenuCard';
 import SwipeActions from '@/components/swipe/SwipeActions';
@@ -154,12 +154,12 @@ export default function Discover() {
   const currentMenu = filteredMenus[currentIndex];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50/30 via-orange-50/20 to-white">
-      <div className="max-w-sm mx-auto px-3 py-4">
+    <div className="min-h-screen bg-gradient-to-br from-[#E8F5E9] to-[#FFFFFF] pt-12 pb-24">
+      <div className="max-w-sm mx-auto px-4">
         {/* Header */}
         <div className="mb-4">
           <h1 className="text-2xl font-bold text-slate-800 mb-1">ค้นหาเมนูวันนี้</h1>
-          <p className="text-sm text-slate-600">ปัดซ้าย-ขวา เพื่อเลือกเมนูที่ชอบ</p>
+          <p className="text-sm text-slate-500">ปัดซ้าย-ขวา เพื่อเลือกเมนูที่ชอบ</p>
         </div>
         <ProgressHeader
           streakDays={userProfile?.streak_days || 1}
@@ -169,14 +169,14 @@ export default function Discover() {
 
         {/* Region Filter */}
         <div className="mt-6 flex items-center gap-2">
-          <div className="flex-1 overflow-hidden">
+          <div className="flex-1 overflow-x-auto scrollbar-hide">
             <RegionFilter selected={selectedRegion} onSelect={setSelectedRegion} />
           </div>
           <button
             onClick={() => setShowMoodSelector(true)}
-            className="w-10 h-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center"
+            className="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center flex-shrink-0 border hidden border-slate-100 text-slate-400 hover:text-emerald-600 transition-colors"
           >
-            <Sliders className="w-5 h-5 text-slate-600" />
+            <Icon name="tune" className="w-5 h-5" />
           </button>
         </div>
 

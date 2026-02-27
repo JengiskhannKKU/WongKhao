@@ -1,16 +1,16 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Minus, Plus, Leaf, Users, ShoppingCart } from 'lucide-react';
+import Icon from '@/components/ui/Icon';
 import { Button } from '@/components/ui/button';
 
-export default function ActionButtons({ onAdjust, onOrder }) {
+export default function ActionButtons({ onAdjust, onOrder, onIngredientClick }) {
   const adjustments = [
-    { id: 'more_sodium', label: 'ลดเค็มมากขึ้น', icon: Minus },
-    { id: 'more_protein', label: 'เพิ่มโปรตีน', icon: Plus },
-    { id: 'clean', label: 'ทำแบบคลีน 100%', icon: Leaf },
-    { id: 'family', label: 'เวอร์ชันครอบครัว', icon: Users }
+    { id: 'more_sodium', label: 'ลดเค็มมากขึ้น', icon: 'remove' },
+    { id: 'more_protein', label: 'เพิ่มโปรตีน', icon: 'add' },
+    { id: 'clean', label: 'ทำแบบคลีน 100%', icon: 'eco' },
+    { id: 'family', label: 'เวอร์ชันครอบครัว', icon: 'group' }
   ];
-  
+
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-2 gap-2">
@@ -23,22 +23,30 @@ export default function ActionButtons({ onAdjust, onOrder }) {
             onClick={() => onAdjust?.(adj.id)}
             className="flex items-center gap-2 px-4 py-3 bg-white rounded-xl border border-slate-200 hover:border-slate-300 hover:shadow-sm transition-all text-left"
           >
-            <adj.icon className="w-4 h-4 text-slate-500" />
+            <Icon name={adj.icon} className="w-4 h-4 text-slate-500" />
             <span className="text-sm text-slate-700">{adj.label}</span>
           </motion.button>
         ))}
       </div>
-      
+
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.5 }}
+        className="space-y-3"
       >
-        <Button 
+        <Button
+          onClick={onIngredientClick}
+          className="w-full h-14 bg-white border-2 border-emerald-100 hover:border-emerald-500 hover:bg-emerald-50 text-emerald-700 rounded-2xl shadow-sm font-bold flex items-center justify-center transition-all"
+        >
+          <Icon name="photo_camera" className="w-5 h-5 mr-2" />
+          สแกน/กรอกวัตถุดิบที่มี
+        </Button>
+        <Button
           onClick={onOrder}
           className="w-full h-14 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white rounded-2xl shadow-lg shadow-emerald-200"
         >
-          <ShoppingCart className="w-5 h-5 mr-2" />
+          <Icon name="shopping_cart" className="w-5 h-5 mr-2" />
           สั่งวัตถุดิบทั้งหมด
         </Button>
         <p className="text-center text-xs text-slate-500 mt-2">

@@ -18,9 +18,9 @@ export default function MenuCard({ menu, onSwipe }) {
   };
 
   const sodiumColors = {
-    low: 'bg-emerald-100 text-emerald-700',
-    medium: 'bg-amber-100 text-amber-700',
-    high: 'bg-red-100 text-red-700',
+    low: 'bg-emerald-100 text-emerald-800',
+    medium: 'bg-amber-100 text-amber-800',
+    high: 'bg-rose-100 text-rose-800',
   };
 
   const sodiumLabels = {
@@ -78,17 +78,17 @@ export default function MenuCard({ menu, onSwipe }) {
           {/* Tags row */}
           <div className="flex flex-wrap gap-2">
             {menu.sodium_level && (
-              <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${sodiumColors[menu.sodium_level]}`}>
+              <span className={`px-2.5 py-1 rounded-full text-xs font-bold shadow-sm ${sodiumColors[menu.sodium_level]}`}>
                 {sodiumLabels[menu.sodium_level]}
               </span>
             )}
             {menu.health_score && (
-              <span className="px-2.5 py-1 rounded-full text-xs font-medium bg-teal-100 text-teal-700">
+              <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 shadow-sm">
                 สุขภาพ {menu.health_score}/100
               </span>
             )}
             {menu.spice_level && (
-              <span className="px-2.5 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-700">
+              <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-800 shadow-sm">
                 {'🌶️'.repeat(Math.min(menu.spice_level, 5))}
               </span>
             )}
