@@ -11,7 +11,7 @@ const navItems = [
 ];
 
 export default function Layout({ children, currentPageName }) {
-  const hideNav = ['Onboarding', 'Recommendation'].includes(currentPageName);
+  const hideNav = ['Onboarding', 'Recommendation', 'Login', 'Register'].includes(currentPageName);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-amber-50/20 via-orange-50/10 to-white">
