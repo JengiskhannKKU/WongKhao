@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { localStore } from '@/api/localStore';
+import { localStore } from '@/api/apiStore';
 import { Users, Trophy, Newspaper, Plus, Camera, X, Loader2, TrendingDown, Flame, Sparkles } from 'lucide-react';
 import PostCard from '@/components/community/PostCard';
 import ChallengeCard from '@/components/community/ChallengeCard';

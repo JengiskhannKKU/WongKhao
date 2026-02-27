@@ -1,0 +1,104 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./wongkhao.db"
+}
+
+model UserProfile {
+  id              String   @id @default(cuid())
+  name            String?
+  age             Int?
+  health_goal     String?
+  sodium_limit    Int?     @default(1500)
+  streak_days     Int?     @default(1)
+  points          Int?     @default(0)
+  created_date    DateTime @default(now())
+}
+
+model Menu {
+  id              String   @id @default(cuid())
+  name            String
+  category        String?
+  sodium_mg       Int?
+  calories        Int?
+  image_url       String?
+  description     String?
+  province        String?
+  region          String?
+  created_date    DateTime @default(now())
+}
+
+model MenuSwipe {
+  id              String   @id @default(cuid())
+  user_id         String?
+  menu_id         String?
+  direction       String?
+  created_date    DateTime @default(now())
+}
+
+model MealLog {
+  id              String   @id @default(cuid())
+  user_id         String?
+  menu_id         String?
+  menu_name       String?
+  sodium_mg       Int?
+  calories        Int?
+  meal_type       String?
+  logged_date     String?
+  is_modified     Boolean?
+  sodium_saved    Int?
+  points_earned   Int?
+  created_date    DateTime @default(now())
+}
+
+model Challenge {
+  id                String   @id @default(cuid())
+  title             String
+  description       String?
+  target_days       Int?
+  reward_points     Int?
+  status            String?  @default("active")
+  participant_count Int?     @default(0)
+  created_date      DateTime @default(now())
+}
+
+model ChallengeParticipant {
+  id              String   @id @default(cuid())
+  user_id         String?
+  challenge_id    String?
+  progress_days   Int?     @default(0)
+  progress        Int?     @default(0)
+  days_completed  Int?     @default(0)
+  completed       Boolean? @default(false)
+  joined_date     DateTime @default(now())
+}
+
+model CommunityPost {
+  id              String   @id @default(cuid())
+  user_id         String?
+  author_name     String?
+  content         String?
+  likes           Int?     @default(0)
+  image_url       String?
+  menu_name       String?
+  caption         String?
+  sodium_reduced  Int?
+  cheer_count     Int?     @default(0)
+  region          String?
+  province        String?
+  created_by      String?
+  created_date    DateTime @default(now())
+}
+
+model ProvinceScore {
+  id                    String   @id @default(cuid())
+  province              String?
+  region                String?
+  total_sodium_reduced  Int?
+  participant_count     Int?
+  week                  String?
+  created_date          DateTime @default(now())
+}
