@@ -1,6 +1,8 @@
 #env
 .env
 .env.*
+!.env.example
+!backend/.env.example
 
 # Logs
 logs
@@ -15,6 +17,10 @@ node_modules
 dist
 dist-ssr
 *.local
+
+# SQLite database file
+backend/prisma/*.db
+backend/prisma/*.db-journal
 
 # Editor directories and files
 .vscode/*

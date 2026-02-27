@@ -1,0 +1,73 @@
+/**
+ * API-based data store that replaces localStorage.
+ * Uses fetch to talk to the Express backend at localhost:3001.
+ * Exports the same `localStore` name so pages don't need to change their import variable.
+ */
+
+const runtimeEnv = /** @type {Record<string, string | undefined>} */ ((/** @type {any} */ (import.meta)).env || {});
+const API_HOST = runtimeEnv.VITE_BACKEND_BASE_URL || 'http://localhost:3001';
+const BASE_URL = `${API_HOST}/api`;
+
+function createEntity(entityName) {
+    return {
+        list: async () => {
+            const res = await fetch(`${BASE_URL}/${entityName}`);
+            if (!res.ok) throw new Error(`Failed to list ${entityName}`);
+            return res.json();
+        },
+
+        create: async (data) => {
+            const res = await fetch(`${BASE_URL}/${entityName}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data),
+            });
+            if (!res.ok) throw new Error(`Failed to create ${entityName}`);
+            return res.json();
+        },
+
+        update: async (id, data) => {
+            const res = await fetch(`${BASE_URL}/${entityName}/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data),
+            });
+            if (!res.ok) throw new Error(`Failed to update ${entityName} ${id}`);
+            return res.json();
+        },
+
+        delete: async (id) => {
+            const res = await fetch(`${BASE_URL}/${entityName}/${id}`, {
+                method: 'DELETE',
+            });
+            if (!res.ok) throw new Error(`Failed to delete ${entityName} ${id}`);
+            return res.json();
+        },
+
+        filter: async (filters) => {
+            const params = new URLSearchParams(filters).toString();
+            const res = await fetch(`${BASE_URL}/${entityName}/filter?${params}`);
+            if (!res.ok) throw new Error(`Failed to filter ${entityName}`);
+            return res.json();
+        },
+
+        get: async (id) => {
+            const res = await fetch(`${BASE_URL}/${entityName}/${id}`);
+            if (!res.ok) throw new Error(`Failed to get ${entityName} ${id}`);
+            return res.json();
+        },
+    };
+}
+
+export const localStore = {
+    entities: {
+        UserProfile: createEntity('UserProfile'),
+        Menu: createEntity('Menu'),
+        MenuSwipe: createEntity('MenuSwipe'),
+        MealLog: createEntity('MealLog'),
+        Challenge: createEntity('Challenge'),
+        ChallengeParticipant: createEntity('ChallengeParticipant'),
+        CommunityPost: createEntity('CommunityPost'),
+        ProvinceScore: createEntity('ProvinceScore'),
+    }
+};

@@ -1,12 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { localStore } from '@/api/localStore';
+import { localStore } from '@/api/apiStore';
 import { createPageUrl } from '@/utils';
 import Icon from '@/components/ui/Icon';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
+import { adjustRecipeByAI } from '@/lib/openai';
+import { trackAdjustmentEvent, trackMealLogEvent } from '@/api/behaviorAnalytics';
 
+<<<<<<< HEAD
+=======
+import MenuHeader from '@/components/recommendation/MenuHeader';
+import ModificationList from '@/components/recommendation/ModificationList';
+import TasteRetention from '@/components/recommendation/TasteRetention';
+import ActionButtons from '@/components/recommendation/ActionButtons';
+import AiPromptBox from '@/components/recommendation/AiPromptBox';
+
+>>>>>>> 95b0a3a199ee35716d4a22bd68f79dc1c413c35f
 // Sample menu for demo
 const sampleMenu = {
   id: '2',
@@ -44,8 +54,12 @@ export default function Recommendation() {
   const [menu, setMenu] = useState(sampleMenu);
   const [loading, setLoading] = useState(false);
   const [adjusting, setAdjusting] = useState(false);
+<<<<<<< HEAD
   const [showIngredientModal, setShowIngredientModal] = useState(false);
   const [ingredientInput, setIngredientInput] = useState('');
+=======
+  const [aiLoading, setAiLoading] = useState(false);
+>>>>>>> 95b0a3a199ee35716d4a22bd68f79dc1c413c35f
   const [impacts, setImpacts] = useState({
     sodium: -22,
     sugar: -15,
@@ -87,50 +101,89 @@ export default function Recommendation() {
     // Simulate AI adjustment
     await new Promise(resolve => setTimeout(resolve, 1500));
 
+    let nextImpacts = impacts;
+    let nextModifications = modifications;
+    let nextTasteRetention = tasteRetention;
+
     switch (adjustType) {
       case 'more_sodium':
-        setImpacts(prev => ({ ...prev, sodium: -35 }));
-        setModifications([
+        nextImpacts = { ...impacts, sodium: -35 };
+        nextModifications = [
           'ลดน้ำปลาจาก 2 ช้อน → 0.5 ช้อน',
           'ใช้น้ำปลาลดโซเดียมแบบพิเศษ',
           'ใช้เกลือหิมาลายันแทน',
           'เพิ่มมะนาวเพื่อชดเชยรสเค็ม',
           'ลดผงชูรส 100%'
-        ]);
-        setTasteRetention(78);
+        ];
+        nextTasteRetention = 78;
         break;
       case 'more_protein':
-        setModifications([
+        nextModifications = [
           ...modifications,
           'เพิ่มไข่ต้ม 1 ฟอง',
           'เพิ่มกุ้งสด 50 กรัม'
-        ]);
-        setImpacts(prev => ({ ...prev, calories: -5 }));
+        ];
+        nextImpacts = { ...impacts, calories: -5 };
         break;
       case 'clean':
-        setImpacts({ sodium: -40, sugar: -30, calories: -20, bp_risk: -12 });
-        setModifications([
+        nextImpacts = { sodium: -40, sugar: -30, calories: -20, bp_risk: -12 };
+        nextModifications = [
           'ไม่ใส่น้ำปลา ใช้ซีอิ๊วขาวออร์แกนิค',
           'ไม่ใส่น้ำตาล',
           'ไม่ใส่ผงชูรส',
           'ใช้วัตถุดิบออร์แกนิค 100%',
           'เพิ่มผักสด 3 เท่า'
-        ]);
-        setTasteRetention(72);
+        ];
+        nextTasteRetention = 72;
         break;
       case 'family':
-        setModifications([
+        nextModifications = [
           'ลดความเผ็ดลง 50%',
           'แยกน้ำสลัดสำหรับเด็ก',
           'เพิ่มปริมาณเป็น 4 ที่',
           'ลดโซเดียมเฉลี่ย 15%'
-        ]);
-        setTasteRetention(90);
+        ];
+        nextTasteRetention = 90;
         break;
     }
 
+    setImpacts(nextImpacts);
+    setModifications(nextModifications);
+    setTasteRetention(nextTasteRetention);
+
+    void trackAdjustmentEvent({
+      menu,
+      adjustType,
+      source: 'preset',
+      impacts: nextImpacts,
+      tasteRetention: nextTasteRetention
+    });
+
     setAdjusting(false);
     toast.success('ปรับสูตรเรียบร้อย!');
+  };
+
+  const handleAiPrompt = async (prompt) => {
+    setAiLoading(true);
+    try {
+      const result = await adjustRecipeByAI(menu, prompt);
+      setModifications(result.modifications);
+      setTasteRetention(result.tasteRetention);
+      void trackAdjustmentEvent({
+        menu,
+        adjustType: 'ai_prompt',
+        source: 'ai',
+        prompt,
+        impacts,
+        tasteRetention: result.tasteRetention
+      });
+      toast.success('AI ปรับสูตรเรียบร้อย!');
+    } catch (error) {
+      console.error('AI adjustment error:', error);
+      toast.error('ไม่สามารถปรับสูตรด้วย AI ได้ กรุณาลองใหม่');
+    } finally {
+      setAiLoading(false);
+    }
   };
 
   const handleOrder = () => {
@@ -140,7 +193,11 @@ export default function Recommendation() {
   const handleLogMeal = async () => {
     setLoading(true);
     try {
-      await localStore.entities.MealLog.create({
+      const profiles = await localStore.entities.UserProfile.list();
+      const currentUserId = profiles[0]?.id || null;
+
+      const mealLog = await localStore.entities.MealLog.create({
+        user_id: currentUserId,
         menu_id: menu.id,
         menu_name: menu.name_th,
         meal_type: 'lunch',
@@ -151,12 +208,17 @@ export default function Recommendation() {
       });
 
       // Update user points
-      const profiles = await localStore.entities.UserProfile.list();
       if (profiles.length > 0) {
         await localStore.entities.UserProfile.update(profiles[0].id, {
           points: (profiles[0].points || 0) + 10
         });
       }
+
+      void trackMealLogEvent({
+        userId: currentUserId,
+        menu,
+        mealLog
+      });
 
       toast.success('บันทึกมื้ออาหารแล้ว! +10 คะแนน');
       navigate(createPageUrl('Discover'));
@@ -199,6 +261,36 @@ export default function Recommendation() {
             สั่งอาหาร
           </button>
         </div>
+<<<<<<< HEAD
+=======
+
+        <div className="px-3 space-y-4">
+          {/* Menu Header */}
+          <MenuHeader menu={menu} />
+
+          {/* Modifications */}
+          <ModificationList modifications={modifications} />
+
+          {/* Taste Retention */}
+          <TasteRetention percentage={tasteRetention} />
+
+          {/* Action Buttons */}
+          {adjusting ? (
+            <div className="flex items-center justify-center py-8">
+              <Loader2 className="w-8 h-8 animate-spin text-slate-400" />
+              <span className="ml-2 text-slate-500">กำลังปรับสูตร...</span>
+            </div>
+          ) : (
+            <ActionButtons onAdjust={handleAdjust} onOrder={handleOrder} />
+          )}
+
+          {/* AI Prompt Box */}
+          <AiPromptBox
+            onSubmit={handleAiPrompt}
+            disabled={aiLoading}
+          />
+        </div>
+>>>>>>> 95b0a3a199ee35716d4a22bd68f79dc1c413c35f
       </div>
 
       {/* The Card */}

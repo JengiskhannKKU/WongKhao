@@ -1,7 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+<<<<<<< HEAD
 import { localStore } from '@/api/localStore';
 import Icon from '@/components/ui/Icon';
+=======
+import { localStore } from '@/api/apiStore';
+import { Users, Trophy, Newspaper, Plus, Camera, X, Loader2, TrendingDown, Flame, Sparkles } from 'lucide-react';
+>>>>>>> 95b0a3a199ee35716d4a22bd68f79dc1c413c35f
 import PostCard from '@/components/community/PostCard';
 import ChallengeCard from '@/components/community/ChallengeCard';
 import ClanWar from '@/components/community/ClanWar';

@@ -4,10 +4,12 @@ import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClientInstance } from '@/lib/query-client'
 import NavigationTracker from '@/lib/NavigationTracker'
 import { pagesConfig } from './pages.config'
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, Navigate, useLocation } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
-import { AuthProvider } from '@/lib/AuthContext';
+import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import SplashScreen from '@/components/SplashScreen';
+
+const PUBLIC_PAGES = ['Login', 'Register'];
 
 const { Pages, Layout, mainPage } = pagesConfig;
 const mainPageKey = mainPage ?? Object.keys(Pages)[0];
@@ -16,6 +18,15 @@ const MainPage = mainPageKey ? Pages[mainPageKey] : <></>;
 const LayoutWrapper = ({ children, currentPageName }) => Layout ?
   <Layout currentPageName={currentPageName}>{children}</Layout>
   : <>{children}</>;
+
+function ProtectedRoute({ children }) {
+  const { isAuthenticated } = useAuth();
+  const location = useLocation();
+  if (!isAuthenticated) {
+    return <Navigate to="/Login" state={{ from: location }} replace />;
+  }
+  return children;
+}
 
 function App() {
   const [splashDone, setSplashDone] = useState(false);
@@ -29,18 +40,28 @@ function App() {
             <NavigationTracker />
             <Routes>
               <Route path="/" element={
-                <LayoutWrapper currentPageName={mainPageKey}>
-                  <MainPage />
-                </LayoutWrapper>
+                <ProtectedRoute>
+                  <LayoutWrapper currentPageName={mainPageKey}>
+                    <MainPage />
+                  </LayoutWrapper>
+                </ProtectedRoute>
               } />
               {Object.entries(Pages).map(([path, Page]) => (
                 <Route
                   key={path}
                   path={`/${path}`}
                   element={
-                    <LayoutWrapper currentPageName={path}>
-                      <Page />
-                    </LayoutWrapper>
+                    PUBLIC_PAGES.includes(path) ? (
+                      <LayoutWrapper currentPageName={path}>
+                        <Page />
+                      </LayoutWrapper>
+                    ) : (
+                      <ProtectedRoute>
+                        <LayoutWrapper currentPageName={path}>
+                          <Page />
+                        </LayoutWrapper>
+                      </ProtectedRoute>
+                    )
                   }
                 />
               ))}
