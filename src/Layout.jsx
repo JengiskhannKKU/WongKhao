@@ -1,7 +1,8 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
-import { Home, Compass, User, Users } from 'lucide-react';
+import { useAuth } from '@/lib/AuthContext';
+import { Home, Compass, User, Users, LogOut } from 'lucide-react';
 
 const navItems = [
   { name: 'Home', label: 'หน้าแรก', icon: Home },
@@ -12,6 +13,13 @@ const navItems = [
 
 export default function Layout({ children, currentPageName }) {
   const hideNav = ['Onboarding', 'Recommendation', 'Login', 'Register'].includes(currentPageName);
+  const { logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate(createPageUrl('Login'));
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-amber-50/20 via-orange-50/10 to-white">
@@ -39,6 +47,13 @@ export default function Layout({ children, currentPageName }) {
                 </Link>
               );
             })}
+            <button
+              onClick={handleLogout}
+              className="flex flex-col items-center gap-0.5 px-3 py-2 rounded-xl transition-all text-slate-400 hover:text-rose-500"
+            >
+              <LogOut className="w-6 h-6" />
+              <span className="text-xs font-medium">ออกจากระบบ</span>
+            </button>
           </div>
         </nav>
       )}
