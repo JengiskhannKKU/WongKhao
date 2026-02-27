@@ -3,12 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
 import { localStore } from '@/api/apiStore';
 import { createPageUrl } from '@/utils';
-<<<<<<< HEAD
 import Icon from '@/components/ui/Icon';
-=======
-import { Sliders } from 'lucide-react';
 import { trackSwipeEvent } from '@/api/behaviorAnalytics';
->>>>>>> 95b0a3a199ee35716d4a22bd68f79dc1c413c35f
 
 import MenuCard from '@/components/swipe/MenuCard';
 import SwipeActions from '@/components/swipe/SwipeActions';

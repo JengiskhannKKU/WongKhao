@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import { localStore } from '@/api/apiStore';
 import { createPageUrl } from '@/utils';
 import Icon from '@/components/ui/Icon';
@@ -8,15 +9,6 @@ import { toast } from 'sonner';
 import { adjustRecipeByAI } from '@/lib/openai';
 import { trackAdjustmentEvent, trackMealLogEvent } from '@/api/behaviorAnalytics';
 
-<<<<<<< HEAD
-=======
-import MenuHeader from '@/components/recommendation/MenuHeader';
-import ModificationList from '@/components/recommendation/ModificationList';
-import TasteRetention from '@/components/recommendation/TasteRetention';
-import ActionButtons from '@/components/recommendation/ActionButtons';
-import AiPromptBox from '@/components/recommendation/AiPromptBox';
-
->>>>>>> 95b0a3a199ee35716d4a22bd68f79dc1c413c35f
 // Sample menu for demo
 const sampleMenu = {
   id: '2',
@@ -48,18 +40,23 @@ const healthyAlternative = {
   fat: 5
 };
 
+// Quick prompt suggestions
+const quickPrompts = [
+  { label: '🧂 ลดเค็ม', prompt: 'ลดโซเดียมลงให้มากที่สุด แต่ยังคงรสชาติ' },
+  { label: '💪 เพิ่มโปรตีน', prompt: 'เพิ่มโปรตีนให้เหมาะกับคนออกกำลังกาย' },
+  { label: '🌿 คลีน', prompt: 'ทำให้เป็นสูตรคลีน ไม่ใส่ผงชูรส ไม่ใส่น้ำตาล' },
+  { label: '👶 เด็กกินได้', prompt: 'ปรับสูตรให้เด็กกินได้ ลดเผ็ด ลดเค็ม' },
+];
+
 export default function Recommendation() {
   const navigate = useNavigate();
   const [mode, setMode] = useState('cook'); // 'cook' | 'order'
   const [menu, setMenu] = useState(sampleMenu);
   const [loading, setLoading] = useState(false);
   const [adjusting, setAdjusting] = useState(false);
-<<<<<<< HEAD
-  const [showIngredientModal, setShowIngredientModal] = useState(false);
-  const [ingredientInput, setIngredientInput] = useState('');
-=======
+  const [showAiModal, setShowAiModal] = useState(false);
+  const [aiPrompt, setAiPrompt] = useState('');
   const [aiLoading, setAiLoading] = useState(false);
->>>>>>> 95b0a3a199ee35716d4a22bd68f79dc1c413c35f
   const [impacts, setImpacts] = useState({
     sodium: -22,
     sugar: -15,
@@ -74,10 +71,17 @@ export default function Recommendation() {
     'เพิ่มผักสดเป็น 2 เท่า'
   ]);
   const [tasteRetention, setTasteRetention] = useState(85);
+  const textareaRef = useRef(null);
 
   useEffect(() => {
     loadMenu();
   }, []);
+
+  useEffect(() => {
+    if (showAiModal && textareaRef.current) {
+      textareaRef.current.focus();
+    }
+  }, [showAiModal]);
 
   const loadMenu = async () => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -164,6 +168,7 @@ export default function Recommendation() {
   };
 
   const handleAiPrompt = async (prompt) => {
+    if (!prompt.trim()) return;
     setAiLoading(true);
     try {
       const result = await adjustRecipeByAI(menu, prompt);
@@ -177,6 +182,8 @@ export default function Recommendation() {
         impacts,
         tasteRetention: result.tasteRetention
       });
+      setAiPrompt('');
+      setShowAiModal(false);
       toast.success('AI ปรับสูตรเรียบร้อย!');
     } catch (error) {
       console.error('AI adjustment error:', error);
@@ -237,7 +244,7 @@ export default function Recommendation() {
 
   return (
     <div className="min-h-screen bg-slate-900">
-      {/* Top App Bar (Optional, since it's a card layout) */}
+      {/* Top App Bar */}
       <div className="absolute top-0 left-0 right-0 p-4 pt-8 flex justify-between items-center z-10 max-w-sm mx-auto">
         <button
           onClick={() => navigate(-1)}
@@ -261,36 +268,6 @@ export default function Recommendation() {
             สั่งอาหาร
           </button>
         </div>
-<<<<<<< HEAD
-=======
-
-        <div className="px-3 space-y-4">
-          {/* Menu Header */}
-          <MenuHeader menu={menu} />
-
-          {/* Modifications */}
-          <ModificationList modifications={modifications} />
-
-          {/* Taste Retention */}
-          <TasteRetention percentage={tasteRetention} />
-
-          {/* Action Buttons */}
-          {adjusting ? (
-            <div className="flex items-center justify-center py-8">
-              <Loader2 className="w-8 h-8 animate-spin text-slate-400" />
-              <span className="ml-2 text-slate-500">กำลังปรับสูตร...</span>
-            </div>
-          ) : (
-            <ActionButtons onAdjust={handleAdjust} onOrder={handleOrder} />
-          )}
-
-          {/* AI Prompt Box */}
-          <AiPromptBox
-            onSubmit={handleAiPrompt}
-            disabled={aiLoading}
-          />
-        </div>
->>>>>>> 95b0a3a199ee35716d4a22bd68f79dc1c413c35f
       </div>
 
       {/* The Card */}
@@ -325,18 +302,18 @@ export default function Recommendation() {
               <p className="text-slate-500 text-sm mt-0.5">{displayMenu.name_en}</p>
             </div>
 
-            {/* Floating Action Button (Right edge, overlapping bottom) */}
+            {/* Floating AI Button */}
             {mode === 'cook' && (
               <button
-                onClick={() => setShowIngredientModal(true)}
-                className="absolute -bottom-6 right-6 w-12 h-12 bg-emerald-800 hover:bg-emerald-900 text-white rounded-full flex items-center justify-center shadow-lg transform transition-transform hover:scale-105 z-20"
+                onClick={() => setShowAiModal(true)}
+                className="absolute -bottom-6 right-6 w-12 h-12 bg-gradient-to-br from-violet-600 to-purple-700 hover:from-violet-700 hover:to-purple-800 text-white rounded-full flex items-center justify-center shadow-lg shadow-violet-300/50 transform transition-transform hover:scale-110 z-20"
               >
                 <Icon name="auto_awesome" className="w-6 h-6" />
               </button>
             )}
           </div>
 
-          {/* Bottom Half: Colored Theme Area (The "Bio") */}
+          {/* Bottom Half: Colored Theme Area */}
           <div className="flex-1 px-6 py-6 overflow-y-auto no-scrollbar relative z-0">
 
             {mode === 'cook' ? (
@@ -348,25 +325,47 @@ export default function Recommendation() {
                   ดีต่อสุขภาพยิ่งขึ้น
                 </p>
 
+                {/* Taste retention bar */}
+                <div className="mb-4 bg-emerald-200/50 rounded-2xl p-3">
+                  <div className="flex justify-between items-center mb-1.5">
+                    <span className="text-xs font-bold text-emerald-800">🎯 คงรสชาติ</span>
+                    <span className="text-sm font-black text-emerald-700">{tasteRetention}%</span>
+                  </div>
+                  <div className="h-2 bg-emerald-200 rounded-full overflow-hidden">
+                    <motion.div
+                      className="h-full bg-gradient-to-r from-emerald-500 to-emerald-600 rounded-full"
+                      initial={{ width: 0 }}
+                      animate={{ width: `${tasteRetention}%` }}
+                      transition={{ duration: 0.8, ease: 'easeOut' }}
+                    />
+                  </div>
+                </div>
+
                 <div className="h-px bg-emerald-950/10 w-full mb-4" />
 
                 <div className="space-y-2.5">
                   {modifications.map((mod, idx) => {
-                    // Simple mapping for emojis based on text (simulated AI)
                     let emoji = '✅';
-                    if (mod.includes('น้ำปลา') || mod.includes('โซเดียม')) emoji = '🧂';
-                    else if (mod.includes('ผัก') || mod.includes('มะเขือเทศ')) emoji = '🥦';
+                    if (mod.includes('น้ำปลา') || mod.includes('โซเดียม') || mod.includes('เค็ม')) emoji = '🧂';
+                    else if (mod.includes('ผัก') || mod.includes('มะเขือเทศ') || mod.includes('ออร์แกนิค')) emoji = '🥦';
                     else if (mod.includes('ผงชูรส')) emoji = '🥄';
                     else if (mod.includes('น้ำตาล')) emoji = '🍯';
-                    else if (mod.includes('ไข่') || mod.includes('กุ้ง')) emoji = '🍳';
+                    else if (mod.includes('ไข่') || mod.includes('กุ้ง') || mod.includes('โปรตีน')) emoji = '🍳';
+                    else if (mod.includes('เผ็ด')) emoji = '🌶️';
 
                     return (
-                      <div key={idx} className="flex gap-3 items-start">
+                      <motion.div
+                        key={idx}
+                        initial={{ opacity: 0, x: -10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: idx * 0.1 }}
+                        className="flex gap-3 items-start"
+                      >
                         <span className="text-base leading-tight mt-0.5">{emoji}</span>
                         <span className="text-emerald-900 font-medium text-[15px] leading-snug">
                           {mod}
                         </span>
-                      </div>
+                      </motion.div>
                     );
                   })}
                 </div>
@@ -410,7 +409,7 @@ export default function Recommendation() {
             )}
           </div>
 
-          {/* Soft gradient at bottom of text area to mask scrolling */}
+          {/* Soft gradient at bottom */}
           <div className="absolute bottom-0 left-0 right-0 h-10 bg-gradient-to-t from-emerald-100 to-transparent pointer-events-none rounded-b-[28px]" />
         </div>
       </div>
@@ -418,7 +417,6 @@ export default function Recommendation() {
       {/* Fixed 3 Action Buttons (Tinder Style) */}
       <div className="fixed bottom-6 left-0 right-0 z-50 pointer-events-none">
         <div className="max-w-sm mx-auto flex justify-center items-center gap-6 px-4 pointer-events-auto">
-
           {/* Back/Cancel Button */}
           <button
             onClick={() => navigate(-1)}
@@ -455,6 +453,118 @@ export default function Recommendation() {
         </div>
       </div>
 
-    </div >
+      {/* AI Prompt Modal (Slide-up) */}
+      <AnimatePresence>
+        {showAiModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[60] flex items-end justify-center"
+            onClick={() => !aiLoading && setShowAiModal(false)}
+          >
+            <motion.div
+              initial={{ y: '100%' }}
+              animate={{ y: 0 }}
+              exit={{ y: '100%' }}
+              transition={{ type: 'spring', damping: 28, stiffness: 300 }}
+              className="bg-white rounded-t-3xl w-full max-w-sm"
+              onClick={e => e.stopPropagation()}
+            >
+              {/* Handle bar */}
+              <div className="flex justify-center pt-3 pb-1">
+                <div className="w-10 h-1 bg-slate-200 rounded-full" />
+              </div>
+
+              <div className="px-5 pb-6">
+                {/* Header */}
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center shadow-lg shadow-violet-200">
+                      <Icon name="auto_awesome" className="w-5 h-5 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-bold text-slate-800">ปรับสูตรด้วย AI</h3>
+                      <p className="text-xs text-slate-500">บอก AI ว่าอยากปรับยังไง</p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => !aiLoading && setShowAiModal(false)}
+                    className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center"
+                  >
+                    <Icon name="close" className="w-4 h-4 text-slate-500" />
+                  </button>
+                </div>
+
+                {/* Current menu context */}
+                <div className="bg-slate-50 rounded-2xl p-3 mb-4 flex items-center gap-3">
+                  <img src={menu.image_url} alt={menu.name_th} className="w-12 h-12 rounded-xl object-cover" />
+                  <div className="flex-1 min-w-0">
+                    <p className="font-bold text-sm text-slate-800 truncate">{menu.name_th}</p>
+                    <p className="text-xs text-slate-500">{menu.calories} kcal • โซเดียม: {menu.sodium_level}</p>
+                  </div>
+                </div>
+
+                {/* Quick prompt chips */}
+                <div className="flex flex-wrap gap-2 mb-4">
+                  {quickPrompts.map((qp, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => {
+                        setAiPrompt(qp.prompt);
+                        if (textareaRef.current) textareaRef.current.focus();
+                      }}
+                      disabled={aiLoading}
+                      className="px-3 py-1.5 bg-violet-50 hover:bg-violet-100 text-violet-700 text-xs font-medium rounded-full border border-violet-100 transition-all disabled:opacity-50"
+                    >
+                      {qp.label}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Textarea */}
+                <textarea
+                  ref={textareaRef}
+                  value={aiPrompt}
+                  onChange={(e) => setAiPrompt(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                      e.preventDefault();
+                      handleAiPrompt(aiPrompt);
+                    }
+                  }}
+                  disabled={aiLoading}
+                  placeholder='เช่น "ลดโซเดียมลง ไม่ใส่ผงชูรส" หรือ "เพิ่มโปรตีน เหมาะกับคนออกกำลังกาย"'
+                  rows={3}
+                  className="w-full resize-none rounded-2xl border border-violet-200 bg-white px-4 py-3 text-sm text-slate-700 placeholder:text-slate-400 focus:border-violet-400 focus:outline-none focus:ring-2 focus:ring-violet-200 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                />
+
+                {/* Submit Button */}
+                <button
+                  onClick={() => handleAiPrompt(aiPrompt)}
+                  disabled={aiLoading || !aiPrompt.trim()}
+                  className={`w-full mt-4 py-3.5 rounded-2xl font-semibold text-sm flex items-center justify-center gap-2 transition-all ${aiPrompt.trim() && !aiLoading
+                      ? 'bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white shadow-lg shadow-violet-200 active:scale-[0.98]'
+                      : 'bg-slate-200 text-slate-400 cursor-not-allowed'
+                    }`}
+                >
+                  {aiLoading ? (
+                    <>
+                      <Icon name="progress_activity" className="w-5 h-5 animate-spin" />
+                      กำลังปรับสูตร...
+                    </>
+                  ) : (
+                    <>
+                      <Icon name="auto_awesome" className="w-5 h-5" />
+                      ปรับสูตรด้วย AI
+                    </>
+                  )}
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
   );
 }

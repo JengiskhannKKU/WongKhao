@@ -175,34 +175,33 @@ export default function Home() {
           ))}
         </div>
       </div>
+
+      {/* CTA Button */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.8 }}
+        className="mt-6 mb-8"
+      >
+        <Button
+          onClick={handleStart}
+          className="w-full h-16 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white rounded-2xl shadow-xl shadow-emerald-200 text-lg font-medium"
+        >
+          {userProfile ? 'ไปดูเมนูวันนี้' : 'เริ่มต้นใช้งาน'}
+          <Icon name="chevron_right" className="w-5 h-5 ml-2" />
+        </Button>
+
+        {userProfile && (
+          <div className="mt-4 flex items-center justify-center gap-2 text-sm text-slate-500">
+            <Icon name="favorite" className="w-4 h-4 text-rose-400" filled />
+            <span>Day {userProfile.streak_days || 1} • {userProfile.points || 0} คะแนน</span>
+          </div>
+        )}
+
+        <p className="text-center text-xs text-slate-400 mt-4">
+          ปรับสูตรอาหาร • ลดโซเดียม • ดูแลสุขภาพ
+        </p>
+      </motion.div>
     </div>
-
-      {/* CTA Button */ }
-  <motion.div
-    initial={{ opacity: 0, y: 20 }}
-    animate={{ opacity: 1, y: 0 }}
-    transition={{ delay: 0.8 }}
-    className="mt-6 mb-8"
-  >
-    <Button
-      onClick={handleStart}
-      className="w-full h-16 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white rounded-2xl shadow-xl shadow-emerald-200 text-lg font-medium"
-    >
-      {userProfile ? 'ไปดูเมนูวันนี้' : 'เริ่มต้นใช้งาน'}
-      <Icon name="chevron_right" className="w-5 h-5 ml-2" />
-    </Button>
-
-    {userProfile && (
-      <div className="mt-4 flex items-center justify-center gap-2 text-sm text-slate-500">
-        <Icon name="favorite" className="w-4 h-4 text-rose-400" filled />
-        <span>Day {userProfile.streak_days || 1} • {userProfile.points || 0} คะแนน</span>
-      </div>
-    )}
-
-    <p className="text-center text-xs text-slate-400 mt-4">
-      ปรับสูตรอาหาร • ลดโซเดียม • ดูแลสุขภาพ
-    </p>
-  </motion.div>
-    </div >
-    );
+  );
 }
