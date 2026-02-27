@@ -128,8 +128,7 @@ export default function Discover() {
     try {
       await localStore.entities.MenuSwipe.create({
         menu_id: currentMenu.id,
-        action: action,
-        swipe_time: new Date().toISOString()
+        direction: action,
       });
     } catch (error) {
       console.error('Error logging swipe:', error);
@@ -163,8 +162,8 @@ export default function Discover() {
         </div>
         <ProgressHeader
           streakDays={userProfile?.streak_days || 1}
-          sodiumReduction={userProfile?.sodium_target || 15}
-          targetText={`ลดโซเดียม ${userProfile?.sodium_target || 15}%`}
+          sodiumReduction={userProfile?.sodium_limit || 1500}
+          targetText={`โซเดียม ${userProfile?.sodium_limit || 1500}mg`}
         />
 
         {/* Region Filter */}

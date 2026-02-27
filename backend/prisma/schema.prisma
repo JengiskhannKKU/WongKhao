@@ -13,6 +13,8 @@ model UserProfile {
   age             Int?
   health_goal     String?
   sodium_limit    Int?     @default(1500)
+  streak_days     Int?     @default(1)
+  points          Int?     @default(0)
   created_date    DateTime @default(now())
 }
 
@@ -46,16 +48,21 @@ model MealLog {
   calories        Int?
   meal_type       String?
   logged_date     String?
+  is_modified     Boolean?
+  sodium_saved    Int?
+  points_earned   Int?
   created_date    DateTime @default(now())
 }
 
 model Challenge {
-  id              String   @id @default(cuid())
-  title           String
-  description     String?
-  target_days     Int?
-  reward_points   Int?
-  created_date    DateTime @default(now())
+  id                String   @id @default(cuid())
+  title             String
+  description       String?
+  target_days       Int?
+  reward_points     Int?
+  status            String?  @default("active")
+  participant_count Int?     @default(0)
+  created_date      DateTime @default(now())
 }
 
 model ChallengeParticipant {
@@ -63,6 +70,8 @@ model ChallengeParticipant {
   user_id         String?
   challenge_id    String?
   progress_days   Int?     @default(0)
+  progress        Int?     @default(0)
+  days_completed  Int?     @default(0)
   completed       Boolean? @default(false)
   joined_date     DateTime @default(now())
 }
@@ -74,6 +83,13 @@ model CommunityPost {
   content         String?
   likes           Int?     @default(0)
   image_url       String?
+  menu_name       String?
+  caption         String?
+  sodium_reduced  Int?
+  cheer_count     Int?     @default(0)
+  region          String?
+  province        String?
+  created_by      String?
   created_date    DateTime @default(now())
 }
 
