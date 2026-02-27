@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { localStore } from '@/api/localStore';
+import { localStore } from '@/api/apiStore';
 import { createPageUrl } from '@/utils';
 import ProfileForm from '@/components/onboarding/ProfileForm';
 

@@ -16,6 +16,10 @@ dist
 dist-ssr
 *.local
 
+# SQLite database file
+backend/prisma/*.db
+backend/prisma/*.db-journal
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

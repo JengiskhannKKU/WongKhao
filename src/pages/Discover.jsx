@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { localStore } from '@/api/localStore';
+import { localStore } from '@/api/apiStore';
 import { createPageUrl } from '@/utils';
 import { Sliders } from 'lucide-react';
 
