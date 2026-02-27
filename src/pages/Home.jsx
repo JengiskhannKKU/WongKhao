@@ -74,7 +74,7 @@ export default function Home() {
           </div>
           <div>
             <h1 className="text-xl font-bold text-slate-800">WongKhao</h1>
-            <p className="text-xs text-slate-600">กินดี ชีวิตดี</p>
+            <p className="text-xs text-slate-600">วงข้าว</p>
           </div>
         </motion.div>
 
