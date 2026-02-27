@@ -73,7 +73,7 @@ export default function Home() {
             <Utensils className="w-6 h-6 text-white" />
           </div>
           <div>
-            <h1 className="text-xl font-bold text-slate-800">Fingerprint Foodie</h1>
+            <h1 className="text-xl font-bold text-slate-800">WongKhao</h1>
             <p className="text-xs text-slate-600">กินดี ชีวิตดี</p>
           </div>
         </motion.div>
