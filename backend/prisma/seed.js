@@ -15,11 +15,11 @@ async function main() {
     console.log('Seeding database...');
 
     await upsertMany(prisma.menu, [
-        { id: 'menu1', name: 'ต้มยำกุ้ง', category: 'soup', sodium_mg: 1200, calories: 180, province: 'กรุงเทพ', region: 'central', description: 'ต้มยำกุ้งสูตรดั้งเดิม' },
-        { id: 'menu2', name: 'ส้มตำ', category: 'salad', sodium_mg: 800, calories: 120, province: 'ขอนแก่น', region: 'northeast', description: 'ส้มตำไทยรสจัดจ้าน' },
-        { id: 'menu3', name: 'ข้าวผัด', category: 'rice', sodium_mg: 600, calories: 350, province: 'เชียงใหม่', region: 'north', description: 'ข้าวผัดธรรมดาไข่ดาว' },
-        { id: 'menu4', name: 'แกงเขียวหวาน', category: 'curry', sodium_mg: 950, calories: 280, province: 'กรุงเทพ', region: 'central', description: 'แกงเขียวหวานไก่' },
-        { id: 'menu5', name: 'ปลาทอด', category: 'main', sodium_mg: 450, calories: 220, province: 'สงขลา', region: 'south', description: 'ปลาทอดกระเทียม' },
+        { id: 'menu1', name: 'ต้มยำกุ้ง', category: 'soup', sodium_mg: 1200, calories: 180, image_url: 'https://images.unsplash.com/photo-1559847844-d721426d6edc?w=800&q=80', province: 'กรุงเทพ', region: 'central', description: 'ต้มยำกุ้งสูตรดั้งเดิม' },
+        { id: 'menu2', name: 'ส้มตำ', category: 'salad', sodium_mg: 800, calories: 120, image_url: 'https://images.unsplash.com/photo-1562565652-a0d8f0c59eb4?w=800&q=80', province: 'ขอนแก่น', region: 'northeast', description: 'ส้มตำไทยรสจัดจ้าน' },
+        { id: 'menu3', name: 'ข้าวผัด', category: 'rice', sodium_mg: 600, calories: 350, image_url: 'https://images.unsplash.com/photo-1512058564366-18510be2db19?w=800&q=80', province: 'เชียงใหม่', region: 'north', description: 'ข้าวผัดธรรมดาไข่ดาว' },
+        { id: 'menu4', name: 'แกงเขียวหวาน', category: 'curry', sodium_mg: 950, calories: 280, image_url: 'https://images.unsplash.com/photo-1455619452474-d2be8b1e70cd?w=800&q=80', province: 'กรุงเทพ', region: 'central', description: 'แกงเขียวหวานไก่' },
+        { id: 'menu5', name: 'ปลาทอด', category: 'main', sodium_mg: 450, calories: 220, image_url: 'https://images.unsplash.com/photo-1516714435131-44d6b64dc6a2?w=800&q=80', province: 'สงขลา', region: 'south', description: 'ปลาทอดกระเทียม' },
     ]);
 
     await upsertMany(prisma.challenge, [

@@ -1,6 +1,8 @@
 import React from 'react';
 import { motion, useMotionValue, useTransform } from 'framer-motion';
 
+const fallbackImage = 'https://images.unsplash.com/photo-1559847844-d721426d6edc?w=800&q=80';
+
 export default function MenuCard({ menu, onSwipe }) {
   const x = useMotionValue(0);
   const rotate = useTransform(x, [-200, 0, 200], [-15, 0, 15]);
@@ -60,9 +62,16 @@ export default function MenuCard({ menu, onSwipe }) {
         <div className="relative flex-1 min-h-0">
           <img
             src={menu.image_url}
-            alt={menu.name_th}
+            alt={menu.name_th || menu.name_en || 'menu image'}
             className="w-full h-full object-cover"
             draggable={false}
+            onError={(event) => {
+              if (event.currentTarget.dataset.fallbackApplied === 'true') {
+                return;
+              }
+              event.currentTarget.dataset.fallbackApplied = 'true';
+              event.currentTarget.src = fallbackImage;
+            }}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
 

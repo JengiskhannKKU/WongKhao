@@ -5,12 +5,49 @@ import { localStore } from '@/api/apiStore';
 import { createPageUrl } from '@/utils';
 import { Sliders } from 'lucide-react';
 import { trackSwipeEvent } from '@/api/behaviorAnalytics';
+import { useAuth } from '@/lib/AuthContext';
 
 import MenuCard from '@/components/swipe/MenuCard';
 import SwipeActions from '@/components/swipe/SwipeActions';
 import RegionFilter from '@/components/swipe/RegionFilter';
 import MoodSelector from '@/components/swipe/MoodSelector';
 import ProgressHeader from '@/components/swipe/ProgressHeader';
+
+const fallbackImagesByRegion = {
+  north: 'https://images.unsplash.com/photo-1569562211093-4ed0d0758f12?w=800&q=80',
+  northeast: 'https://images.unsplash.com/photo-1562565652-a0d8f0c59eb4?w=800&q=80',
+  central: 'https://images.unsplash.com/photo-1455619452474-d2be8b1e70cd?w=800&q=80',
+  south: 'https://images.unsplash.com/photo-1516714435131-44d6b64dc6a2?w=800&q=80',
+  default: 'https://images.unsplash.com/photo-1559847844-d721426d6edc?w=800&q=80',
+};
+
+function getSodiumLevel(menu) {
+  if (menu.sodium_level) return menu.sodium_level;
+  if (typeof menu.sodium_mg !== 'number') return 'medium';
+  if (menu.sodium_mg >= 900) return 'high';
+  if (menu.sodium_mg >= 500) return 'medium';
+  return 'low';
+}
+
+function normalizeMenu(menu) {
+  const calories = menu.calories ?? 280;
+  const region = menu.region || 'central';
+
+  return {
+    id: String(menu.id),
+    name_th: menu.name_th || menu.name || 'เมนูอาหารไทย',
+    name_en: menu.name_en || menu.name || 'Thai Dish',
+    region,
+    image_url: menu.image_url || fallbackImagesByRegion[region] || fallbackImagesByRegion.default,
+    spice_level: menu.spice_level ?? 3,
+    health_score: menu.health_score ?? 70,
+    sodium_level: getSodiumLevel(menu),
+    calories,
+    protein: menu.protein ?? Math.max(8, Math.round(calories * 0.08)),
+    carbs: menu.carbs ?? Math.max(12, Math.round(calories * 0.12)),
+    fat: menu.fat ?? Math.max(6, Math.round(calories * 0.05))
+  };
+}
 
 // Sample menus for demo
 const sampleMenus = [
@@ -88,7 +125,8 @@ const sampleMenus = [
 
 export default function Discover() {
   const navigate = useNavigate();
-  const [menus, setMenus] = useState(sampleMenus);
+  const { user: authUser } = useAuth();
+  const [menus, setMenus] = useState(sampleMenus.map(normalizeMenu));
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedRegion, setSelectedRegion] = useState('all');
   const [selectedMood, setSelectedMood] = useState(null);
@@ -110,7 +148,7 @@ export default function Discover() {
       // Load menus from database
       const dbMenus = await localStore.entities.Menu.list();
       if (dbMenus.length > 0) {
-        setMenus(dbMenus);
+        setMenus(dbMenus.map(normalizeMenu));
       }
     } catch (error) {
       console.error('Error loading data:', error);
@@ -125,13 +163,14 @@ export default function Discover() {
   const handleSwipe = async (swipeInput) => {
     const action = typeof swipeInput === 'string' ? swipeInput : swipeInput?.action;
     const source = typeof swipeInput === 'string' ? 'button' : swipeInput?.source || 'button';
+    const currentUserId = userProfile?.id || authUser?.id || null;
     const currentMenu = filteredMenus[currentIndex];
     if (!currentMenu || !action) return;
 
     // Log swipe action
     try {
       await localStore.entities.MenuSwipe.create({
-        user_id: userProfile?.id || null,
+        user_id: currentUserId,
         menu_id: currentMenu.id,
         direction: action,
       });
@@ -140,7 +179,7 @@ export default function Discover() {
     }
 
     void trackSwipeEvent({
-      userId: userProfile?.id,
+      userId: currentUserId,
       menu: currentMenu,
       action,
       source,
