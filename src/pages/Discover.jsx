@@ -122,9 +122,11 @@ export default function Discover() {
     return true;
   });
 
-  const handleSwipe = async (action) => {
+  const handleSwipe = async (swipeInput) => {
+    const action = typeof swipeInput === 'string' ? swipeInput : swipeInput?.action;
+    const source = typeof swipeInput === 'string' ? 'button' : swipeInput?.source || 'button';
     const currentMenu = filteredMenus[currentIndex];
-    if (!currentMenu) return;
+    if (!currentMenu || !action) return;
 
     // Log swipe action
     try {
@@ -141,6 +143,7 @@ export default function Discover() {
       userId: userProfile?.id,
       menu: currentMenu,
       action,
+      source,
       selectedRegion,
       mood: selectedMood
     });
@@ -157,7 +160,10 @@ export default function Discover() {
       const currentMenu = filteredMenus[currentIndex];
       navigate(createPageUrl('Recommendation') + `?menuId=${currentMenu.id}`);
     } else if (actionType === 'like' || actionType === 'dislike' || actionType === 'save') {
-      handleSwipe(actionType === 'save' ? 'save' : actionType);
+      handleSwipe({
+        action: actionType === 'save' ? 'save' : actionType,
+        source: 'button'
+      });
     }
   };
 

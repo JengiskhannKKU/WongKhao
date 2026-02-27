@@ -95,7 +95,7 @@ export async function syncUserProfileToGraph(profile, explicitUserId) {
 }
 
 export async function trackSwipeEvent(payload) {
-  const { userId, menu, action, selectedRegion, mood } = payload || {};
+  const { userId, menu, action, source, selectedRegion, mood } = payload || {};
 
   try {
     const resolvedUserId = await resolveUserId(userId);
@@ -107,6 +107,7 @@ export async function trackSwipeEvent(payload) {
       userId: resolvedUserId,
       menu: toMenuPayload(menu),
       action,
+      source: source || null,
       selectedRegion,
       mood,
       occurredAt: new Date().toISOString(),

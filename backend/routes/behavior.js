@@ -153,7 +153,7 @@ router.post('/user-profile', guardReady, async (req, res) => {
 
 router.post('/swipe', guardReady, async (req, res) => {
   try {
-    const { userId, menu, action, selectedRegion, mood, occurredAt } = req.body || {};
+    const { userId, menu, action, source, selectedRegion, mood, occurredAt } = req.body || {};
 
     if (!userId || !menu?.id || !action) {
       return res.status(400).json({
@@ -171,6 +171,7 @@ router.post('/swipe', guardReady, async (req, res) => {
       SET f += $menu
       CREATE (u)-[:SWIPED {
         action: $action,
+        source: $source,
         selected_region: $selectedRegion,
         mood: $mood,
         occurred_at: datetime($occurredAt)
@@ -180,6 +181,7 @@ router.post('/swipe', guardReady, async (req, res) => {
         userId: String(userId),
         menu: normalizeMenu(menu),
         action: String(action),
+        source: source || null,
         selectedRegion: selectedRegion || null,
         mood: mood || null,
         occurredAt: nowISO(occurredAt),
