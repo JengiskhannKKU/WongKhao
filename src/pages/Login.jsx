@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/lib/AuthContext';
 import { createPageUrl } from '@/utils';
@@ -9,7 +9,9 @@ import { Eye, EyeOff, LogIn } from 'lucide-react';
 
 export default function Login() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { login } = useAuth();
+  const from = location.state?.from?.pathname || createPageUrl('Home');
 
   const [form, setForm] = useState({ email: '', password: '' });
   const [showPassword, setShowPassword] = useState(false);
@@ -30,7 +32,7 @@ export default function Login() {
     setLoading(true);
     try {
       await login(form.email, form.password);
-      navigate(createPageUrl('Home'));
+      navigate(from, { replace: true });
     } catch (err) {
       setError(err.message);
     } finally {

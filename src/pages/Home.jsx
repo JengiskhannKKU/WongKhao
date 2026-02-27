@@ -17,17 +17,13 @@ import {
 
 export default function Home() {
   const navigate = useNavigate();
-  const { isAuthenticated, user } = useAuth();
+  const { user } = useAuth();
   const [userProfile, setUserProfile] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!isAuthenticated) {
-      navigate(createPageUrl('Login'));
-      return;
-    }
     checkProfile();
-  }, [isAuthenticated]);
+  }, []);
 
   const checkProfile = async () => {
     try {
