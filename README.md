@@ -1,39 +1,96 @@
-**Welcome to your Base44 project** 
+# WongKhao
 
-**About**
+Thai food recommendation app (React + Vite) with backend API (Express + Prisma) and Neo4j AuraDB behavior analytics.
 
-View and Edit  your app on [Base44.com](http://Base44.com) 
+## What Neo4j tracks
 
-This project contains everything you need to run your app locally.
+The backend writes user behavior to Neo4j with these graph relations:
 
-**Edit the code in your local development environment**
+- `(:User)-[:SWIPED]->(:Food)`
+- `(:User)-[:ADJUSTED_RECIPE]->(:Food)`
+- `(:User)-[:LOGGED_MEAL]->(:Food)`
+- `(:User)-[:PREFERS_REGION]->(:Region)`
+- `(:User)-[:HAS_GOAL]->(:HealthGoal)`
 
-Any change pushed to the repo will also be reflected in the Base44 Builder.
+Behavior endpoints:
 
-**Prerequisites:** 
+- `POST /api/behavior/user-profile`
+- `POST /api/behavior/swipe`
+- `POST /api/behavior/adjustment`
+- `POST /api/behavior/meal-log`
+- `GET /api/behavior/insights/:userId`
 
-1. Clone the repository using the project's Git URL 
-2. Navigate to the project directory
-3. Install dependencies: `npm install`
-4. Create an `.env.local` file and set the right environment variables
+## Neo4j AuraDB setup
 
+1. Create a Neo4j AuraDB instance at https://console.neo4j.io
+2. Open your instance and copy the **Connection URI**.
+3. URI format must be `neo4j+s://...databases.neo4j.io`.
+4. Username is usually `neo4j`.
+5. Password is the one you set when creating the instance.
+- If forgotten, use Aura console `...` menu -> `Reset credentials`.
+
+Put values in `backend/.env`:
+
+```bash
+PORT=3001
+CORS_ORIGIN=http://localhost:5173
+NEO4J_URI=neo4j+s://xxxxxxxx.databases.neo4j.io
+NEO4J_USERNAME=neo4j
+NEO4J_PASSWORD=your_password
+NEO4J_DATABASE=neo4j
 ```
-VITE_BASE44_APP_ID=your_app_id
-VITE_BASE44_APP_BASE_URL=your_backend_url
 
-e.g.
-VITE_BASE44_APP_ID=cbef744a8545c389ef439ea6
-VITE_BASE44_APP_BASE_URL=https://my-to-do-list-81bfaad7.base44.app
+## Local setup
+
+Frontend env (`.env` at project root):
+
+```bash
+VITE_OPENAI_API_KEY=
+VITE_BACKEND_BASE_URL=http://localhost:3001
+VITE_BEHAVIOR_TRACKING_ENABLED=true
 ```
 
-Run the app: `npm run dev`
+Install and run frontend:
 
-**Publish your changes**
+```bash
+npm install
+npm run dev
+```
 
-Open [Base44.com](http://Base44.com) and click on Publish.
+Install and run backend:
 
-**Docs & Support**
+```bash
+cd backend
+npm install
+npm run dev
+```
 
-Documentation: [https://docs.base44.com/Integrations/Using-GitHub](https://docs.base44.com/Integrations/Using-GitHub)
+## Check Neo4j connection
 
-Support: [https://app.base44.com/support](https://app.base44.com/support)
+Backend health:
+
+```bash
+curl http://localhost:3001/health
+```
+
+You should see:
+
+- `neo4jConfigured: true`
+- `neo4jReady: true`
+
+## Query behavior insights
+
+Get insights for a user:
+
+```bash
+curl http://localhost:3001/api/behavior/insights/<userId>
+```
+
+Response includes:
+
+- swipe breakdown (like/dislike/save)
+- top liked foods
+- top disliked foods
+- preferred regions
+- recipe adjustment patterns
+- meal summary (sodium saved, points earned)

@@ -4,7 +4,9 @@
  * Exports the same `localStore` name so pages don't need to change their import variable.
  */
 
-const BASE_URL = 'http://localhost:3001/api';
+const runtimeEnv = /** @type {Record<string, string | undefined>} */ ((/** @type {any} */ (import.meta)).env || {});
+const API_HOST = runtimeEnv.VITE_BACKEND_BASE_URL || 'http://localhost:3001';
+const BASE_URL = `${API_HOST}/api`;
 
 function createEntity(entityName) {
     return {

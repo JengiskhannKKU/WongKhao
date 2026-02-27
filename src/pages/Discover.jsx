@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence } from 'framer-motion';
 import { localStore } from '@/api/apiStore';
 import { createPageUrl } from '@/utils';
 import { Sliders } from 'lucide-react';
+import { trackSwipeEvent } from '@/api/behaviorAnalytics';
 
 import MenuCard from '@/components/swipe/MenuCard';
 import SwipeActions from '@/components/swipe/SwipeActions';
@@ -123,16 +124,26 @@ export default function Discover() {
 
   const handleSwipe = async (action) => {
     const currentMenu = filteredMenus[currentIndex];
+    if (!currentMenu) return;
 
     // Log swipe action
     try {
       await localStore.entities.MenuSwipe.create({
+        user_id: userProfile?.id || null,
         menu_id: currentMenu.id,
         direction: action,
       });
     } catch (error) {
       console.error('Error logging swipe:', error);
     }
+
+    void trackSwipeEvent({
+      userId: userProfile?.id,
+      menu: currentMenu,
+      action,
+      selectedRegion,
+      mood: selectedMood
+    });
 
     if (currentIndex < filteredMenus.length - 1) {
       setCurrentIndex(currentIndex + 1);
