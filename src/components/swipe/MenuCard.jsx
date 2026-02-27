@@ -11,9 +11,9 @@ export default function MenuCard({ menu, onSwipe }) {
 
   const handleDragEnd = (_, info) => {
     if (info.offset.x > 100) {
-      onSwipe('like');
+      onSwipe({ action: 'like', source: 'drag' });
     } else if (info.offset.x < -100) {
-      onSwipe('dislike');
+      onSwipe({ action: 'dislike', source: 'drag' });
     }
   };
 

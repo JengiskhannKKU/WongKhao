@@ -50,9 +50,11 @@
 import Community from './pages/Community';
 import Discover from './pages/Discover';
 import Home from './pages/Home';
+import Login from './pages/Login';
 import Onboarding from './pages/Onboarding';
 import Profile from './pages/Profile';
 import Recommendation from './pages/Recommendation';
+import Register from './pages/Register';
 import __Layout from './Layout.jsx';
 
 
@@ -60,9 +62,11 @@ export const PAGES = {
     "Community": Community,
     "Discover": Discover,
     "Home": Home,
+    "Login": Login,
     "Onboarding": Onboarding,
     "Profile": Profile,
     "Recommendation": Recommendation,
+    "Register": Register,
 }
 
 export const pagesConfig = {

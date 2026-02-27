@@ -9,6 +9,8 @@ datasource db {
 
 model UserProfile {
   id              String   @id @default(cuid())
+  email           String?  @unique
+  password        String?
   name            String?
   age             Int?
   health_goal     String?

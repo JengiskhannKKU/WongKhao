@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { localStore } from '@/api/apiStore';
 import { createPageUrl } from '@/utils';
+import { useAuth } from '@/lib/AuthContext';
 import { Button } from '@/components/ui/button';
 import {
   Utensils,
@@ -16,6 +17,7 @@ import {
 
 export default function Home() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [userProfile, setUserProfile] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -25,9 +27,9 @@ export default function Home() {
 
   const checkProfile = async () => {
     try {
-      const profiles = await localStore.entities.UserProfile.list();
-      if (profiles.length > 0) {
-        setUserProfile(profiles[0]);
+      const profile = await localStore.entities.UserProfile.get(user.id);
+      if (profile && profile.health_goal) {
+        setUserProfile(profile);
       }
     } catch (error) {
       console.error('Error checking profile:', error);
@@ -154,7 +156,7 @@ export default function Home() {
             onClick={handleStart}
             className="w-full h-16 bg-gradient-to-r from-teal-600 to-teal-700 hover:from-teal-700 hover:to-teal-800 text-white rounded-2xl shadow-xl shadow-teal-200 text-lg font-medium"
           >
-            {userProfile ? 'ไปดูเมนูวันนี้' : 'เริ่มต้นใช้งาน'}
+            {userProfile ? 'ไปดูเมนูวันนี้' : 'ตั้งค่าโปรไฟล์'}
             <ChevronRight className="w-5 h-5 ml-2" />
           </Button>
 

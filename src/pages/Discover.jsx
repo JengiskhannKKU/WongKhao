@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence } from 'framer-motion';
 import { localStore } from '@/api/apiStore';
 import { createPageUrl } from '@/utils';
 import { Sliders } from 'lucide-react';
+import { trackSwipeEvent } from '@/api/behaviorAnalytics';
 
 import MenuCard from '@/components/swipe/MenuCard';
 import SwipeActions from '@/components/swipe/SwipeActions';
@@ -121,18 +122,31 @@ export default function Discover() {
     return true;
   });
 
-  const handleSwipe = async (action) => {
+  const handleSwipe = async (swipeInput) => {
+    const action = typeof swipeInput === 'string' ? swipeInput : swipeInput?.action;
+    const source = typeof swipeInput === 'string' ? 'button' : swipeInput?.source || 'button';
     const currentMenu = filteredMenus[currentIndex];
+    if (!currentMenu || !action) return;
 
     // Log swipe action
     try {
       await localStore.entities.MenuSwipe.create({
+        user_id: userProfile?.id || null,
         menu_id: currentMenu.id,
         direction: action,
       });
     } catch (error) {
       console.error('Error logging swipe:', error);
     }
+
+    void trackSwipeEvent({
+      userId: userProfile?.id,
+      menu: currentMenu,
+      action,
+      source,
+      selectedRegion,
+      mood: selectedMood
+    });
 
     if (currentIndex < filteredMenus.length - 1) {
       setCurrentIndex(currentIndex + 1);
@@ -146,7 +160,10 @@ export default function Discover() {
       const currentMenu = filteredMenus[currentIndex];
       navigate(createPageUrl('Recommendation') + `?menuId=${currentMenu.id}`);
     } else if (actionType === 'like' || actionType === 'dislike' || actionType === 'save') {
-      handleSwipe(actionType === 'save' ? 'save' : actionType);
+      handleSwipe({
+        action: actionType === 'save' ? 'save' : actionType,
+        source: 'button'
+      });
     }
   };
 
