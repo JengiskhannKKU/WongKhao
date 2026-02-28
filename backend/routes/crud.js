@@ -15,17 +15,27 @@ const ENTITY_MAP = {
     ProvinceScore: prisma.provinceScore,
 };
 
+const ENTITY_ORDER_FIELD = {
+    ChallengeParticipant: 'joined_date',
+};
+
 function getModel(entity) {
     const model = ENTITY_MAP[entity];
     if (!model) throw new Error(`Unknown entity: ${entity}`);
     return model;
 }
 
+function getOrderBy(entity) {
+    const field = ENTITY_ORDER_FIELD[entity] || 'created_date';
+    return { [field]: 'desc' };
+}
+
 // GET /api/:entity - list all
 router.get('/:entity', async (req, res) => {
     try {
-        const model = getModel(req.params.entity);
-        const items = await model.findMany({ orderBy: { created_date: 'desc' } });
+        const entity = req.params.entity;
+        const model = getModel(entity);
+        const items = await model.findMany({ orderBy: getOrderBy(entity) });
         res.json(items);
     } catch (e) {
         res.status(400).json({ error: e.message });
@@ -35,12 +45,13 @@ router.get('/:entity', async (req, res) => {
 // GET /api/:entity/filter - filter by query params
 router.get('/:entity/filter', async (req, res) => {
     try {
-        const model = getModel(req.params.entity);
+        const entity = req.params.entity;
+        const model = getModel(entity);
         const where = {};
         for (const [key, val] of Object.entries(req.query)) {
             where[key] = val;
         }
-        const items = await model.findMany({ where, orderBy: { created_date: 'desc' } });
+        const items = await model.findMany({ where, orderBy: getOrderBy(entity) });
         res.json(items);
     } catch (e) {
         res.status(400).json({ error: e.message });

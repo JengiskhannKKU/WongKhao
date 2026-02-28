@@ -4,7 +4,7 @@ import { AnimatePresence } from 'framer-motion';
 import { localStore } from '@/api/apiStore';
 import { createPageUrl } from '@/utils';
 import Icon from '@/components/ui/Icon';
-import { trackSwipeEvent } from '@/api/behaviorAnalytics';
+import { getBehaviorTrackingConfig, trackSwipeEvent } from '@/api/behaviorAnalytics';
 import { useAuth } from '@/lib/AuthContext';
 
 import MenuCard from '@/components/swipe/MenuCard';
@@ -123,15 +123,41 @@ const sampleMenus = [
   }
 ];
 
+const syncStyles = {
+  idle: 'border-slate-200 bg-white text-slate-600',
+  sending: 'border-sky-200 bg-sky-50 text-sky-700',
+  sent: 'border-emerald-200 bg-emerald-50 text-emerald-700',
+  queued: 'border-amber-200 bg-amber-50 text-amber-700',
+  disabled: 'border-slate-200 bg-slate-100 text-slate-600',
+  skipped: 'border-slate-200 bg-slate-100 text-slate-600',
+  error: 'border-rose-200 bg-rose-50 text-rose-700',
+};
+
+const syncIcons = {
+  idle: 'sync',
+  sending: 'sync',
+  sent: 'check_circle',
+  queued: 'schedule',
+  disabled: 'block',
+  skipped: 'warning',
+  error: 'error',
+};
+
 export default function Discover() {
   const navigate = useNavigate();
   const { user: authUser } = useAuth();
+  const trackingConfig = getBehaviorTrackingConfig();
   const [menus, setMenus] = useState(sampleMenus.map(normalizeMenu));
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedRegion, setSelectedRegion] = useState('all');
   const [selectedMood, setSelectedMood] = useState(null);
   const [showMoodSelector, setShowMoodSelector] = useState(false);
   const [userProfile, setUserProfile] = useState(null);
+  const [syncDebug, setSyncDebug] = useState({
+    status: trackingConfig.enabled ? 'idle' : 'disabled',
+    message: trackingConfig.enabled ? 'รอการปัดเพื่อส่งเข้า Neo4j' : 'ปิดการส่งพฤติกรรม (tracking disabled)',
+    at: null,
+  });
 
   useEffect(() => {
     loadData();
@@ -178,14 +204,73 @@ export default function Discover() {
       console.error('Error logging swipe:', error);
     }
 
-    void trackSwipeEvent({
-      userId: currentUserId,
-      menu: currentMenu,
-      action,
-      source,
-      selectedRegion,
-      mood: selectedMood
+    setSyncDebug({
+      status: 'sending',
+      message: `กำลังส่ง ${action} ไป Neo4j...`,
+      at: new Date().toISOString(),
     });
+
+    void (async () => {
+      try {
+        const result = await trackSwipeEvent({
+          userId: currentUserId,
+          menu: currentMenu,
+          action,
+          source,
+          selectedRegion,
+          mood: selectedMood
+        });
+
+        const at = new Date().toISOString();
+        if (result?.status === 'sent') {
+          setSyncDebug({
+            status: 'sent',
+            message: `ส่งสำเร็จ: ${action} (${result.userId || 'unknown user'})`,
+            at,
+          });
+          return;
+        }
+
+        if (result?.status === 'queued') {
+          setSyncDebug({
+            status: 'queued',
+            message: `ส่งไม่สำเร็จ เก็บเข้าคิวไว้: ${action}`,
+            at,
+          });
+          return;
+        }
+
+        if (result?.status === 'disabled') {
+          setSyncDebug({
+            status: 'disabled',
+            message: 'ปิดการส่งพฤติกรรม (tracking disabled)',
+            at,
+          });
+          return;
+        }
+
+        if (result?.status === 'skipped') {
+          setSyncDebug({
+            status: 'skipped',
+            message: `ข้ามการส่ง: ${result.reason || 'unknown reason'}`,
+            at,
+          });
+          return;
+        }
+
+        setSyncDebug({
+          status: 'error',
+          message: 'ไม่ทราบสถานะการส่งไป Neo4j',
+          at,
+        });
+      } catch (error) {
+        setSyncDebug({
+          status: 'error',
+          message: `ส่งผิดพลาด: ${error?.message || 'unknown error'}`,
+          at: new Date().toISOString(),
+        });
+      }
+    })();
 
     if (currentIndex < filteredMenus.length - 1) {
       setCurrentIndex(currentIndex + 1);
@@ -273,6 +358,22 @@ export default function Discover() {
           <p className="text-center text-xs text-slate-500">
             ❌ ปัดซ้าย = ไม่สนใจ • ✅ ปัดขวา = ชอบ
           </p>
+        </div>
+
+        <div className={`rounded-2xl p-3 mt-3 border ${syncStyles[syncDebug.status] || syncStyles.idle}`}>
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-1.5 min-w-0">
+              <Icon
+                name={syncIcons[syncDebug.status] || syncIcons.idle}
+                className={`w-4 h-4 ${syncDebug.status === 'sending' ? 'animate-spin' : ''}`}
+              />
+              <p className="text-xs font-semibold truncate">Neo4j Sync: {syncDebug.status.toUpperCase()}</p>
+            </div>
+            <span className="text-[10px] opacity-80">
+              {syncDebug.at ? new Date(syncDebug.at).toLocaleTimeString('th-TH', { hour12: false }) : '--:--:--'}
+            </span>
+          </div>
+          <p className="text-[11px] mt-1 opacity-90">{syncDebug.message}</p>
         </div>
       </div>
 

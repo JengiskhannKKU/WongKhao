@@ -2,7 +2,9 @@ import React, { createContext, useState, useContext, useCallback } from 'react';
 
 const AuthContext = createContext();
 const STORAGE_KEY = 'wongkhao_user';
-const API = 'http://localhost:3001/api/auth';
+const runtimeEnv = /** @type {Record<string, string | undefined>} */ ((/** @type {any} */ (import.meta)).env || {});
+const API_HOST = (runtimeEnv.VITE_BACKEND_BASE_URL || 'http://localhost:3001').replace(/\/+$/, '');
+const API = `${API_HOST}/api/auth`;
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(() => {

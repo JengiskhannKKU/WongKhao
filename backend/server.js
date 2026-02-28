@@ -10,9 +10,38 @@ dotenv.config();
 
 const app = express();
 const PORT = Number(process.env.PORT || 3001);
-const ORIGIN = process.env.CORS_ORIGIN || /^http:\/\/localhost:\d+$/;
 
-app.use(cors({ origin: ORIGIN }));
+const rawOrigins = process.env.CORS_ORIGIN || '';
+const allowedOrigins = rawOrigins
+    .split(',')
+    .map((value) => value.trim())
+    .filter(Boolean);
+const allowVercelPreviews = process.env.CORS_ALLOW_VERCEL_PREVIEWS === 'true';
+const localhostRegex = /^http:\/\/localhost:\d+$/;
+const vercelPreviewRegex = /^https:\/\/[a-zA-Z0-9-]+\.vercel\.app$/;
+
+const corsOptions = {
+    origin(origin, callback) {
+        // Allow non-browser clients (curl/postman) that send no Origin.
+        if (!origin) {
+            return callback(null, true);
+        }
+
+        const originAllowed =
+            allowedOrigins.includes('*') ||
+            allowedOrigins.includes(origin) ||
+            (!allowedOrigins.length && localhostRegex.test(origin)) ||
+            (allowVercelPreviews && vercelPreviewRegex.test(origin));
+
+        if (originAllowed) {
+            return callback(null, true);
+        }
+
+        return callback(new Error(`CORS blocked origin: ${origin}`));
+    },
+};
+
+app.use(cors(corsOptions));
 app.use(express.json());
 
 app.use('/api/behavior', behaviorRouter);
