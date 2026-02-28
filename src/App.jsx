@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Toaster } from "@/components/ui/toaster"
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClientInstance } from '@/lib/query-client'
@@ -6,6 +7,7 @@ import { pagesConfig } from './pages.config'
 import { BrowserRouter as Router, Route, Routes, Navigate, useLocation } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
+import SplashScreen from '@/components/SplashScreen';
 
 const PUBLIC_PAGES = ['Login', 'Register'];
 
@@ -27,42 +29,46 @@ function ProtectedRoute({ children }) {
 }
 
 function App() {
+  const [splashDone, setSplashDone] = useState(false);
 
   return (
     <AuthProvider>
       <QueryClientProvider client={queryClientInstance}>
-        <Router>
-          <NavigationTracker />
-          <Routes>
-            <Route path="/" element={
-              <ProtectedRoute>
-                <LayoutWrapper currentPageName={mainPageKey}>
-                  <MainPage />
-                </LayoutWrapper>
-              </ProtectedRoute>
-            } />
-            {Object.entries(Pages).map(([path, Page]) => (
-              <Route
-                key={path}
-                path={`/${path}`}
-                element={
-                  PUBLIC_PAGES.includes(path) ? (
-                    <LayoutWrapper currentPageName={path}>
-                      <Page />
-                    </LayoutWrapper>
-                  ) : (
-                    <ProtectedRoute>
+        <SplashScreen onFinish={() => setSplashDone(true)} />
+        {splashDone && (
+          <Router>
+            <NavigationTracker />
+            <Routes>
+              <Route path="/" element={
+                <ProtectedRoute>
+                  <LayoutWrapper currentPageName={mainPageKey}>
+                    <MainPage />
+                  </LayoutWrapper>
+                </ProtectedRoute>
+              } />
+              {Object.entries(Pages).map(([path, Page]) => (
+                <Route
+                  key={path}
+                  path={`/${path}`}
+                  element={
+                    PUBLIC_PAGES.includes(path) ? (
                       <LayoutWrapper currentPageName={path}>
                         <Page />
                       </LayoutWrapper>
-                    </ProtectedRoute>
-                  )
-                }
-              />
-            ))}
-            <Route path="*" element={<PageNotFound />} />
-          </Routes>
-        </Router>
+                    ) : (
+                      <ProtectedRoute>
+                        <LayoutWrapper currentPageName={path}>
+                          <Page />
+                        </LayoutWrapper>
+                      </ProtectedRoute>
+                    )
+                  }
+                />
+              ))}
+              <Route path="*" element={<PageNotFound />} />
+            </Routes>
+          </Router>
+        )}
         <Toaster />
       </QueryClientProvider>
     </AuthProvider>

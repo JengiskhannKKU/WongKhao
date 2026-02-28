@@ -17,11 +17,10 @@ export default function RegionFilter({ selected, onSelect }) {
           key={region.id}
           onClick={() => onSelect(region.id)}
           whileTap={{ scale: 0.95 }}
-          className={`flex items-center gap-1.5 px-4 py-2 rounded-full whitespace-nowrap transition-all ${
-            selected === region.id
-              ? 'bg-teal-600 text-white shadow-lg'
-              : 'bg-white text-slate-700 border border-slate-200'
-          }`}
+          className={`flex items-center gap-1.5 px-4 py-2 rounded-full whitespace-nowrap transition-all ${selected === region.id
+              ? 'bg-emerald-700 text-white shadow-md shadow-emerald-700/20'
+              : 'bg-transparent text-slate-500 border border-slate-200 hover:border-emerald-300'
+            }`}
         >
           <span>{region.emoji}</span>
           <span className="text-sm font-medium">{region.label}</span>

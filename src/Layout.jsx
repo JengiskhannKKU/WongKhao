@@ -1,14 +1,15 @@
-import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { createPageUrl } from '@/utils';
+import Icon from '@/components/ui/Icon';
+import FluidNavBar from '@/components/ui/FluidNavBar';
 import { useAuth } from '@/lib/AuthContext';
 import { Home, Compass, User, Users, LogOut } from 'lucide-react';
-
 const navItems = [
-  { name: 'Home', label: 'หน้าแรก', icon: Home },
-  { name: 'Discover', label: 'ค้นหา', icon: Compass },
-  { name: 'Community', label: 'วงข้าว', icon: Users },
-  { name: 'Profile', label: 'โปรไฟล์', icon: User }
+  { path: 'home', icon: 'home', label: 'หน้าแรก' },
+  { path: 'discover', icon: 'explore', label: 'ค้นหา' },
+  { path: 'community', icon: 'group', label: 'ชุมชน' },
+  { path: 'profile', icon: 'person', label: 'โปรไฟล์' }
 ];
 
 export default function Layout({ children, currentPageName }) {
@@ -28,34 +29,16 @@ export default function Layout({ children, currentPageName }) {
       </main>
 
       {!hideNav && (
-        <nav className="fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-lg border-t border-slate-100 z-50 safe-area-bottom">
-          <div className="max-w-sm mx-auto flex justify-around py-1.5">
-            {navItems.map((item) => {
-              const isActive = currentPageName === item.name;
-              return (
-                <Link
-                  key={item.name}
-                  to={createPageUrl(item.name)}
-                  className={`flex flex-col items-center gap-0.5 px-3 py-2 rounded-xl transition-all ${
-                    isActive
-                      ? 'text-teal-700'
-                      : 'text-slate-500 hover:text-slate-700'
-                  }`}
-                >
-                  <item.icon className={`w-6 h-6 ${isActive ? 'stroke-[2.5]' : ''}`} />
-                  <span className="text-xs font-medium">{item.label}</span>
-                </Link>
-              );
-            })}
-            <button
-              onClick={handleLogout}
-              className="flex flex-col items-center gap-0.5 px-3 py-2 rounded-xl transition-all text-slate-400 hover:text-rose-500"
-            >
-              <LogOut className="w-6 h-6" />
-              <span className="text-xs font-medium">ออกจากระบบ</span>
-            </button>
-          </div>
-        </nav>
+        <>
+          <FluidNavBar navItems={navItems} currentPageName={currentPageName} />
+          {/* Temporary logout button until integrated into profile */}
+          <button
+            onClick={handleLogout}
+            className="fixed top-4 right-4 z-50 p-2 bg-white/80 backdrop-blur-lg rounded-full text-rose-500 shadow-sm border border-slate-100"
+          >
+            <LogOut className="w-5 h-5" />
+          </button>
+        </>
       )}
     </div>
   );

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Users, Clock, Trophy, ChevronRight, Zap, Star } from 'lucide-react';
+import Icon from '@/components/ui/Icon';
 
 const levelColors = {
   1: { bg: 'bg-emerald-100', text: 'text-emerald-700', label: 'ง่าย', ring: 'ring-emerald-200' },
@@ -30,8 +30,8 @@ export default function ChallengeCard({ challenge, onJoin, isJoined, progress })
     >
       {/* Header gradient strip */}
       <div className={`h-1.5 ${challenge.level === 3 ? 'bg-gradient-to-r from-red-400 to-orange-400' :
-          challenge.level === 2 ? 'bg-gradient-to-r from-amber-400 to-yellow-400' :
-            'bg-gradient-to-r from-emerald-400 to-teal-400'
+        challenge.level === 2 ? 'bg-gradient-to-r from-amber-400 to-yellow-400' :
+          'bg-gradient-to-r from-emerald-400 to-teal-400'
         }`} />
 
       <div className="p-4">
@@ -79,15 +79,15 @@ export default function ChallengeCard({ challenge, onJoin, isJoined, progress })
         <div className="flex items-center justify-between mt-3 pt-3 border-t border-slate-50">
           <div className="flex items-center gap-3 text-xs text-slate-500">
             <span className="flex items-center gap-1">
-              <Users className="w-3.5 h-3.5" />
+              <Icon name="group" className="w-3.5 h-3.5" />
               {challenge.participant_count || 0} คน
             </span>
             <span className="flex items-center gap-1">
-              <Clock className="w-3.5 h-3.5" />
+              <Icon name="schedule" className="w-3.5 h-3.5" />
               {daysLeft} วัน
             </span>
             <span className="flex items-center gap-1">
-              <Star className="w-3.5 h-3.5 text-amber-500" />
+              <Icon name="star" className="w-3.5 h-3.5 text-amber-500" />
               {challenge.reward_points || 0} pt
             </span>
           </div>
@@ -98,13 +98,13 @@ export default function ChallengeCard({ challenge, onJoin, isJoined, progress })
               disabled={joining}
               className="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-teal-600 text-white text-xs font-semibold hover:bg-teal-700 transition-all active:scale-95"
             >
-              <Zap className="w-3 h-3" />
+              <Icon name="bolt" className="w-3 h-3" />
               เข้าร่วม
             </button>
           ) : (
             <div className="flex items-center gap-1 text-xs text-teal-600 font-medium">
               ดูรายละเอียด
-              <ChevronRight className="w-3.5 h-3.5" />
+              <Icon name="chevron_right" className="w-3.5 h-3.5" />
             </div>
           )}
         </div>
