@@ -227,7 +227,9 @@ export default function Discover() {
     try {
       // Load user profile
       if (authUser?.id) {
-        const currentProfile = await localStore.entities.UserProfile.get(authUser.id).catch(() => null);
+        const currentProfile = await localStore.entities.UserProfile.get(
+          authUser.id,
+        ).catch(() => null);
         if (currentProfile) {
           setUserProfile(currentProfile);
         }
@@ -404,13 +406,32 @@ export default function Discover() {
     <div className="min-h-screen bg-gradient-to-br from-[#E8F5E9] to-[#FFFFFF] pt-12 pb-24">
       <div className="max-w-sm mx-auto px-4">
         {/* Header */}
-        <div className="mb-4">
-          <h1 className="text-2xl font-bold text-slate-800 mb-1">
-            ค้นหาเมนูวันนี้
-          </h1>
-          <p className="text-sm text-slate-500">
-            ปัดซ้าย-ขวา เพื่อเลือกเมนูที่ชอบ
-          </p>
+        <div className="mb-4 flex items-start justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-slate-800 mb-1">
+              ค้นหาเมนูวันนี้
+            </h1>
+            <p className="text-sm text-slate-500">
+              ปัดซ้าย-ขวา เพื่อเลือกเมนูที่ชอบ
+            </p>
+          </div>
+
+          {/* Premium Stage Indicator */}
+          <div className="flex flex-col items-end">
+            <div className="bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 bg-[length:200%_auto] animate-[gradient_3s_ease-in-out_infinite] text-white px-2.5 py-1 rounded-full flex items-center gap-1 shadow-md shadow-amber-500/30 border border-yellow-300">
+              <Icon
+                name="workspace_premium"
+                className="w-[14px] h-[14px] text-yellow-50 drop-shadow-sm"
+              />
+              <span className="text-[11px] font-bold tracking-widest uppercase">
+                Premium
+              </span>
+            </div>
+            <p className="text-[11px] text-slate-500 font-medium mt-1 pr-1 flex items-center gap-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+              Stage 1: เพิ่งเริ่ม
+            </p>
+          </div>
         </div>
 
         {/* Region Filter */}

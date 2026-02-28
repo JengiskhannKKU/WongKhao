@@ -1,29 +1,29 @@
 /**
  * pages.config.js - Page routing configuration
- * 
+ *
  * This file is AUTO-GENERATED. Do not add imports or modify PAGES manually.
  * Pages are auto-registered when you create files in the ./pages/ folder.
- * 
+ *
  * THE ONLY EDITABLE VALUE: mainPage
  * This controls which page is the landing page (shown when users visit the app).
- * 
+ *
  * Example file structure:
- * 
+ *
  *   import HomePage from './pages/HomePage';
  *   import Dashboard from './pages/Dashboard';
  *   import Settings from './pages/Settings';
- *   
+ *
  *   export const PAGES = {
  *       "HomePage": HomePage,
  *       "Dashboard": Dashboard,
  *       "Settings": Settings,
  *   }
- *   
+ *
  *   export const pagesConfig = {
  *       mainPage: "HomePage",
  *       Pages: PAGES,
  *   };
- * 
+ *
  * Example with Layout (wraps all pages):
  *
  *   import Home from './pages/Home';
@@ -47,32 +47,34 @@
  *
  * The mainPage value must match a key in the PAGES object exactly.
  */
-import Community from './pages/Community';
-import Discover from './pages/Discover';
-import Home from './pages/Home';
-import Login from './pages/Login';
-import Onboarding from './pages/Onboarding';
-import Profile from './pages/Profile';
-import Recommendation from './pages/Recommendation';
-import Register from './pages/Register';
-import MealPlan from './pages/MealPlan';
-import __Layout from './Layout.jsx';
-
+import Community from "./pages/Community";
+import Discover from "./pages/Discover";
+import Home from "./pages/Home";
+import Login from "./pages/Login";
+import Onboarding from "./pages/Onboarding";
+import Profile from "./pages/Profile";
+import Recommendation from "./pages/Recommendation";
+import Register from "./pages/Register";
+import MealPlan from "./pages/MealPlan";
+import CreatePost from "./pages/CreatePost";
+import __Layout from "./Layout.jsx";
 
 export const PAGES = {
-    "Community":      Community,
-    "Discover":       Discover,
-    "Home":           Home,
-    "Login":          Login,
-    "MealPlan":       MealPlan,
-    "Onboarding":     Onboarding,
-    "Profile":        Profile,
-    "Recommendation": Recommendation,
-    "Register":       Register,
-}
+  Community: Community,
+  CreatePost: CreatePost,
+  Discover: Discover,
+  Home: Home,
+  Login: Login,
+  MealPlan: MealPlan,
+  Onboarding: Onboarding,
+  Profile: Profile,
+  Recommendation: Recommendation,
+  Register: Register,
+};
 
 export const pagesConfig = {
-    mainPage: "Home",
-    Pages: PAGES,
-    Layout: __Layout,
-};import CommunityPostDetail from './pages/CommunityPostDetail';
+  mainPage: "Home",
+  Pages: PAGES,
+  Layout: __Layout,
+};
+import CommunityPostDetail from "./pages/CommunityPostDetail";
