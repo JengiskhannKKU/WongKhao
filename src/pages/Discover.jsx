@@ -433,6 +433,62 @@ export default function Discover() {
   const displayedModifications = displayedRecipe?.modifications ?? [];
   const displayedTasteRetention = displayedRecipe?.tasteRetention ?? 85;
 
+  let currentSection = "ingredients";
+  const parsedIngredients = [];
+  const parsedSteps = [];
+
+  displayedModifications.forEach((mod) => {
+    if (mod === "วัตถุดิบ (Bullet Points)" || mod === "วัตถุดิบ" || mod === "วัตถุดิบแนะนำ") {
+      currentSection = "ingredients";
+      return;
+    }
+    if (mod === "ขั้นตอนแบบย่อ" || mod.startsWith("ขั้นตอน")) {
+      currentSection = "steps";
+      return;
+    }
+
+    if (currentSection === "ingredients") {
+      let text = mod.replace(/^[•\-*\d\.]+\s*/, '').trim();
+      let name = text;
+      let amount = "";
+
+      if (text.includes("...")) {
+        const parts = text.split("...");
+        amount = parts.pop().trim();
+        name = parts.join("...").trim();
+      } else {
+        const lastSpace = text.lastIndexOf(" ");
+        if (lastSpace !== -1 && /\d/.test(text.substring(lastSpace))) {
+          amount = text.substring(lastSpace).trim();
+          name = text.substring(0, lastSpace).trim();
+        }
+      }
+
+      let emoji = "🥗";
+      if (name.includes("น้ำปลา") || name.includes("โซเดียม") || name.includes("ซีอิ๊ว") || name.includes("เกลือ")) emoji = "🧂";
+      else if (name.includes("หมู") || name.includes("ไก่") || name.includes("เนื้อ") || name.includes("สะโพก")) emoji = "🥩";
+      else if (name.includes("กะเพรา") || name.includes("โหระพา")) emoji = "🌿";
+      else if (name.includes("มะนาว")) emoji = "🍋";
+      else if (name.includes("กระเทียม")) emoji = "🧄";
+      else if (name.includes("พริก") || name.includes("เผ็ด")) emoji = "🌶️";
+      else if (name.includes("กุ้ง")) emoji = "🦐";
+      else if (name.includes("ปลา") || name.includes("หมึก") || name.includes("ทะเล")) emoji = "🦑";
+      else if (name.includes("ผงชูรส") || name.includes("รสดี") || name.includes("ชูรส")) emoji = "🥄";
+      else if (name.includes("น้ำตาล") || name.includes("หวาน")) emoji = "🍯";
+      else if (name.includes("ไข่")) emoji = "🥚";
+      else if (name.includes("เส้น") || name.includes("ข้าว")) emoji = "🍚";
+      else if (name.includes("น้ำมัน") || name.includes("กะทิ") || name.includes("นม")) emoji = "🥥";
+      else if (name.includes("หัวหอม") || name.includes("หอมแดง")) emoji = "🧅";
+      else if (name.includes("มะเขือเทศ")) emoji = "🍅";
+      else if (name.includes("แครอท")) emoji = "🥕";
+      else if (name.includes("ผัก") || name.includes("กะหล่ำ") || name.includes("คะน้า")) emoji = "🥦";
+
+      parsedIngredients.push({ name, amount, emoji, original: mod });
+    } else {
+      parsedSteps.push(mod);
+    }
+  });
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#E8F5E9] to-[#FFFFFF] pt-12 pb-24">
       <div className="max-w-sm mx-auto px-4">
@@ -480,8 +536,8 @@ export default function Discover() {
               {[1, 2, 3, 4, 5].map((s) => (
                 <div key={s} className="flex flex-col items-center gap-0.5">
                   <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-bold border-2 transition-all ${s < 3 ? 'bg-emerald-500 border-emerald-400 text-white' :
-                      s === 3 ? 'bg-amber-500 border-amber-400 text-white shadow-md shadow-amber-400/40 ring-2 ring-amber-200' :
-                        'bg-slate-100 border-slate-200 text-slate-400'
+                    s === 3 ? 'bg-amber-500 border-amber-400 text-white shadow-md shadow-amber-400/40 ring-2 ring-amber-200' :
+                      'bg-slate-100 border-slate-200 text-slate-400'
                     }`}>
                     {s < 3 ? '✓' : s}
                   </div>
@@ -554,15 +610,7 @@ export default function Discover() {
           </button>
         </div>
 
-        <div className="mt-3">
-          <button
-            onClick={() => handleAction("menu")}
-            className="w-full rounded-2xl border border-cyan-200 bg-cyan-50 px-3 py-2.5 text-xs font-semibold text-cyan-700 flex items-center justify-center gap-1.5"
-          >
-            <Icon name="filter_alt" className="w-4 h-4" />
-            ดูเมนูคล้ายกัน
-          </button>
-        </div>
+
 
         {/* Modifications Result */}
         {(defaultLoading || defaultRecipe) && (
@@ -576,8 +624,8 @@ export default function Discover() {
                   <button
                     onClick={() => setActiveView("default")}
                     className={`flex-1 py-1.5 rounded-lg text-xs font-bold transition-all ${activeView === "default"
-                        ? "bg-white text-emerald-800 shadow-sm"
-                        : "text-emerald-600"
+                      ? "bg-white text-emerald-800 shadow-sm"
+                      : "text-emerald-600"
                       }`}
                   >
                     📖 สูตรต้นตำรับ
@@ -585,8 +633,8 @@ export default function Discover() {
                   <button
                     onClick={() => setActiveView("personalized")}
                     className={`flex-1 py-1.5 rounded-lg text-xs font-bold transition-all ${activeView === "personalized"
-                        ? "bg-white text-violet-700 shadow-sm"
-                        : "text-emerald-600"
+                      ? "bg-white text-violet-700 shadow-sm"
+                      : "text-emerald-600"
                       }`}
                   >
                     ✨ สูตรที่ปรับ
@@ -616,44 +664,86 @@ export default function Discover() {
                 transition={{ duration: 0.2 }}
               >
                 {/* Taste retention bar */}
-                <div className="mb-3 bg-emerald-100/60 rounded-xl p-3">
-                  <div className="flex justify-between items-center mb-1.5">
-                    <span className="text-xs font-bold text-emerald-800">🎯 คงรสชาติ</span>
-                    <span className="text-sm font-black text-emerald-700">{displayedTasteRetention}%</span>
+                <div className="mb-5 mt-1">
+                  <div className="flex justify-between items-center mb-2 px-1">
+                    <span className="text-xs font-bold text-emerald-900">ระดับคงรสชาติดั้งเดิม</span>
+                    <span className="text-xs font-black text-emerald-700">{displayedTasteRetention}%</span>
                   </div>
-                  <div className="h-2 bg-emerald-200 rounded-full overflow-hidden">
-                    <motion.div
-                      className="h-full bg-gradient-to-r from-emerald-500 to-emerald-600 rounded-full"
-                      initial={{ width: 0 }}
-                      animate={{ width: `${displayedTasteRetention}%` }}
-                      transition={{ duration: 0.8, ease: "easeOut" }}
-                    />
+                  <div className="flex items-center bg-white rounded-full p-1 shadow-sm border border-emerald-50">
+                    <div className="w-9 h-9 rounded-full bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-500 flex-shrink-0 z-10">
+                      <Icon name="restaurant_menu" className="w-5 h-5" />
+                    </div>
+                    <div className="flex-1 h-[22px] bg-slate-50 rounded-full mx-1.5 p-1 flex items-center relative overflow-hidden">
+                      <motion.div
+                        className="absolute left-0 top-0 h-full bg-emerald-400 rounded-full"
+                        initial={{ width: 0 }}
+                        animate={{ width: `${displayedTasteRetention}%` }}
+                        transition={{ duration: 0.8, ease: "easeOut" }}
+                      />
+                    </div>
                   </div>
                 </div>
 
-                <div className="space-y-2">
-                  {displayedModifications.map((mod, idx) => {
-                    let emoji = "✅";
-                    if (mod.includes("น้ำปลา") || mod.includes("โซเดียม") || mod.includes("เค็ม")) emoji = "🧂";
-                    else if (mod.includes("ผัก") || mod.includes("ออร์แกนิค")) emoji = "🥦";
-                    else if (mod.includes("ผงชูรส")) emoji = "🥄";
-                    else if (mod.includes("น้ำตาล")) emoji = "🍯";
-                    else if (mod.includes("ไข่") || mod.includes("กุ้ง") || mod.includes("โปรตีน")) emoji = "🍳";
-                    else if (mod.includes("เผ็ด")) emoji = "🌶️";
-                    return (
-                      <motion.div
-                        key={idx}
-                        initial={{ opacity: 0, x: -10 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: idx * 0.05 }}
-                        className="flex gap-2 items-start"
-                      >
-                        <span className="text-sm leading-tight mt-0.5 flex-shrink-0">{emoji}</span>
-                        <span className="text-emerald-900 font-medium text-xs leading-snug">{mod}</span>
-                      </motion.div>
-                    );
-                  })}
-                </div>
+                {parsedIngredients.length > 0 && (
+                  <div className="mb-4">
+                    <h4 className="text-sm font-bold text-emerald-900 mb-3 ml-1">วัตถุดิบ (Ingredients)</h4>
+                    <div className="flex overflow-x-auto gap-2.5 pb-2 scrollbar-hide snap-x">
+                      {parsedIngredients.map((ing, idx) => (
+                        <motion.div
+                          key={idx}
+                          initial={{ opacity: 0, scale: 0.9 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          transition={{ delay: idx * 0.05 }}
+                          className="bg-white rounded-[24px] p-3 shadow-sm border border-emerald-100 flex flex-col items-center justify-center w-[84px] flex-shrink-0 relative overflow-hidden group snap-start"
+                        >
+                          <div className="absolute top-0 inset-x-0 h-1/2 bg-gradient-to-b from-slate-50 to-transparent -z-10" />
+                          <span className="text-[32px] mb-2 drop-shadow-sm group-hover:scale-110 transition-transform">{ing.emoji}</span>
+                          <span className="text-[11px] font-bold text-slate-800 text-center leading-tight line-clamp-2 w-full">{ing.name}</span>
+                          {ing.amount && (
+                            <span className="text-[10px] text-slate-500 font-semibold mt-1.5 flex items-center justify-center -space-x-[1px]">
+                              {ing.amount.startsWith('x') ? ing.amount : `${ing.amount}`}
+                            </span>
+                          )}
+                        </motion.div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {parsedSteps.length > 0 && (
+                  <div>
+                    <h4 className="text-sm font-bold text-emerald-900 mb-3 ml-1 mt-4">ขั้นตอนวิธีทำ (Steps)</h4>
+                    <div className="space-y-3">
+                      {parsedSteps.map((step, idx) => (
+                        <motion.div
+                          key={idx}
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: idx * 0.05 }}
+                          className="bg-white rounded-[20px] p-3 shadow-sm border border-emerald-50 flex gap-3.5 items-start relative overflow-hidden group"
+                        >
+                          <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-bl from-emerald-50 to-transparent rounded-full -translate-y-1/2 translate-x-1/2 opacity-50" />
+
+                          {/* Left Avatar / Icon */}
+                          <div className="w-12 h-12 rounded-[16px] bg-gradient-to-br from-emerald-100 to-teal-50 border border-emerald-100/60 flex flex-col items-center justify-center flex-shrink-0 z-10 shadow-inner">
+                            <span className="text-[10px] font-bold text-emerald-600/70 leading-none mb-0.5">STEP</span>
+                            <span className="text-lg font-black text-emerald-700 leading-none">{idx + 1}</span>
+                          </div>
+
+                          {/* Right Content */}
+                          <div className="flex-1 min-w-0 pt-0.5 z-10">
+                            <div className="flex justify-between items-start mb-0.5">
+                              <span className="font-bold text-slate-800 text-[13px]">ขั้นตอนที่ {idx + 1}</span>
+                            </div>
+                            <p className="text-slate-600 text-[12px] leading-relaxed">
+                              {step.replace(/^\d+\.\s*/, '')}
+                            </p>
+                          </div>
+                        </motion.div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </motion.div>
             )}
           </div>
@@ -694,13 +784,8 @@ export default function Discover() {
         </div>
 
 
-
         {/* Hint */}
-        <div className="bg-white rounded-2xl p-3 mt-4 border border-slate-100">
-          <p className="text-center text-xs text-slate-500">
-            ❌ ปัดซ้าย = ไม่สนใจ • ✅ ปัดขวา = ชอบ
-          </p>
-        </div>
+
 
         <div
           className={`rounded-2xl p-3 mt-3 border ${syncStyles[syncDebug.status] || syncStyles.idle}`}

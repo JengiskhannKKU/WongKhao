@@ -4,7 +4,7 @@ import Icon from '@/components/ui/Icon';
 
 const regions = [
   { value: 'north', label: 'ภาคเหนือ', image: 'https://images.unsplash.com/photo-1671073454416-a037f3211e80?w=300&h=200&fit=crop&q=80' },
-  { value: 'northeast', label: 'ภาคอีสาน', image: 'https://images.unsplash.com/photo-1506509657068-18e3ddddfff7?w=300&h=200&fit=crop&q=80' },
+  { value: 'northeast', label: 'ภาคอีสาน', image: 'https://unsplash.com/photos/village-and-bungalows-along-nam-song-river-in-vang-vieng-laos-2ZyqiH_JPWA' },
   { value: 'central', label: 'ภาคกลาง', image: 'https://images.unsplash.com/photo-1582468546235-9bf31e5bc4a1?w=300&h=200&fit=crop&q=80' },
   { value: 'south', label: 'ภาคใต้', image: 'https://images.unsplash.com/photo-1516690561799-46d8f74f9abf?w=300&h=200&fit=crop&q=80' },
 ];

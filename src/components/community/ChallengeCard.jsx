@@ -13,7 +13,7 @@ export default function ChallengeCard({ challenge, onJoin, isJoined, progress })
   const level = levelColors[challenge.level] || levelColors[1];
 
   const daysLeft = challenge.end_date
-    ? Math.max(0, Math.ceil((new Date(challenge.end_date) - new Date()) / (1000 * 60 * 60 * 24)))
+    ? Math.max(0, Math.ceil((new Date(challenge.end_date).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)))
     : challenge.duration_days || 7;
 
   const handleJoin = async () => {
