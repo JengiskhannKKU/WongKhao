@@ -54,7 +54,7 @@ export default function Login() {
       >
         {/* Logo */}
         <div className="flex items-center gap-3 mb-8">
-          <img src="/wongkhao.png" alt="WongKhao" className="w-12 h-12 rounded-2xl object-contain" />
+          <img src="/logo.png" alt="WongKhao" className="w-12 h-12 rounded-2xl object-contain" />
           <div>
             <h1 className="text-xl font-bold text-slate-800">WongKhao</h1>
             <p className="text-xs text-slate-500">วงข้าว</p>
