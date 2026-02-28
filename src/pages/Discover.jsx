@@ -178,14 +178,21 @@ export default function Discover() {
 
   useEffect(() => {
     loadData();
-  }, []);
+  }, [authUser?.id]);
 
   const loadData = async () => {
     try {
       // Load user profile
-      const profiles = await localStore.entities.UserProfile.list();
-      if (profiles.length > 0) {
-        setUserProfile(profiles[0]);
+      if (authUser?.id) {
+        const currentProfile = await localStore.entities.UserProfile.get(authUser.id).catch(() => null);
+        if (currentProfile) {
+          setUserProfile(currentProfile);
+        }
+      } else {
+        const profiles = await localStore.entities.UserProfile.list();
+        if (profiles.length > 0) {
+          setUserProfile(profiles[0]);
+        }
       }
 
       // Load menus from database
@@ -211,7 +218,7 @@ export default function Discover() {
       typeof swipeInput === "string"
         ? "button"
         : swipeInput?.source || "button";
-    const currentUserId = userProfile?.id || authUser?.id || null;
+    const currentUserId = authUser?.id || userProfile?.id || null;
     const currentMenu = filteredMenus[currentIndex];
     if (!currentMenu || !action) return;
 
@@ -302,9 +309,14 @@ export default function Discover() {
   };
 
   const handleAction = (actionType) => {
-    if (actionType === "swap") {
+    if (actionType === "swap" || actionType === "recipe") {
       const currentMenu = filteredMenus[currentIndex];
       navigate(createPageUrl("Recommendation") + `?menuId=${currentMenu.id}`);
+    } else if (actionType === "menu") {
+      const currentMenu = filteredMenus[currentIndex];
+      if (!currentMenu?.region) return;
+      setSelectedRegion(currentMenu.region);
+      setCurrentIndex(0);
     } else if (
       actionType === "like" ||
       actionType === "dislike" ||
@@ -381,6 +393,23 @@ export default function Discover() {
         {/* Actions */}
         <div className="mt-6">
           <SwipeActions onAction={handleAction} />
+        </div>
+
+        <div className="mt-3 grid grid-cols-2 gap-2">
+          <button
+            onClick={() => handleAction("recipe")}
+            className="rounded-2xl border border-violet-200 bg-violet-50 px-3 py-2.5 text-xs font-semibold text-violet-700 flex items-center justify-center gap-1.5"
+          >
+            <Icon name="restaurant_menu" className="w-4 h-4" />
+            ดูสูตรเมนูนี้
+          </button>
+          <button
+            onClick={() => handleAction("menu")}
+            className="rounded-2xl border border-cyan-200 bg-cyan-50 px-3 py-2.5 text-xs font-semibold text-cyan-700 flex items-center justify-center gap-1.5"
+          >
+            <Icon name="filter_alt" className="w-4 h-4" />
+            ดูเมนูคล้ายกัน
+          </button>
         </div>
 
         {/* Hint */}
