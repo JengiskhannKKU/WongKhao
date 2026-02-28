@@ -3,17 +3,35 @@ import { motion } from 'framer-motion';
 import Icon from '@/components/ui/Icon';
 
 const regions = [
-  { value: 'north', label: 'ภาคเหนือ', image: 'https://images.unsplash.com/photo-1552632230-10901fd5fb8b?w=300&h=200&fit=crop&q=80' },
-  { value: 'northeast', label: 'ภาคอีสาน', image: 'https://images.unsplash.com/photo-1628867389140-5e608027aeb8?w=300&h=200&fit=crop&q=80' },
+  { value: 'north', label: 'ภาคเหนือ', image: 'https://images.unsplash.com/photo-1671073454416-a037f3211e80?w=300&h=200&fit=crop&q=80' },
+  { value: 'northeast', label: 'ภาคอีสาน', image: 'https://images.unsplash.com/photo-1506509657068-18e3ddddfff7?w=300&h=200&fit=crop&q=80' },
   { value: 'central', label: 'ภาคกลาง', image: 'https://images.unsplash.com/photo-1582468546235-9bf31e5bc4a1?w=300&h=200&fit=crop&q=80' },
   { value: 'south', label: 'ภาคใต้', image: 'https://images.unsplash.com/photo-1516690561799-46d8f74f9abf?w=300&h=200&fit=crop&q=80' },
 ];
 
 const healthGoals = [
+  // พื้นฐาน
   { value: 'reduce_sodium', label: 'ลดโซเดียม', icon: 'water_drop', color: 'bg-blue-100 text-blue-700' },
   { value: 'lose_weight', label: 'ลดน้ำหนัก', icon: 'local_fire_department', color: 'bg-orange-100 text-orange-700' },
   { value: 'eat_clean', label: 'กินคลีน', icon: 'eco', color: 'bg-emerald-100 text-emerald-700' },
   { value: 'heart_health', label: 'ดูแลหัวใจ', icon: 'favorite', color: 'bg-rose-100 text-rose-700' },
+
+  // กลุ่มควบคุมโรค/ค่าเลือด
+  { value: 'control_sugar', label: 'ควบคุมน้ำตาล', icon: 'bloodtype', color: 'bg-red-100 text-red-700' },
+  { value: 'reduce_cholesterol', label: 'ลดไขมันในเลือด', icon: 'monitor_heart', color: 'bg-pink-100 text-pink-700' },
+  { value: 'kidney_care', label: 'ดูแลไต', icon: 'medical_services', color: 'bg-purple-100 text-purple-700' },
+
+  // กลุ่ม Body Composition
+  { value: 'build_muscle', label: 'เพิ่มกล้ามเนื้อ', icon: 'fitness_center', color: 'bg-indigo-100 text-indigo-700' },
+  { value: 'maintain_weight', label: 'รักษาน้ำหนัก', icon: 'balance', color: 'bg-teal-100 text-teal-700' },
+
+  // กลุ่ม Gut & Energy
+  { value: 'gut_health', label: 'ดูแลลำไส้', icon: 'coronavirus', color: 'bg-lime-100 text-lime-700' },
+  { value: 'boost_energy', label: 'เพิ่มพลังงาน', icon: 'bolt', color: 'bg-yellow-100 text-yellow-700' },
+
+  // กลุ่ม Specific Nutrition
+  { value: 'high_protein', label: 'เพิ่มโปรตีน', icon: 'set_meal', color: 'bg-amber-100 text-amber-700' },
+  { value: 'calcium', label: 'เสริมแคลเซียม', icon: 'accessibility_new', color: 'bg-cyan-100 text-cyan-700' },
 ];
 
 const spiceLevels = [
@@ -41,8 +59,11 @@ const genders = [
 const primaryGoals = [
   { value: 'lose_weight', label: 'ลดน้ำหนัก', icon: 'trending_down', color: 'bg-orange-100 text-orange-700' },
   { value: 'build_muscle', label: 'เพิ่มกล้ามเนื้อ', icon: 'fitness_center', color: 'bg-indigo-100 text-indigo-700' },
+  { value: 'maintain_weight', label: 'รักษาน้ำหนัก', icon: 'balance', color: 'bg-teal-100 text-teal-700' },
   { value: 'stay_healthy', label: 'ดูแลสุขภาพทั่วไป', icon: 'spa', color: 'bg-emerald-100 text-emerald-700' },
   { value: 'control_disease', label: 'ควบคุมโรค', icon: 'medical_services', color: 'bg-rose-100 text-rose-700' },
+  { value: 'boost_energy', label: 'เพิ่มพลังงาน', icon: 'bolt', color: 'bg-yellow-100 text-yellow-700' },
+  { value: 'maternity_health', label: 'สุขภาพแม่และเด็ก', icon: 'pregnant_woman', color: 'bg-pink-100 text-pink-700' },
 ];
 
 const chronicDiseaseOptions = [
@@ -99,7 +120,7 @@ function calcAge(birthday) {
   let age = today.getFullYear() - birth.getFullYear();
   const m = today.getMonth() - birth.getMonth();
   if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
-  return age > 0 ? age : '';
+  return age >= 0 ? age : '';
 }
 
 export default function ProfileForm({ onSubmit }) {
@@ -226,12 +247,12 @@ export default function ProfileForm({ onSubmit }) {
   };
 
   const canProceed = () => {
-    if (step === 0) return formData.full_name.trim() !== '' && formData.birthday !== '';
-    if (step === 1) return (formData.age || computedAge) && formData.gender && formData.height_cm && formData.weight_kg;
+    if (step === 0) return formData.full_name.trim() !== '' && formData.birthday !== '' && computedAge !== '';
+    if (step === 1) return computedAge !== '' && formData.gender !== '' && formData.height_cm !== '' && formData.weight_kg !== '';
     if (step === 2) return formData.activity_level !== '';
-    if (step === 3) return formData.region !== '';
-    if (step === 4) return formData.health_goals.length > 0;
-    // Steps 5-9 are all optional / have defaults
+    if (step === 3) return formData.health_goals.length > 0;
+    if (step === 8) return formData.region !== ''; // Region is now the last step
+    // Steps 4-7 are all optional / have defaults or no strict validation needed to proceed
     return true;
   };
 
@@ -255,7 +276,7 @@ export default function ProfileForm({ onSubmit }) {
       <p className="text-slate-500 text-sm mt-2 leading-relaxed">ระบุชื่อและอีเมลให้ WongKhao ปรับค่าทางโภชนาการให้เหมาะกับความต้องการของคุณ</p>
       <div className="space-y-4 mt-6">
         <div>
-          <label className="block text-sm font-bold text-slate-700 mb-2 px-1">ชื่อ - นามสกุล หรือชื่อเล่น</label>
+          <label className="block text-sm font-bold text-slate-700 mb-2 px-1">ชื่อเล่น</label>
           <input
             type="text"
             value={formData.full_name}
@@ -392,53 +413,34 @@ export default function ProfileForm({ onSubmit }) {
       </div>
     </motion.div>,
 
-    // Step 3: Region
-    <motion.div key="region" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-4">
-      <h2 className="text-2xl font-bold text-emerald-700">คุณอยู่ภาคไหน?</h2>
-      <p className="text-slate-500 text-sm mt-2 leading-relaxed">เราจะแนะนำเมนูท้องถิ่นที่เหมาะกับคุณ</p>
-      <div className="grid grid-cols-2 gap-4 mt-6">
-        {regions.map(r => (
-          <button
-            key={r.value}
-            onClick={() => setFormData(prev => ({ ...prev, region: r.value }))}
-            className={`p-3 rounded-2xl border text-center transition-all overflow-hidden ${formData.region === r.value
-              ? 'border-emerald-500 bg-emerald-50 shadow-sm ring-2 ring-emerald-100'
-              : 'border-slate-200 bg-slate-50 hover:bg-slate-100'
-              }`}
-          >
-            <div className="w-full aspect-video rounded-xl overflow-hidden mb-3">
-              <img src={r.image} alt={r.label} className="w-full h-full object-cover" />
-            </div>
-            <p className={`font-bold text-lg ${formData.region === r.value ? 'text-emerald-700' : 'text-slate-700'}`}>{r.label}</p>
-          </button>
-        ))}
-      </div>
-    </motion.div>,
-
-    // Step 4: Health Goals
+    // Step 3: Health Goals (Moved up)
     <motion.div key="goals" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-4">
       <h2 className="text-2xl font-bold text-emerald-700">เป้าหมายสุขภาพ</h2>
       <p className="text-slate-500 text-sm mt-2 leading-relaxed">เลือกได้มากกว่า 1 ข้อ</p>
-      <div className="space-y-3 mt-6">
-        {healthGoals.map(goal => {
-          const selected = formData.health_goals.includes(goal.value);
-          return (
-            <button
-              key={goal.value}
-              onClick={() => toggleHealthGoal(goal.value)}
-              className={`w-full p-4 rounded-2xl border flex items-center gap-4 transition-all ${selected
-                ? 'border-emerald-500 bg-emerald-50 shadow-sm'
-                : 'border-slate-200 bg-slate-50 hover:bg-slate-100'
-                }`}
-            >
-              <div className={`w-12 h-12 rounded-xl ${goal.color} flex items-center justify-center`}>
-                <Icon name={goal.icon} className="w-6 h-6" />
-              </div>
-              <span className={`font-bold text-lg ${selected ? 'text-emerald-700' : 'text-slate-700'}`}>{goal.label}</span>
-              {selected && <span className="ml-auto text-emerald-600 text-xl font-bold">✓</span>}
-            </button>
-          );
-        })}
+
+      {/* Scrollable container for the many goals */}
+      <div className="space-y-3 mt-6 max-h-[45vh] overflow-y-auto pr-2 no-scrollbar">
+        <div className="grid grid-cols-1 gap-3 pb-4">
+          {healthGoals.map(goal => {
+            const selected = formData.health_goals.includes(goal.value);
+            return (
+              <button
+                key={goal.value}
+                onClick={() => toggleHealthGoal(goal.value)}
+                className={`w-full p-4 rounded-2xl border flex items-center gap-4 transition-all ${selected
+                  ? 'border-emerald-500 bg-emerald-50 shadow-sm'
+                  : 'border-slate-200 bg-slate-50 hover:bg-slate-100'
+                  }`}
+              >
+                <div className={`w-12 h-12 rounded-xl ${goal.color} flex items-center justify-center shrink-0`}>
+                  <Icon name={goal.icon} className="w-6 h-6" />
+                </div>
+                <span className={`font-bold text-lg text-left ${selected ? 'text-emerald-700' : 'text-slate-700'}`}>{goal.label}</span>
+                {selected && <span className="ml-auto text-emerald-600 text-xl font-bold shrink-0">✓</span>}
+              </button>
+            );
+          })}
+        </div>
       </div>
     </motion.div>,
 
@@ -467,59 +469,7 @@ export default function ProfileForm({ onSubmit }) {
       </div>
     </motion.div>,
 
-    // =====================================================
-    // Step 6: ข้อมูลร่างกายเพิ่มเติม (Extra Body Metrics)
-    // =====================================================
-    <motion.div key="body-extra" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-4">
-      <h2 className="text-2xl font-bold text-emerald-700">ข้อมูลร่างกายเพิ่มเติม</h2>
-      <p className="text-slate-500 text-sm mt-2 leading-relaxed">ข้อมูลเพิ่มเติมเพื่อการวิเคราะห์ที่แม่นยำยิ่งขึ้น (ไม่บังคับ)</p>
 
-      {/* Auto-calculated stats */}
-      <div className="grid grid-cols-2 gap-3 mt-4">
-        <div className="flex items-center gap-3 p-3 rounded-2xl bg-emerald-50 border border-emerald-100">
-          <div className="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center">
-            <Icon name="monitor_weight" className="w-5 h-5 text-emerald-600" />
-          </div>
-          <div>
-            <p className="text-xs text-slate-500">BMI</p>
-            <p className="text-lg font-bold text-emerald-700">{bmi || '—'}</p>
-          </div>
-        </div>
-        <div className="flex items-center gap-3 p-3 rounded-2xl bg-blue-50 border border-blue-100">
-          <div className="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center">
-            <Icon name="local_fire_department" className="w-5 h-5 text-blue-600" />
-          </div>
-          <div>
-            <p className="text-xs text-slate-500">BMR</p>
-            <p className="text-lg font-bold text-blue-700">{bmr || '—'} <span className="text-xs font-normal">kcal</span></p>
-          </div>
-        </div>
-      </div>
-
-      <div className="space-y-4 mt-4">
-        <div>
-          <label className="block text-sm font-bold text-slate-700 mb-2 px-1">รอบเอว (ซม.)</label>
-          <input
-            type="number"
-            value={formData.waist_cm}
-            onChange={(e) => setFormData({ ...formData, waist_cm: e.target.value })}
-            placeholder="เช่น 80"
-            className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl focus:border-emerald-500 focus:bg-white focus:outline-none text-slate-700 placeholder-slate-400"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-bold text-slate-700 mb-2 px-1">% ไขมันในร่างกาย</label>
-          <input
-            type="number"
-            step="0.1"
-            value={formData.body_fat_pct}
-            onChange={(e) => setFormData({ ...formData, body_fat_pct: e.target.value })}
-            placeholder="เช่น 25.0"
-            className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl focus:border-emerald-500 focus:bg-white focus:outline-none text-slate-700 placeholder-slate-400"
-          />
-        </div>
-      </div>
-    </motion.div>,
 
     // =====================================================
     // Step 7: เป้าหมายสุขภาพ (Primary Goal & Targets)
@@ -706,6 +656,29 @@ export default function ProfileForm({ onSubmit }) {
           placeholder="เช่น Warfarin (ห้ามกินผักสีเขียวเยอะ)"
           className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl focus:border-emerald-500 focus:bg-white focus:outline-none text-slate-700 placeholder-slate-400 text-sm"
         />
+      </div>
+    </motion.div>,
+
+    // Step 9: Region (Moved to end)
+    <motion.div key="region" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-4">
+      <h2 className="text-2xl font-bold text-emerald-700">คุณอยู่ภาคไหน?</h2>
+      <p className="text-slate-500 text-sm mt-2 leading-relaxed">เราจะแนะนำเมนูท้องถิ่นที่เหมาะกับคุณ</p>
+      <div className="grid grid-cols-2 gap-4 mt-6">
+        {regions.map(r => (
+          <button
+            key={r.value}
+            onClick={() => setFormData(prev => ({ ...prev, region: r.value }))}
+            className={`p-3 rounded-2xl border text-center transition-all overflow-hidden ${formData.region === r.value
+              ? 'border-emerald-500 bg-emerald-50 shadow-sm ring-2 ring-emerald-100'
+              : 'border-slate-200 bg-slate-50 hover:bg-slate-100'
+              }`}
+          >
+            <div className="w-full aspect-video rounded-xl overflow-hidden mb-3">
+              <img src={r.image} alt={r.label} className="w-full h-full object-cover" />
+            </div>
+            <p className={`font-bold text-lg ${formData.region === r.value ? 'text-emerald-700' : 'text-slate-700'}`}>{r.label}</p>
+          </button>
+        ))}
       </div>
     </motion.div>,
   ];

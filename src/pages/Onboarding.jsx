@@ -15,11 +15,13 @@ export default function Onboarding() {
     setLoading(true);
     try {
       const profileData = {
-        health_goal: Array.isArray(formData.health_goals) ? formData.health_goals[0] || null : null,
+        health_goal: Array.isArray(formData.health_goals) ? formData.health_goals[0] || null : formData.primary_goal || null,
         sodium_limit: 1500,
         points: 0,
         streak_days: 1,
-        // Health profile fields
+        // The rest of the fields are commented out to prevent backend errors 
+        // since the SQLite database schema hasn't been pushed yet.
+        /*
         birthday: formData.birthday || null,
         waist_cm: formData.waist_cm || null,
         body_fat_pct: formData.body_fat_pct || null,
@@ -31,6 +33,7 @@ export default function Onboarding() {
         food_allergies: formData.food_allergies || null,
         religious_restrictions: formData.religious_restrictions || null,
         medications_affecting_diet: formData.medications_affecting_diet || null,
+        */
       };
 
       const savedProfile = await localStore.entities.UserProfile.update(user.id, profileData);

@@ -5,8 +5,6 @@ import { localStore } from '@/api/apiStore';
 import { createPageUrl } from '@/utils';
 import { useAuth } from '@/lib/AuthContext';
 import Icon from '@/components/ui/Icon';
-import StoryRow from '@/components/feed/StoryRow';
-import CreatePostPrompt from '@/components/feed/CreatePostPrompt';
 import FeedPostCard from '@/components/feed/FeedPostCard';
 
 // Demo feed data — shows recipe posts from users who cooked swiped recipes
@@ -110,6 +108,22 @@ export default function Home() {
   const { user } = useAuth();
   const [userProfile, setUserProfile] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState('foryou');
+  const [activeCategory, setActiveCategory] = useState('ทั้งหมด');
+
+  const categories = [
+    { id: 'all', label: 'All', icon: '✨' },
+    { id: 'fruits', label: 'Fruits', icon: '🍎' },
+    { id: 'bread', label: 'Bread', icon: '🍞' },
+    { id: 'vegetable', label: 'Vegetable', icon: '🥬' },
+    { id: 'fish', label: 'Fish', icon: '🐟' },
+    { id: 'meat', label: 'Meat', icon: '🍖' },
+    { id: 'drinks', label: 'Drinks', icon: '🥤' },
+    { id: 'seafood', label: 'Sea Food', icon: '🐙' },
+    { id: 'ice_cream', label: 'Ice cream', icon: '🍦' },
+    { id: 'juice', label: 'Juice', icon: '🍹' },
+    { id: 'jam', label: 'Jam', icon: '🍓' },
+  ];
 
   useEffect(() => {
     checkProfile();
@@ -144,67 +158,104 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-100">
-      {/* Top App Bar — sticky like Facebook */}
-      <div className="sticky top-0 z-30 bg-white shadow-sm">
-        <div className="max-w-lg mx-auto flex items-center justify-between px-4 py-2.5">
-          <h1 className="text-2xl font-extrabold text-emerald-700 tracking-tight" style={{ fontFamily: "'Kanit', sans-serif" }}>
-            วงข้าว
-          </h1>
-          <div className="flex items-center gap-1">
+    <div className="min-h-screen bg-slate-50">
+      {/* Top App Bar — Lemon8 Style Header */}
+      <div className="sticky top-0 z-30 bg-white pb-3 shadow-sm rounded-b-3xl">
+        <div className="max-w-lg mx-auto">
+          {/* Top Row: User/Scan + Tabs + Search */}
+          <div className="flex items-center justify-between px-4 pt-3 pb-2">
+            <button
+              onClick={() => navigate(createPageUrl('Profile'))}
+              className="w-8 h-8 flex items-center justify-center text-slate-800"
+            >
+
+            </button>
+
+            {/* Title / Tabs */}
+            <div className="flex items-center gap-6">
+              <button
+                onClick={() => setActiveTab('following')}
+                className={`text-[16px] font-medium transition-colors ${activeTab === 'following' ? 'text-slate-800' : 'text-slate-400'}`}
+              >
+                อาหารที่คุณชอบ
+              </button>
+              <button
+                onClick={() => setActiveTab('foryou')}
+                className={`text-[16px] font-bold relative transition-colors ${activeTab === 'foryou' ? 'text-slate-800' : 'text-slate-400'}`}
+              >
+                สำหรับคุณ
+                {activeTab === 'foryou' && (
+                  <motion.div layoutId="tab-indicator" className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-4 h-[3px] bg-slate-800 rounded-full" />
+                )}
+              </button>
+            </div>
+
             <button
               onClick={() => navigate(createPageUrl('Discover'))}
-              className="w-9 h-9 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 hover:bg-slate-200 transition-colors"
+              className="w-8 h-8 flex items-center justify-center text-slate-800"
             >
-              <Icon name="search" className="w-5 h-5" />
+              <Icon name="search" className="w-6 h-6" />
             </button>
-            <button className="w-9 h-9 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 hover:bg-slate-200 transition-colors relative">
-              <Icon name="notifications" className="w-5 h-5" />
-              <div className="absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white" />
-            </button>
+          </div>
+
+
+
+          {/* Square Category Cards Row */}
+          <div className="flex px-4 gap-3 overflow-x-auto no-scrollbar py-2">
+            {categories.map((cat) => (
+              <button
+                key={cat.id}
+                onClick={() => setActiveCategory(cat.id)}
+                className={`flex flex-col items-center justify-center min-w-[76px] h-[84px] rounded-[20px] transition-all shadow-sm shrink-0 border
+                  ${activeCategory === cat.id
+                    ? 'border-emerald-500 bg-emerald-50 ring-1 ring-emerald-500'
+                    : 'border-slate-100 bg-white hover:bg-slate-50'
+                  }`}
+              >
+                <span className="text-[28px] mb-1.5 leading-none">{cat.icon}</span>
+                <span className={`text-[12px] font-medium ${activeCategory === cat.id ? 'text-emerald-700 font-bold' : 'text-slate-600'}`}>
+                  {cat.label}
+                </span>
+              </button>
+            ))}
           </div>
         </div>
       </div>
 
-      <div className="max-w-lg mx-auto">
-        {/* Create Post Prompt */}
-        <CreatePostPrompt
-          userName={userProfile?.display_name || user?.displayName}
-        />
-
-        {/* Stories */}
-        <div className="bg-white mt-2 border-b border-slate-100">
-          <StoryRow />
+      <div className="max-w-lg mx-auto px-4 py-4">
+        {/* Lemon8 Style Masonry Feed */}
+        <div className="columns-2 gap-3 space-y-3">
+          {demoFeedPosts.map((post, idx) => (
+            <motion.div
+              key={post.id}
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: idx * 0.05, duration: 0.3 }}
+              className="break-inside-avoid"
+            >
+              <FeedPostCard post={post} />
+            </motion.div>
+          ))}
         </div>
-
-        {/* Spacer */}
-        <div className="h-2" />
-
-        {/* Feed */}
-        {demoFeedPosts.map((post, idx) => (
-          <motion.div
-            key={post.id}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: idx * 0.1, duration: 0.3 }}
-          >
-            <FeedPostCard post={post} />
-          </motion.div>
-        ))}
 
         {/* End of feed message */}
         <div className="flex flex-col items-center py-8 text-slate-400">
-          <Icon name="check_circle" className="w-10 h-10 mb-2 text-slate-300" />
-          <p className="text-sm font-medium">คุณดูครบทุกโพสต์แล้ว</p>
-          <p className="text-xs mt-1">เลื่อน swipe เมนูเพิ่มเพื่อสร้างสูตรใหม่!</p>
-          <button
-            onClick={() => navigate(createPageUrl('Discover'))}
-            className="mt-4 bg-emerald-600 text-white px-5 py-2 rounded-full text-sm font-semibold hover:bg-emerald-700 transition-colors shadow-md shadow-emerald-200"
-          >
-            ไปค้นหาเมนู
-          </button>
+          <Icon name="check_circle" className="w-8 h-8 mb-2 text-slate-300" />
+          <p className="text-sm font-medium">ไม่มีโพสต์เพิ่มเติม</p>
         </div>
       </div>
+
+      {/* Add CSS to hide scrollbar */}
+      <style dangerouslySetInnerHTML={{
+        __html: `
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+      `}} />
     </div>
   );
 }
