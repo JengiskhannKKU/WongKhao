@@ -4,10 +4,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { localStore } from '@/api/apiStore';
 import { createPageUrl } from '@/utils';
 import Icon from '@/components/ui/Icon';
-import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { adjustRecipeByAI } from '@/lib/openai';
 import { trackAdjustmentEvent, trackMealLogEvent } from '@/api/behaviorAnalytics';
+import { useAuth } from '@/lib/AuthContext';
 
 // Sample menu for demo
 const sampleMenu = {
@@ -50,6 +50,7 @@ const quickPrompts = [
 
 export default function Recommendation() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [mode, setMode] = useState('cook'); // 'cook' | 'order'
   const [menu, setMenu] = useState(sampleMenu);
   const [loading, setLoading] = useState(false);
@@ -171,7 +172,16 @@ export default function Recommendation() {
     if (!prompt.trim()) return;
     setAiLoading(true);
     try {
-      const result = await adjustRecipeByAI(menu, prompt);
+      let currentProfile = null;
+      if (user?.id) {
+        currentProfile = await localStore.entities.UserProfile.get(user.id).catch(() => null);
+      }
+      if (!currentProfile) {
+        const profiles = await localStore.entities.UserProfile.list().catch(() => []);
+        currentProfile = profiles[0] || null;
+      }
+
+      const result = await adjustRecipeByAI(menu, prompt, currentProfile);
       setModifications(result.modifications);
       setTasteRetention(result.tasteRetention);
       void trackAdjustmentEvent({
@@ -191,10 +201,6 @@ export default function Recommendation() {
     } finally {
       setAiLoading(false);
     }
-  };
-
-  const handleOrder = () => {
-    toast.success('กำลังนำคุณไปยังร้านค้า...');
   };
 
   const handleLogMeal = async () => {
