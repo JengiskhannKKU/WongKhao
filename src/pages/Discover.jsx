@@ -303,6 +303,13 @@ export default function Discover() {
         user_id: currentUserId,
         menu_id: currentMenu.id,
         direction: action,
+        // Store menu details inline for profile display
+        menu_name_th: currentMenu.name_th,
+        menu_name_en: currentMenu.name_en,
+        menu_image_url: currentMenu.image_url,
+        menu_region: currentMenu.region,
+        menu_calories: currentMenu.calories,
+        menu_sodium_level: currentMenu.sodium_level,
       });
     } catch (error) {
       console.error("Error logging swipe:", error);

@@ -162,13 +162,26 @@ function buildProfilePayload(form, currentProfile, authUser) {
 async function fetchRecentSwipes(userId) {
   const [swipes, menus] = await Promise.all([
     localStore.entities.MenuSwipe.list(),
-    localStore.entities.Menu.list(),
+    localStore.entities.Menu.list().catch(() => []),
   ]);
   const menuMap = new Map(menus.map((menu) => [String(menu.id), menu]));
   return swipes
     .filter((swipe) => String(swipe.user_id || '') === String(userId))
     .sort((a, b) => new Date(b.created_date || 0) - new Date(a.created_date || 0))
-    .map((swipe) => ({ ...swipe, menu: menuMap.get(String(swipe.menu_id || '')) || null }))
+    .map((swipe) => {
+      // Try Menu entity first, then use inline menu data from swipe record
+      const menuFromDb = menuMap.get(String(swipe.menu_id || ''));
+      const menu = menuFromDb || (swipe.menu_name_th ? {
+        id: swipe.menu_id,
+        name_th: swipe.menu_name_th,
+        name_en: swipe.menu_name_en,
+        image_url: swipe.menu_image_url,
+        region: swipe.menu_region,
+        calories: swipe.menu_calories,
+        sodium_level: swipe.menu_sodium_level,
+      } : null);
+      return { ...swipe, menu };
+    })
     .filter((swipe) => swipe.menu);
 }
 
@@ -502,8 +515,8 @@ export default function Profile() {
                 {[1, 2, 3, 4, 5].map((s) => (
                   <div key={s} className="flex flex-col items-center gap-0.5">
                     <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-bold border-2 transition-all ${s < 3 ? 'bg-emerald-500 border-emerald-400 text-white' :
-                        s === 3 ? 'bg-amber-500 border-amber-400 text-white shadow-md shadow-amber-400/40 ring-2 ring-amber-200' :
-                          'bg-slate-100 border-slate-200 text-slate-400'
+                      s === 3 ? 'bg-amber-500 border-amber-400 text-white shadow-md shadow-amber-400/40 ring-2 ring-amber-200' :
+                        'bg-slate-100 border-slate-200 text-slate-400'
                       }`}>
                       {s < 3 ? '✓' : s}
                     </div>
