@@ -456,25 +456,77 @@ export default function Profile() {
           transition={{ duration: 0.35 }}
           className="relative overflow-hidden rounded-[28px] border border-[#e2e7e0] bg-white px-5 py-5 shadow-[0_12px_32px_rgba(35,65,51,0.06)]"
         >
-          <div className="flex items-center gap-4">
-            {/* Avatar */}
-            <div className="flex h-[72px] w-[72px] items-center justify-center rounded-[20px] border border-[#e4ece8] bg-gradient-to-br from-emerald-200/55 via-emerald-100/80 to-white text-2xl font-bold text-emerald-800 shadow-[0_8px_18px_rgba(16,101,73,0.14)]">
-              {getInitial(profileName)}
-            </div>
-            <div className="flex-1 min-w-0">
-              <h1 className="text-lg font-bold text-slate-800 line-clamp-1">{profileName}</h1>
-              <p className="text-sm text-slate-500 line-clamp-1">{user?.email || 'ไม่มีอีเมล'}</p>
-              <div className="flex items-center gap-2 mt-1.5">
-                <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 border border-emerald-200 px-2 py-0.5 text-[11px] font-semibold text-emerald-700">
-                  <Icon name={currentGoal.icon} className="w-3 h-3" />
-                  {currentGoal.label}
-                </span>
-                <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 border border-amber-200 px-2 py-0.5 text-[11px] font-semibold text-amber-700">
-                  <Icon name="star" className="w-3 h-3" />
-                  {profile?.points || 0} คะแนน
-                </span>
+          {/* Top row: Avatar + info left, Premium badge right */}
+          <div className="flex items-start justify-between gap-3">
+            <div className="flex items-center gap-3 min-w-0 flex-1">
+              {/* Avatar */}
+              <div className="flex h-[64px] w-[64px] items-center justify-center rounded-[18px] border border-[#e4ece8] bg-gradient-to-br from-emerald-200/55 via-emerald-100/80 to-white text-2xl font-bold text-emerald-800 shadow-[0_8px_18px_rgba(16,101,73,0.14)] flex-shrink-0">
+                {getInitial(profileName)}
+              </div>
+              <div className="min-w-0">
+                <h1 className="text-lg font-bold text-slate-800 line-clamp-1">{profileName}</h1>
+                <p className="text-sm text-slate-500 line-clamp-1">{user?.email || 'ไม่มีอีเมล'}</p>
               </div>
             </div>
+
+            {/* Premium Badge — golden animated */}
+            <div className="relative flex-shrink-0">
+              <div className="bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 bg-[length:200%_auto] animate-[gradient_3s_ease-in-out_infinite] text-white px-4 py-1.5 rounded-full flex items-center justify-center gap-1.5 shadow-lg shadow-amber-400/40 border border-yellow-300">
+                <Icon name="workspace_premium" className="text-[20px] leading-none text-yellow-50 drop-shadow-sm flex-shrink-0" />
+                <span className="text-[13px] font-extrabold tracking-widest uppercase leading-none">Premium</span>
+              </div>
+              {/* Glow effect */}
+              <div className="absolute inset-0 rounded-full bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-400 opacity-30 blur-md -z-10" />
+            </div>
+          </div>
+
+          {/* Stage of Change Card — Stage 3: Preparation */}
+          <div className="mt-3 relative overflow-hidden rounded-2xl bg-gradient-to-r from-amber-50 via-orange-50 to-amber-50 border border-amber-200/80 p-3.5">
+            {/* Decorative background */}
+            <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-amber-200/30 to-transparent rounded-full -translate-y-1/2 translate-x-1/2" />
+
+            <div className="relative z-10 flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3 min-w-0">
+                {/* Stage number circle */}
+                <div className="w-11 h-11 rounded-full bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center shadow-md shadow-amber-400/30 flex-shrink-0">
+                  <span className="text-white text-lg font-black leading-none">3</span>
+                </div>
+                <div className="min-w-0">
+                  <p className="text-[13px] font-extrabold text-amber-900 leading-tight">ขั้นเตรียมพร้อม</p>
+                  <p className="text-[11px] text-amber-700/70 font-medium leading-tight mt-0.5">Preparation</p>
+                </div>
+              </div>
+
+              {/* Step progress dots */}
+              <div className="flex items-center gap-1.5 flex-shrink-0">
+                {[1, 2, 3, 4, 5].map((s) => (
+                  <div key={s} className="flex flex-col items-center gap-0.5">
+                    <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-bold border-2 transition-all ${s < 3 ? 'bg-emerald-500 border-emerald-400 text-white' :
+                        s === 3 ? 'bg-amber-500 border-amber-400 text-white shadow-md shadow-amber-400/40 ring-2 ring-amber-200' :
+                          'bg-slate-100 border-slate-200 text-slate-400'
+                      }`}>
+                      {s < 3 ? '✓' : s}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Stats row */}
+          <div className="flex items-center gap-2 mt-3">
+            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 border border-emerald-200 px-2.5 py-1 text-[11px] font-semibold text-emerald-700">
+              <Icon name={currentGoal.icon} className="w-3.5 h-3.5" />
+              {currentGoal.label}
+            </span>
+            <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 border border-amber-200 px-2.5 py-1 text-[11px] font-semibold text-amber-700">
+              <Icon name="star" className="w-3.5 h-3.5" />
+              {profile?.points || 0} คะแนน
+            </span>
+            <span className="inline-flex items-center gap-1 rounded-full bg-cyan-50 border border-cyan-200 px-2.5 py-1 text-[11px] font-semibold text-cyan-700">
+              <Icon name="local_fire_department" className="w-3.5 h-3.5" />
+              {profile?.streak_days || 1} วัน
+            </span>
           </div>
 
           {/* Edit + Logout buttons */}

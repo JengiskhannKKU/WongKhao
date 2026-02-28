@@ -447,21 +447,47 @@ export default function Discover() {
             </p>
           </div>
 
-          {/* Premium Stage Indicator */}
-          <div className="flex flex-col items-end">
-            <div className="bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 bg-[length:200%_auto] animate-[gradient_3s_ease-in-out_infinite] text-white px-3 py-1 rounded-full flex items-center justify-center gap-1 shadow-md shadow-amber-500/30 border border-yellow-300">
-              <Icon
-                name="workspace_premium"
-                className="text-[18px] leading-none text-yellow-50 drop-shadow-sm flex-shrink-0"
-              />
-              <span className="text-[12px] font-extrabold tracking-widest uppercase leading-none">
-                Premium
-              </span>
+          {/* Premium Badge — golden animated */}
+          <div className="relative flex-shrink-0">
+            <div className="bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 bg-[length:200%_auto] animate-[gradient_3s_ease-in-out_infinite] text-white px-4 py-1.5 rounded-full flex items-center justify-center gap-1.5 shadow-lg shadow-amber-400/40 border border-yellow-300">
+              <Icon name="workspace_premium" className="text-[20px] leading-none text-yellow-50 drop-shadow-sm flex-shrink-0" />
+              <span className="text-[13px] font-extrabold tracking-widest uppercase leading-none">Premium</span>
             </div>
-            <p className="text-[13px] text-slate-700 font-bold mt-1.5 pr-1 flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-              Stage 1: เพิ่งเริ่ม
-            </p>
+            {/* Glow effect */}
+            <div className="absolute inset-0 rounded-full bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-400 opacity-30 blur-md -z-10" />
+          </div>
+        </div>
+
+        {/* Stage of Change Card — Stage 3: Preparation */}
+        <div className="mb-4 relative overflow-hidden rounded-2xl bg-gradient-to-r from-amber-50 via-orange-50 to-amber-50 border border-amber-200/80 p-3.5">
+          {/* Decorative background */}
+          <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-amber-200/30 to-transparent rounded-full -translate-y-1/2 translate-x-1/2" />
+
+          <div className="relative z-10 flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3 min-w-0">
+              {/* Stage number circle */}
+              <div className="w-11 h-11 rounded-full bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center shadow-md shadow-amber-400/30 flex-shrink-0">
+                <span className="text-white text-lg font-black leading-none">3</span>
+              </div>
+              <div className="min-w-0">
+                <p className="text-[13px] font-extrabold text-amber-900 leading-tight">ขั้นเตรียมพร้อม</p>
+                <p className="text-[11px] text-amber-700/70 font-medium leading-tight mt-0.5">Preparation</p>
+              </div>
+            </div>
+
+            {/* Step progress dots */}
+            <div className="flex items-center gap-1.5 flex-shrink-0">
+              {[1, 2, 3, 4, 5].map((s) => (
+                <div key={s} className="flex flex-col items-center gap-0.5">
+                  <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-bold border-2 transition-all ${s < 3 ? 'bg-emerald-500 border-emerald-400 text-white' :
+                      s === 3 ? 'bg-amber-500 border-amber-400 text-white shadow-md shadow-amber-400/40 ring-2 ring-amber-200' :
+                        'bg-slate-100 border-slate-200 text-slate-400'
+                    }`}>
+                    {s < 3 ? '✓' : s}
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
 
@@ -549,21 +575,19 @@ export default function Discover() {
                 <div className="flex bg-emerald-100 rounded-xl p-0.5 gap-0.5 w-full">
                   <button
                     onClick={() => setActiveView("default")}
-                    className={`flex-1 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                      activeView === "default"
+                    className={`flex-1 py-1.5 rounded-lg text-xs font-bold transition-all ${activeView === "default"
                         ? "bg-white text-emerald-800 shadow-sm"
                         : "text-emerald-600"
-                    }`}
+                      }`}
                   >
                     📖 สูตรต้นตำรับ
                   </button>
                   <button
                     onClick={() => setActiveView("personalized")}
-                    className={`flex-1 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                      activeView === "personalized"
+                    className={`flex-1 py-1.5 rounded-lg text-xs font-bold transition-all ${activeView === "personalized"
                         ? "bg-white text-violet-700 shadow-sm"
                         : "text-emerald-600"
-                    }`}
+                      }`}
                   >
                     ✨ สูตรที่ปรับ
                   </button>

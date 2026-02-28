@@ -45,13 +45,13 @@ export default function MenuCard({ menu, onSwipe }) {
     >
       {/* Swipe indicators */}
       <motion.div
-        className="absolute top-6 right-6 z-10 bg-emerald-500 text-white px-4 py-2 rounded-xl font-bold text-lg border-2 border-white shadow-lg"
+        className="absolute top-6 left-6 z-10 bg-emerald-500 text-white px-4 py-2 rounded-xl font-bold text-lg border-2 border-white shadow-lg"
         style={{ opacity: likeOpacity, rotate: -12 }}
       >
         ชอบ ✓
       </motion.div>
       <motion.div
-        className="absolute top-6 left-6 z-10 bg-red-500 text-white px-4 py-2 rounded-xl font-bold text-lg border-2 border-white shadow-lg"
+        className="absolute top-6 right-6 z-10 bg-red-500 text-white px-4 py-2 rounded-xl font-bold text-lg border-2 border-white shadow-lg"
         style={{ opacity: dislikeOpacity, rotate: 12 }}
       >
         ✗ ไม่สน
