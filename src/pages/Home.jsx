@@ -348,9 +348,9 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Banner 2: Profile (Meal Plan) */}
+          {/* Banner 2: Meal Plan */}
           <div
-            onClick={() => navigate(createPageUrl("Profile"))}
+            onClick={() => navigate(createPageUrl("MealPlan"))}
             className="cursor-pointer bg-[#d27519] hover:bg-[#b86616] transition-colors rounded-[24px] p-5 text-white flex relative overflow-hidden shadow-lg min-h-[170px]"
           >
             {/* Background shape */}

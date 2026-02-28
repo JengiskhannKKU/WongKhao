@@ -1,12 +1,15 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { AnimatePresence } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
+import { toast } from "sonner";
+import { adjustRecipeByAI } from "@/lib/openai";
 import { localStore } from "@/api/apiStore";
 import { createPageUrl } from "@/utils";
 import Icon from "@/components/ui/Icon";
 import {
   getBehaviorTrackingConfig,
   trackSwipeEvent,
+  trackAdjustmentEvent,
 } from "@/api/behaviorAnalytics";
 import { useAuth } from "@/lib/AuthContext";
 
@@ -138,6 +141,13 @@ const sampleMenus = [
   },
 ];
 
+const quickPrompts = [
+  { label: "🧂 ลดเค็ม", prompt: "ลดโซเดียมลงให้มากที่สุด แต่ยังคงรสชาติ" },
+  { label: "💪 เพิ่มโปรตีน", prompt: "เพิ่มโปรตีนให้เหมาะกับคนออกกำลังกาย" },
+  { label: "🌿 คลีน", prompt: "ทำให้เป็นสูตรคลีน ไม่ใส่ผงชูรส ไม่ใส่น้ำตาล" },
+  { label: "👶 เด็กกินได้", prompt: "ปรับสูตรให้เด็กกินได้ ลดเผ็ด ลดเค็ม" },
+];
+
 const syncStyles = {
   idle: "border-slate-200 bg-white text-slate-600",
   sending: "border-sky-200 bg-sky-50 text-sky-700",
@@ -168,6 +178,14 @@ export default function Discover() {
   const [selectedMood, setSelectedMood] = useState(null);
   const [showMoodSelector, setShowMoodSelector] = useState(false);
   const [userProfile, setUserProfile] = useState(null);
+  const [modifications, setModifications] = useState([]);
+  const [tasteRetention, setTasteRetention] = useState(85);
+  const [impacts, setImpacts] = useState({ sodium: -22, sugar: -15, calories: -10, bp_risk: -6 });
+  const [aiPrompt, setAiPrompt] = useState("");
+  const [aiLoading, setAiLoading] = useState(false);
+  const [defaultLoading, setDefaultLoading] = useState(false);
+  const [showAiInput, setShowAiInput] = useState(false);
+  const textareaRef = useRef(null);
   const [syncDebug, setSyncDebug] = useState({
     status: trackingConfig.enabled ? "idle" : "disabled",
     message: trackingConfig.enabled
@@ -179,6 +197,31 @@ export default function Discover() {
   useEffect(() => {
     loadData();
   }, [authUser?.id]);
+
+  useEffect(() => {
+    setModifications([]);
+    setTasteRetention(85);
+    setShowAiInput(false);
+    setAiPrompt("");
+
+    const menu = filteredMenus[currentIndex];
+    if (!menu) return;
+
+    let cancelled = false;
+    setDefaultLoading(true);
+
+    adjustRecipeByAI(menu, "แสดงสูตรอาหารต้นตำรับพร้อมส่วนผสมและวิธีทำแบบดั้งเดิม", userProfile)
+      .then((result) => {
+        if (!cancelled) {
+          setModifications(result.modifications);
+          setTasteRetention(result.tasteRetention);
+        }
+      })
+      .catch((err) => console.error("Default recipe error:", err))
+      .finally(() => { if (!cancelled) setDefaultLoading(false); });
+
+    return () => { cancelled = true; };
+  }, [currentIndex, selectedRegion]);
 
   const loadData = async () => {
     try {
@@ -310,10 +353,36 @@ export default function Discover() {
     }
   };
 
+  const handleAiPrompt = async (prompt) => {
+    if (!prompt.trim() || !currentMenu) return;
+    setAiLoading(true);
+    try {
+      const result = await adjustRecipeByAI(currentMenu, prompt, userProfile);
+      setModifications(result.modifications);
+      setTasteRetention(result.tasteRetention);
+      void trackAdjustmentEvent({
+        menu: currentMenu,
+        adjustType: "ai_prompt",
+        source: "ai",
+        prompt,
+        impacts,
+        tasteRetention: result.tasteRetention,
+      });
+      setAiPrompt("");
+      setShowAiInput(false);
+      toast.success("AI ปรับสูตรเรียบร้อย!");
+    } catch (error) {
+      console.error("AI adjustment error:", error);
+      toast.error("ไม่สามารถปรับสูตรด้วย AI ได้ กรุณาลองใหม่");
+    } finally {
+      setAiLoading(false);
+    }
+  };
+
   const handleAction = (actionType) => {
-    if (actionType === "swap" || actionType === "recipe") {
-      const currentMenu = filteredMenus[currentIndex];
-      navigate(createPageUrl("Recommendation") + `?menuId=${currentMenu.id}`);
+    if (actionType === "swap") {
+      setShowAiInput(true);
+      setTimeout(() => textareaRef.current?.focus(), 100);
     } else if (actionType === "menu") {
       const currentMenu = filteredMenus[currentIndex];
       if (!currentMenu?.region) return;
@@ -416,22 +485,182 @@ export default function Discover() {
           <SwipeActions onAction={handleAction} />
         </div>
 
-        <div className="mt-3 grid grid-cols-2 gap-2">
-          <button
-            onClick={() => handleAction("recipe")}
-            className="rounded-2xl border border-violet-200 bg-violet-50 px-3 py-2.5 text-xs font-semibold text-violet-700 flex items-center justify-center gap-1.5"
-          >
-            <Icon name="restaurant_menu" className="w-4 h-4" />
-            ดูสูตรเมนูนี้
-          </button>
+        <div className="mt-3">
           <button
             onClick={() => handleAction("menu")}
-            className="rounded-2xl border border-cyan-200 bg-cyan-50 px-3 py-2.5 text-xs font-semibold text-cyan-700 flex items-center justify-center gap-1.5"
+            className="w-full rounded-2xl border border-cyan-200 bg-cyan-50 px-3 py-2.5 text-xs font-semibold text-cyan-700 flex items-center justify-center gap-1.5"
           >
             <Icon name="filter_alt" className="w-4 h-4" />
             ดูเมนูคล้ายกัน
           </button>
         </div>
+
+        {/* Modifications Result */}
+        {(defaultLoading || modifications.length > 0) && (
+          <div className="mt-3 bg-emerald-50 rounded-2xl border border-emerald-100 px-4 py-4">
+            <h3 className="text-sm font-bold text-emerald-800 mb-3">
+              {defaultLoading ? "กำลังโหลดสูตรอาหาร..." : "สูตรอาหาร ✨"}
+            </h3>
+
+            {defaultLoading && (
+              <div className="space-y-2.5">
+                {[1, 2, 3, 4].map((i) => (
+                  <div key={i} className="flex gap-2 items-start animate-pulse">
+                    <div className="w-4 h-4 bg-emerald-200 rounded-full flex-shrink-0 mt-0.5" />
+                    <div className={`h-3 bg-emerald-200 rounded-full ${i % 2 === 0 ? "w-3/4" : "w-full"}`} />
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {!defaultLoading && (
+              <>
+                {/* Taste retention bar */}
+                <div className="mb-3 bg-emerald-100/60 rounded-xl p-3">
+                  <div className="flex justify-between items-center mb-1.5">
+                    <span className="text-xs font-bold text-emerald-800">🎯 คงรสชาติ</span>
+                    <span className="text-sm font-black text-emerald-700">{tasteRetention}%</span>
+                  </div>
+                  <div className="h-2 bg-emerald-200 rounded-full overflow-hidden">
+                    <motion.div
+                      className="h-full bg-gradient-to-r from-emerald-500 to-emerald-600 rounded-full"
+                      initial={{ width: 0 }}
+                      animate={{ width: `${tasteRetention}%` }}
+                      transition={{ duration: 0.8, ease: "easeOut" }}
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  {modifications.map((mod, idx) => {
+                    let emoji = "✅";
+                    if (mod.includes("น้ำปลา") || mod.includes("โซเดียม") || mod.includes("เค็ม")) emoji = "🧂";
+                    else if (mod.includes("ผัก") || mod.includes("ออร์แกนิค")) emoji = "🥦";
+                    else if (mod.includes("ผงชูรส")) emoji = "🥄";
+                    else if (mod.includes("น้ำตาล")) emoji = "🍯";
+                    else if (mod.includes("ไข่") || mod.includes("กุ้ง") || mod.includes("โปรตีน")) emoji = "🍳";
+                    else if (mod.includes("เผ็ด")) emoji = "🌶️";
+                    return (
+                      <motion.div
+                        key={idx}
+                        initial={{ opacity: 0, x: -10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: idx * 0.05 }}
+                        className="flex gap-2 items-start"
+                      >
+                        <span className="text-sm leading-tight mt-0.5 flex-shrink-0">{emoji}</span>
+                        <span className="text-emerald-900 font-medium text-xs leading-snug">{mod}</span>
+                      </motion.div>
+                    );
+                  })}
+                </div>
+              </>
+            )}
+          </div>
+        )}
+
+        {/* Inline AI Recipe Section */}
+        <div className="mt-3 bg-white rounded-2xl border border-slate-100 overflow-hidden">
+          <div className="px-4 pt-4 pb-3">
+            <div className="flex items-center gap-2 mb-3">
+              <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center flex-shrink-0">
+                <Icon name="auto_awesome" className="w-4 h-4 text-white" />
+              </div>
+              <div>
+                <h3 className="text-sm font-bold text-slate-800">ปรับสูตรด้วย AI</h3>
+                <p className="text-xs text-slate-500">บอก AI ว่าอยากปรับยังไง</p>
+              </div>
+            </div>
+
+            {/* Current menu context */}
+            {currentMenu && (
+              <div className="bg-slate-50 rounded-xl p-3 mb-3 flex items-center gap-3">
+                <img
+                  src={currentMenu.image_url}
+                  alt={currentMenu.name_th}
+                  className="w-10 h-10 rounded-lg object-cover flex-shrink-0"
+                />
+                <div className="flex-1 min-w-0">
+                  <p className="font-bold text-sm text-slate-800 truncate">{currentMenu.name_th}</p>
+                  <p className="text-xs text-slate-500">{currentMenu.calories} kcal • โซเดียม: {currentMenu.sodium_level}</p>
+                </div>
+              </div>
+            )}
+
+            {/* Quick prompt chips */}
+            <div className="flex flex-wrap gap-2 mb-3">
+              {quickPrompts.map((qp, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => {
+                    setAiPrompt(qp.prompt);
+                    setShowAiInput(true);
+                    setTimeout(() => textareaRef.current?.focus(), 100);
+                  }}
+                  disabled={aiLoading}
+                  className="px-3 py-1.5 bg-violet-50 hover:bg-violet-100 text-violet-700 text-xs font-medium rounded-full border border-violet-100 transition-all disabled:opacity-50"
+                >
+                  {qp.label}
+                </button>
+              ))}
+            </div>
+
+            {/* Toggle textarea button */}
+            {!showAiInput && (
+              <button
+                onClick={() => setShowAiInput(true)}
+                className="w-full py-2.5 rounded-xl border border-violet-200 text-violet-600 text-xs font-medium flex items-center justify-center gap-1.5 hover:bg-violet-50 transition-colors"
+              >
+                <Icon name="edit" className="w-3.5 h-3.5" />
+                พิมพ์คำขอของคุณเอง
+              </button>
+            )}
+
+            {/* Textarea + submit */}
+            {showAiInput && (
+              <>
+                <textarea
+                  ref={textareaRef}
+                  value={aiPrompt}
+                  onChange={(e) => setAiPrompt(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && !e.shiftKey) {
+                      e.preventDefault();
+                      handleAiPrompt(aiPrompt);
+                    }
+                  }}
+                  disabled={aiLoading}
+                  placeholder='เช่น "ลดโซเดียมลง ไม่ใส่ผงชูรส" หรือ "เพิ่มโปรตีน"'
+                  rows={3}
+                  className="w-full resize-none rounded-xl border border-violet-200 bg-white px-4 py-3 text-sm text-slate-700 placeholder:text-slate-400 focus:border-violet-400 focus:outline-none focus:ring-2 focus:ring-violet-100 transition-all disabled:opacity-50"
+                />
+                <button
+                  onClick={() => handleAiPrompt(aiPrompt)}
+                  disabled={aiLoading || !aiPrompt.trim()}
+                  className={`w-full mt-2 py-3 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 transition-all ${
+                    aiPrompt.trim() && !aiLoading
+                      ? "bg-gradient-to-r from-violet-600 to-purple-600 text-white shadow-lg shadow-violet-200 active:scale-[0.98]"
+                      : "bg-slate-200 text-slate-400 cursor-not-allowed"
+                  }`}
+                >
+                  {aiLoading ? (
+                    <>
+                      <Icon name="progress_activity" className="w-5 h-5 animate-spin" />
+                      กำลังปรับสูตร...
+                    </>
+                  ) : (
+                    <>
+                      <Icon name="auto_awesome" className="w-5 h-5" />
+                      ปรับสูตรด้วย AI
+                    </>
+                  )}
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+
+        
 
         {/* Hint */}
         <div className="bg-white rounded-2xl p-3 mt-4 border border-slate-100">

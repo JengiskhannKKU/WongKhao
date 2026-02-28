@@ -20,14 +20,14 @@ export default function SwipeActions({ onAction }) {
       shadow: 'shadow-amber-200',
       size: 'w-12 h-12'
     },
-    {
-      id: 'swap',
-      icon: 'restaurant_menu',
-      label: 'ดูสูตร',
-      color: 'bg-violet-500',
-      shadow: 'shadow-violet-200',
-      size: 'w-12 h-12'
-    },
+    // {
+    //   id: 'swap',
+    //   icon: 'restaurant_menu',
+    //   label: 'ดูสูตร',
+    //   color: 'bg-violet-500',
+    //   shadow: 'shadow-violet-200',
+    //   size: 'w-12 h-12'
+    // },
     {
       id: 'like',
       icon: 'favorite',
