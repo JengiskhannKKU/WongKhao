@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import logo from '@/images/logo2.png';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/lib/AuthContext';
 import { createPageUrl } from '@/utils';
@@ -60,7 +61,7 @@ export default function Register() {
       >
         {/* Logo */}
         <div className="flex items-center gap-3 mb-8">
-          <img src="/logo.png" alt="WongKhao" className="w-12 h-12 rounded-2xl object-contain" />
+          <img src={logo} alt="WongKhao" className="w-12 h-12 rounded-2xl object-contain" />
           <div>
             <h1 className="text-xl font-bold text-slate-800">WongKhao</h1>
             <p className="text-xs text-slate-500">วงข้าว</p>
