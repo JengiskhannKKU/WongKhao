@@ -210,7 +210,7 @@ const communityPosts = [
     id: 8,
     title: "ทำกิมจิโฮมเมดกินเอง ลดเค็ม ลดน้ำตาล 🥬",
     image:
-      "https://images.unsplash.com/photo-1583224964978-225ddb1ca266?w=400&q=80",
+      "https://images.unsplash.com/photo-1564834724105-918b73d1b9e0?w=400&q=80",
     user: "Kimchi Master",
     avatar:
       "https://images.unsplash.com/photo-1531427186611-ecfd6d936c79?w=100&h=100&fit=crop&q=80",
@@ -319,7 +319,7 @@ export default function Home() {
             <div className="absolute -top-10 -right-10 w-40 h-40 bg-white/5 rounded-full blur-2xl flex-shrink-0" />
 
             <div className="relative z-10 w-[55%] flex flex-col justify-center">
-              <h4 className="text-[19px] font-bold leading-tight mb-2 tracking-tight">
+              <h4 className="text-[19px] font-medium leading-tight mb-2 tracking-tight">
                 มื้ออร่อยสุขภาพดี
                 <br />
                 ที่คุณปรับเปลี่ยนได้!
@@ -358,7 +358,7 @@ export default function Home() {
             <div className="absolute -top-10 -right-10 w-40 h-40 bg-white/10 rounded-full blur-2xl flex-shrink-0" />
 
             <div className="relative z-10 w-[55%] flex flex-col justify-center">
-              <h4 className="text-[19px] font-bold leading-tight mb-2 tracking-tight drop-shadow-sm">
+              <h4 className="text-[19px] font-medium leading-tight mb-2 tracking-tight drop-shadow-sm">
                 วางแผนการกิน
                 <br />
                 ในแบบของคุณเอง
@@ -386,6 +386,12 @@ export default function Home() {
               </div>
             </div>
           </div>
+        </div>
+
+        {/* Community Feed */}
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-[18px] font-bold text-slate-800">คอมมูนิตี้</h3>
+
         </div>
 
         <div className="mb-4">
