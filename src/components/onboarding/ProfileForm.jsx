@@ -209,7 +209,7 @@ export default function ProfileForm({ onSubmit }) {
       ...formData,
       bmi,
       bmr,
-      age: computedAge ? parseInt(computedAge) : (formData.age ? parseInt(formData.age) : null),
+      age: computedAge !== '' ? computedAge : (formData.age ? parseInt(formData.age) : null),
       goal: goalText || 'healthy',
       // Serialize arrays as JSON strings for the DB
       chronic_diseases: JSON.stringify(formData.chronic_diseases),
@@ -342,6 +342,32 @@ export default function ProfileForm({ onSubmit }) {
             />
           </div>
         </div>
+        {/* BMI Display */}
+        {bmi > 0 && (() => {
+          let bmiColor, bmiLabel, bmiIcon;
+          if (bmi < 18.5) { bmiColor = 'blue'; bmiLabel = 'น้ำหนักต่ำกว่าเกณฑ์'; bmiIcon = 'trending_down'; }
+          else if (bmi < 25) { bmiColor = 'emerald'; bmiLabel = 'น้ำหนักปกติ'; bmiIcon = 'check_circle'; }
+          else if (bmi < 30) { bmiColor = 'amber'; bmiLabel = 'น้ำหนักเกิน'; bmiIcon = 'warning'; }
+          else { bmiColor = 'rose'; bmiLabel = 'อ้วน'; bmiIcon = 'error'; }
+          return (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className={`flex items-center gap-3 p-4 rounded-2xl bg-${bmiColor}-50 border border-${bmiColor}-100`}
+            >
+              <div className={`w-11 h-11 rounded-xl bg-${bmiColor}-100 flex items-center justify-center`}>
+                <Icon name={bmiIcon} className={`w-6 h-6 text-${bmiColor}-600`} />
+              </div>
+              <div className="flex-1">
+                <p className="text-xs text-slate-500">ค่าดัชนีมวลกาย (BMI)</p>
+                <p className={`text-xl font-bold text-${bmiColor}-700`}>{bmi}</p>
+              </div>
+              <span className={`px-3 py-1 rounded-full text-xs font-bold bg-${bmiColor}-100 text-${bmiColor}-700`}>
+                {bmiLabel}
+              </span>
+            </motion.div>
+          );
+        })()}
       </div>
     </motion.div>,
 
