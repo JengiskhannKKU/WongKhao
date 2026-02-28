@@ -74,7 +74,7 @@ const demoFeedPosts = [
     hoursAgo: 12,
     caption: 'ผัดกะเพราหมูสับ swap สูตรจากแอป ใช้ซีอิ๊วขาวลดเกลือแทนน้ำปลา อร่อยไม่แพ้กัน!',
     menuName: 'ผัดกะเพราหมูสับ สูตรลดเค็ม',
-    image: 'https://images.unsplash.com/photo-1628867389140-5e608027aeb8?w=800&q=80',
+    image: 'https://images.unsplash.com/photo-1516684669134-de6f7c473a2a?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
     sodiumReduced: 28,
     caloriesReduced: 5,
     likes: 34,
