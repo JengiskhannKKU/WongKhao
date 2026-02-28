@@ -40,6 +40,14 @@ NEO4J_PASSWORD=your_password
 NEO4J_DATABASE=neo4j
 ```
 
+For deployed frontend (e.g. Vercel), set `CORS_ORIGIN` to your frontend URL:
+
+```bash
+CORS_ORIGIN=https://wong-khao.vercel.app
+# Optional for Vercel preview URLs:
+# CORS_ALLOW_VERCEL_PREVIEWS=true
+```
+
 ## Local setup
 
 Frontend env (`.env` at project root):
@@ -49,6 +57,8 @@ VITE_OPENAI_API_KEY=
 VITE_BACKEND_BASE_URL=http://localhost:3001
 VITE_BEHAVIOR_TRACKING_ENABLED=true
 ```
+
+For deployed frontend, `VITE_BACKEND_BASE_URL` must point to your public backend URL (not `localhost`).
 
 Install and run frontend:
 
