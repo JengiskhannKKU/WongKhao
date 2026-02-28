@@ -14,6 +14,13 @@ function enabled() {
   return TRACKING_ENABLED && Boolean(BEHAVIOR_BASE_URL);
 }
 
+export function getBehaviorTrackingConfig() {
+  return {
+    enabled: enabled(),
+    baseUrl: BEHAVIOR_BASE_URL,
+  };
+}
+
 function logError(prefix, error) {
   console.warn(prefix, error?.message || error);
 }
@@ -190,7 +197,16 @@ export async function trackSwipeEvent(payload) {
   const { userId, menu, action, source, selectedRegion, mood } = payload || {};
 
   if (!menu?.id || !action) {
-    return null;
+    return {
+      status: 'skipped',
+      reason: 'missing_payload',
+    };
+  }
+
+  if (!enabled()) {
+    return {
+      status: 'disabled',
+    };
   }
 
   const eventBody = {
@@ -206,16 +222,28 @@ export async function trackSwipeEvent(payload) {
   try {
     const resolvedUserId = await resolveUserId(userId);
     if (!resolvedUserId) {
-      return null;
+      return {
+        status: 'skipped',
+        reason: 'missing_user',
+      };
     }
 
     eventBody.userId = resolvedUserId;
     await flushBehaviorQueue(10);
-    return await callBehavior('/swipe', 'POST', eventBody);
+    const result = await callBehavior('/swipe', 'POST', eventBody);
+    return {
+      status: 'sent',
+      userId: resolvedUserId,
+      result,
+    };
   } catch (error) {
     enqueueEvent({ path: '/swipe', method: 'POST', body: eventBody });
     logError('Failed to track swipe:', error);
-    return null;
+    return {
+      status: 'queued',
+      userId: eventBody.userId || null,
+      error: error?.message || String(error),
+    };
   }
 }
 

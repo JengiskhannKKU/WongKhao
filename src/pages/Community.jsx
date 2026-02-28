@@ -151,7 +151,6 @@ export default function Community() {
         {/* Tabs */}
         <div className="bg-white rounded-2xl p-1 flex gap-1 mb-5 shadow-sm border border-slate-100">
           {tabs.map(tab => {
-            const Icon = tab.icon;
             const isActive = activeTab === tab.key;
             return (
               <button
