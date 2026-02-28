@@ -10,7 +10,7 @@ export default function FluidNavBar({ navItems, currentPageName }) {
 
     // Sync active index with URL changes
     useEffect(() => {
-        const index = navItems.findIndex(item => item.path === currentPageName.toLowerCase());
+        const index = navItems.findIndex(item => item.path.toLowerCase() === currentPageName.toLowerCase());
         if (index !== -1) {
             setActiveIndex(index);
         }

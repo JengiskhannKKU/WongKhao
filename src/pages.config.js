@@ -55,18 +55,20 @@ import Onboarding from './pages/Onboarding';
 import Profile from './pages/Profile';
 import Recommendation from './pages/Recommendation';
 import Register from './pages/Register';
+import MealPlan from './pages/MealPlan';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
-    "Community": Community,
-    "Discover": Discover,
-    "Home": Home,
-    "Login": Login,
-    "Onboarding": Onboarding,
-    "Profile": Profile,
+    "Community":      Community,
+    "Discover":       Discover,
+    "Home":           Home,
+    "Login":          Login,
+    "MealPlan":       MealPlan,
+    "Onboarding":     Onboarding,
+    "Profile":        Profile,
     "Recommendation": Recommendation,
-    "Register": Register,
+    "Register":       Register,
 }
 
 export const pagesConfig = {
