@@ -48,14 +48,15 @@
  * The mainPage value must match a key in the PAGES object exactly.
  */
 import Community from "./pages/Community";
+import CommunityPostDetail from "./pages/CommunityPostDetail";
 import Discover from "./pages/Discover";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
+import MealPlan from "./pages/MealPlan";
 import Onboarding from "./pages/Onboarding";
 import Profile from "./pages/Profile";
 import Recommendation from "./pages/Recommendation";
 import Register from "./pages/Register";
-import MealPlan from "./pages/MealPlan";
 import CreatePost from "./pages/CreatePost";
 import __Layout from "./Layout.jsx";
 
@@ -77,4 +78,3 @@ export const pagesConfig = {
   Pages: PAGES,
   Layout: __Layout,
 };
-import CommunityPostDetail from "./pages/CommunityPostDetail";

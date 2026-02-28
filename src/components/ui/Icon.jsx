@@ -11,7 +11,7 @@ import React from 'react';
 export const Icon = ({ name, className = '', filled = false, ...props }) => {
     return (
         <span
-            className={`material-symbols-rounded ${className}`}
+            className={`material-symbols-rounded leading-none select-none inline-flex items-center justify-center ${className}`}
             style={{
                 fontVariationSettings: `'FILL' ${filled ? 1 : 0}, 'wght' 400, 'GRAD' 0, 'opsz' 24`,
                 ...props.style,

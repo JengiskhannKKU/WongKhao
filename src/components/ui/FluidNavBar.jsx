@@ -46,7 +46,7 @@ export default function FluidNavBar({ navItems, currentPageName }) {
                         <Icon
                             name={navItems[activeIndex]?.icon}
                             filled={true}
-                            className="w-7 h-7 text-white"
+                            className="text-[28px] text-white"
                         />
                     </div>
                 </motion.div>
@@ -99,7 +99,7 @@ export default function FluidNavBar({ navItems, currentPageName }) {
                                     <Icon
                                         name={item.icon}
                                         filled={false}
-                                        className={`w-[26px] h-[26px] text-slate-400 group-hover:text-emerald-700 transition-colors`}
+                                        className="text-[24px] text-slate-400 group-hover:text-emerald-700 transition-colors"
                                     />
                                     {/* Label: Increased size to text-xs and font-bold */}
                                     <span className="text-xs font-bold mt-1 text-slate-500 group-hover:text-emerald-800 tracking-wide transition-colors">
