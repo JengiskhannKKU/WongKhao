@@ -327,11 +327,11 @@ export default function Home() {
               <p className="text-[12px] opacity-90 mb-4 leading-snug font-medium">
                 เลือกเมนูโปรดแล้วนำมาปรับให้สุขภาพดีขึ้น (Swap)
               </p>
-              <button className="bg-white text-[#0e4b3e] px-4 py-1.5 rounded-full text-[13px] font-bold shadow-md inline-flex items-center gap-1.5 self-start w-max group hover:shadow-lg transition-all">
-                เลือกเมนูเลย
+              <button className="bg-white text-[#0e4b3e] px-5 py-2 rounded-full text-[13px] font-bold shadow-md flex items-center justify-center gap-2 self-start w-max group hover:shadow-lg transition-all mt-1">
+                <span className="leading-none pt-0.5">เลือกเมนูเลย</span>
                 <Icon
                   name="arrow_forward"
-                  className="w-4 h-4 group-hover:translate-x-1 transition-transform"
+                  className="w-[18px] h-[18px] group-hover:translate-x-1 transition-transform stroke-2"
                 />
               </button>
             </div>
@@ -366,11 +366,11 @@ export default function Home() {
               <p className="text-[12px] opacity-90 mb-4 leading-snug font-medium">
                 จัดตารางมื้ออาหารเพื่อเป้าหมายสุขภาพที่ยั่งยืน
               </p>
-              <button className="bg-white text-[#d27519] px-4 py-1.5 rounded-full text-[13px] font-bold shadow-md inline-flex items-center gap-1.5 self-start w-max group hover:shadow-lg transition-all">
-                ดูแผนโภชนาการ
+              <button className="bg-white text-[#d27519] px-5 py-2 rounded-full text-[13px] font-bold shadow-md flex items-center justify-center gap-2 self-start w-max group hover:shadow-lg transition-all mt-1">
+                <span className="leading-none pt-0.5">ดูแผนโภชนาการ</span>
                 <Icon
                   name="calendar_month"
-                  className="w-4 h-4 group-hover:scale-110 transition-transform"
+                  className="w-[18px] h-[18px] group-hover:scale-110 transition-transform stroke-2"
                 />
               </button>
             </div>
