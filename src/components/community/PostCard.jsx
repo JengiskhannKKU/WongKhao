@@ -43,7 +43,7 @@ export default function PostCard({ post, onCheer }) {
           <p className="text-xs text-slate-500">{post.province || regionLabels[post.region]}</p>
         </div>
         {post.challenge_id && (
-          <Badge className="bg-amber-100 text-amber-700 border-0">
+          <Badge variant="default" className="bg-amber-100 text-amber-700 border-0">
             <Icon name="emoji_events" className="w-3 h-3 mr-1" />
             Challenge
           </Badge>

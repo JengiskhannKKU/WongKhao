@@ -12,7 +12,7 @@ export default function MenuHeader({ menu }) {
       />
       <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent rounded-2xl" />
 
-      <Badge className="absolute top-3 right-3 bg-gradient-to-r from-violet-500 to-purple-500 text-white border-0">
+      <Badge variant="default" className="absolute top-3 right-3 bg-gradient-to-r from-violet-500 to-purple-500 text-white border-0">
         <Icon name="auto_awesome" className="w-3 h-3 mr-1" />
         AI ปรับสูตร
       </Badge>
