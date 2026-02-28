@@ -1,14 +1,95 @@
 /**
- * API-based data store that replaces localStorage.
- * Uses fetch to talk to the Express backend at localhost:3001.
- * Exports the same `localStore` name so pages don't need to change their import variable.
+ * API-based data store with localStorage fallback.
+ *
+ * When the Express backend is available (localhost:3001 in dev), uses fetch.
+ * When deployed without a backend (e.g. on Vercel), automatically falls back
+ * to localStorage so the app still works for demos.
  */
 
 const runtimeEnv = /** @type {Record<string, string | undefined>} */ ((/** @type {any} */ (import.meta)).env || {});
-const API_HOST = runtimeEnv.VITE_BACKEND_BASE_URL || 'http://localhost:3001';
-const BASE_URL = `${API_HOST}/api`;
+const API_HOST = runtimeEnv.VITE_BACKEND_BASE_URL || '';
+const BASE_URL = API_HOST ? `${API_HOST}/api` : '';
 
-function createEntity(entityName) {
+/**
+ * Determine if we should use localStorage instead of the API.
+ */
+function shouldUseLocalStore() {
+    if (!API_HOST) return true;
+    if (typeof window === 'undefined') return false;
+    const isLocalhost = API_HOST.includes('localhost') || API_HOST.includes('127.0.0.1');
+    const siteIsRemote = !window.location.hostname.includes('localhost') && !window.location.hostname.includes('127.0.0.1');
+    return isLocalhost && siteIsRemote;
+}
+
+/* ── localStorage-based entity (offline / demo mode) ────────── */
+function createLocalEntity(entityName) {
+    const STORE_KEY = `wongkhao_local_${entityName}`;
+
+    function load() {
+        try {
+            const raw = localStorage.getItem(STORE_KEY);
+            return raw ? JSON.parse(raw) : [];
+        } catch {
+            return [];
+        }
+    }
+
+    function save(items) {
+        localStorage.setItem(STORE_KEY, JSON.stringify(items));
+    }
+
+    return {
+        list: async () => load(),
+
+        create: async (data) => {
+            const items = load();
+            const newItem = {
+                ...data,
+                id: data.id || `${entityName}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`,
+                created_date: data.created_date || new Date().toISOString(),
+            };
+            items.push(newItem);
+            save(items);
+            return newItem;
+        },
+
+        update: async (id, data) => {
+            const items = load();
+            const idx = items.findIndex(i => String(i.id) === String(id));
+            if (idx === -1) throw new Error(`${entityName} ${id} not found`);
+            items[idx] = { ...items[idx], ...data };
+            save(items);
+            return items[idx];
+        },
+
+        delete: async (id) => {
+            const items = load();
+            const filtered = items.filter(i => String(i.id) !== String(id));
+            save(filtered);
+            return { success: true };
+        },
+
+        filter: async (filters) => {
+            const items = load();
+            return items.filter(item => {
+                for (const [key, value] of Object.entries(filters)) {
+                    if (String(item[key]) !== String(value)) return false;
+                }
+                return true;
+            });
+        },
+
+        get: async (id) => {
+            const items = load();
+            const found = items.find(i => String(i.id) === String(id));
+            if (!found) throw new Error(`${entityName} ${id} not found`);
+            return found;
+        },
+    };
+}
+
+/* ── API-based entity (backend available) ───────────────────── */
+function createApiEntity(entityName) {
     async function parseError(res, fallback) {
         try {
             const payload = await res.json();
@@ -70,6 +151,9 @@ function createEntity(entityName) {
         },
     };
 }
+
+/* ── Pick the right entity factory ──────────────────────────── */
+const createEntity = shouldUseLocalStore() ? createLocalEntity : createApiEntity;
 
 export const localStore = {
     entities: {

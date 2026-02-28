@@ -1,9 +1,9 @@
 import { localStore } from '@/api/apiStore';
 
 const runtimeEnv = /** @type {Record<string, string | undefined>} */ ((/** @type {any} */ (import.meta)).env || {});
-const API_HOST = runtimeEnv.VITE_BACKEND_BASE_URL || 'http://localhost:3001';
-const BEHAVIOR_BASE_URL = runtimeEnv.VITE_BEHAVIOR_API_URL || `${API_HOST}/api/behavior`;
-const TRACKING_ENABLED = (runtimeEnv.VITE_BEHAVIOR_TRACKING_ENABLED || 'true') === 'true';
+const API_HOST = runtimeEnv.VITE_BACKEND_BASE_URL || '';
+const BEHAVIOR_BASE_URL = runtimeEnv.VITE_BEHAVIOR_API_URL || (API_HOST ? `${API_HOST}/api/behavior` : '');
+const TRACKING_ENABLED = (runtimeEnv.VITE_BEHAVIOR_TRACKING_ENABLED || 'true') === 'true' && !!BEHAVIOR_BASE_URL;
 
 const AUTH_STORAGE_KEY = 'wongkhao_user';
 const SESSION_STORAGE_KEY = 'wongkhao_session_id';
