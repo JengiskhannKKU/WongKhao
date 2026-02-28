@@ -277,14 +277,11 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50/30 via-orange-50/20 to-teal-50/40 relative overflow-hidden">
-      <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-teal-100 to-cyan-100 rounded-full blur-3xl opacity-40 -translate-y-1/2 translate-x-1/2" />
-      <div className="absolute bottom-0 left-0 w-96 h-96 bg-gradient-to-br from-emerald-100 to-teal-100 rounded-full blur-3xl opacity-40 translate-y-1/2 -translate-x-1/2" />
-
-      <div className="relative max-w-sm mx-auto px-4 pt-6 pb-24">
-        <div className="flex items-center justify-between mb-5">
+    <div className="min-h-screen bg-[#f4f7f4]">
+      <div className="mx-auto max-w-md px-4 pb-24 pt-6">
+        <div className="mb-5 flex items-center justify-between rounded-3xl border border-[#e1e8e2] bg-[#eef6ef] px-4 py-3">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-100 text-emerald-700">
               <Icon name="location_on" className="w-5 h-5" />
             </div>
             <div>
@@ -302,7 +299,7 @@ export default function Home() {
 
         <button
           onClick={() => navigate(createPageUrl("Discover"))}
-          className="w-full bg-white px-5 py-3.5 rounded-full shadow-[0_8px_30px_rgb(0,0,0,0.04)] flex items-center gap-3 text-slate-400 mb-6 transition-all hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)]"
+          className="mb-6 flex w-full items-center gap-3 rounded-full border border-[#e4e9e4] bg-white px-5 py-3.5 text-slate-400 shadow-[0_8px_20px_rgb(0,0,0,0.03)] transition-all hover:shadow-[0_10px_24px_rgb(0,0,0,0.06)]"
         >
           <Icon name="search" className="w-5 h-5" />
           <span className="text-base">ค้นหาเมนูอาหาร...</span>
@@ -312,11 +309,10 @@ export default function Home() {
           {/* Banner 1: Recommendation (Swap) */}
           <div
             onClick={() => navigate(createPageUrl("Recommendation"))}
-            className="cursor-pointer bg-[#0e4b3e] hover:bg-[#0a382e] transition-colors rounded-[24px] p-5 text-white flex relative overflow-hidden shadow-lg min-h-[170px]"
+            className="relative flex min-h-[168px] cursor-pointer overflow-hidden rounded-[24px] bg-[#135c49] p-5 text-white shadow-[0_14px_28px_rgba(10,74,57,0.26)] transition-colors hover:bg-[#0f4e3f]"
           >
-            {/* Background shape */}
-            <div className="absolute top-0 right-0 w-[60%] h-full bg-[#e8f6f3] rounded-l-[100px] opacity-10" />
-            <div className="absolute -top-10 -right-10 w-40 h-40 bg-white/5 rounded-full blur-2xl flex-shrink-0" />
+            <div className="absolute right-0 top-0 h-full w-[63%] rounded-l-[110px] bg-[#e8f6f3] opacity-10" />
+            <div className="absolute -right-12 top-1/2 h-44 w-44 -translate-y-1/2 rounded-full bg-white/15" />
 
             <div className="relative z-10 w-[55%] flex flex-col justify-center">
               <h4 className="text-[19px] font-black leading-tight mb-2 tracking-tight">
@@ -327,7 +323,7 @@ export default function Home() {
               <p className="text-[12px] opacity-90 mb-4 leading-snug font-medium">
                 เลือกเมนูโปรดแล้วนำมาปรับให้สุขภาพดีขึ้น (Swap)
               </p>
-              <button className="bg-white text-[#0e4b3e] px-5 py-2 rounded-full text-[13px] font-bold shadow-md flex items-center justify-center gap-2 self-start w-max group hover:shadow-lg transition-all mt-1">
+              <button className="mt-1 flex w-max items-center justify-center gap-2 rounded-full bg-white px-5 py-2 text-[13px] font-bold text-[#135c49] shadow-md transition-all group hover:shadow-lg">
                 <span className="leading-none pt-0.5">เลือกเมนูเลย</span>
                 <Icon
                   name="arrow_forward"
@@ -337,8 +333,8 @@ export default function Home() {
             </div>
 
             {/* Image Circle Area */}
-            <div className="absolute right-[-15px] top-1/2 -translate-y-1/2 w-[160px] h-[160px] flex-shrink-0 z-10">
-              <div className="w-full h-full bg-[#f4fbf9] rounded-full p-2 shadow-inner">
+            <div className="absolute right-[-15px] top-1/2 z-10 h-[160px] w-[160px] -translate-y-1/2 flex-shrink-0">
+              <div className="h-full w-full rounded-full bg-[#f4fbf9] p-2 shadow-inner">
                 <img
                   src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=300&h=300&fit=crop&q=80"
                   alt="Healthy Bowl"
@@ -351,11 +347,10 @@ export default function Home() {
           {/* Banner 2: Profile (Meal Plan) */}
           <div
             onClick={() => navigate(createPageUrl("Profile"))}
-            className="cursor-pointer bg-[#d27519] hover:bg-[#b86616] transition-colors rounded-[24px] p-5 text-white flex relative overflow-hidden shadow-lg min-h-[170px]"
+            className="relative flex min-h-[168px] cursor-pointer overflow-hidden rounded-[24px] bg-[#d47f24] p-5 text-white shadow-[0_14px_28px_rgba(133,73,11,0.24)] transition-colors hover:bg-[#c8741f]"
           >
-            {/* Background shape */}
-            <div className="absolute top-0 right-0 w-[60%] h-full bg-[#fff4eb] rounded-l-[100px] opacity-10" />
-            <div className="absolute -top-10 -right-10 w-40 h-40 bg-white/10 rounded-full blur-2xl flex-shrink-0" />
+            <div className="absolute right-0 top-0 h-full w-[63%] rounded-l-[110px] bg-[#fff4eb] opacity-10" />
+            <div className="absolute -right-12 top-1/2 h-44 w-44 -translate-y-1/2 rounded-full bg-white/20" />
 
             <div className="relative z-10 w-[55%] flex flex-col justify-center">
               <h4 className="text-[19px] font-black leading-tight mb-2 tracking-tight drop-shadow-sm">
@@ -366,7 +361,7 @@ export default function Home() {
               <p className="text-[12px] opacity-90 mb-4 leading-snug font-medium">
                 จัดตารางมื้ออาหารเพื่อเป้าหมายสุขภาพที่ยั่งยืน
               </p>
-              <button className="bg-white text-[#d27519] px-5 py-2 rounded-full text-[13px] font-bold shadow-md flex items-center justify-center gap-2 self-start w-max group hover:shadow-lg transition-all mt-1">
+              <button className="mt-1 flex w-max items-center justify-center gap-2 rounded-full bg-white px-5 py-2 text-[13px] font-bold text-[#d47f24] shadow-md transition-all group hover:shadow-lg">
                 <span className="leading-none pt-0.5">ดูแผนโภชนาการ</span>
                 <Icon
                   name="calendar_month"
@@ -376,8 +371,8 @@ export default function Home() {
             </div>
 
             {/* Image Circle Area */}
-            <div className="absolute right-[-20px] top-1/2 -translate-y-1/2 w-[160px] h-[160px] flex-shrink-0 z-10">
-              <div className="w-full h-full bg-white/20 rounded-full p-1 backdrop-blur-sm shadow-inner">
+            <div className="absolute right-[-20px] top-1/2 z-10 h-[160px] w-[160px] -translate-y-1/2 flex-shrink-0">
+              <div className="h-full w-full rounded-full bg-white/20 p-1 backdrop-blur-sm shadow-inner">
                 <img
                   src="https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=300&h=300&fit=crop&q=80"
                   alt="Meal Planning Menu"
@@ -398,7 +393,7 @@ export default function Home() {
                 onClick={() =>
                   navigate(createPageUrl("CommunityPostDetail/" + post.id))
                 }
-                className="bg-white rounded-[16px] overflow-hidden shadow-sm border border-slate-100 relative group cursor-pointer inline-block w-full break-inside-avoid"
+                className="group relative inline-block w-full break-inside-avoid overflow-hidden rounded-[16px] border border-slate-200 bg-white shadow-sm cursor-pointer"
               >
                 <div className="w-full relative">
                   <img
@@ -407,8 +402,8 @@ export default function Home() {
                     className="w-full h-auto object-cover"
                   />
                 </div>
-                <div className="flex flex-col h-full bg-white content-between p-3">
-                  <h4 className="font-medium text-[13px] text-slate-800 mb-3 leading-snug line-clamp-2">
+                <div className="flex h-full flex-col content-between bg-white p-3">
+                  <h4 className="mb-3 line-clamp-2 text-[13px] font-medium leading-snug text-slate-800">
                     {post.title}
                   </h4>
                   <div className="flex items-center justify-between mt-auto w-full pt-1">
@@ -418,11 +413,11 @@ export default function Home() {
                         alt={post.user}
                         className="w-[28px] h-[28px] rounded-full object-cover flex-shrink-0 border border-slate-100"
                       />
-                      <span className="text-[12px] text-slate-400 font-medium truncate">
+                      <span className="truncate text-[12px] font-medium text-slate-400">
                         {post.user}
                       </span>
                     </div>
-                    <div className="flex items-center gap-1 text-slate-400 flex-shrink-0">
+                    <div className="flex flex-shrink-0 items-center gap-1 text-slate-400">
                       <Icon
                         name="favorite_border"
                         className="w-[26px] h-[26px] text-slate-400 opacity-90 stroke-[2px]"

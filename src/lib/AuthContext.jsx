@@ -1,10 +1,9 @@
 import React, { createContext, useState, useContext, useCallback } from 'react';
+import { BACKEND_BASE_URL } from '@/lib/backendBaseUrl';
 
 const AuthContext = createContext();
 const STORAGE_KEY = 'wongkhao_user';
-const runtimeEnv = /** @type {Record<string, string | undefined>} */ ((/** @type {any} */ (import.meta)).env || {});
-const API_HOST = (runtimeEnv.VITE_BACKEND_BASE_URL || 'http://localhost:3001').replace(/\/+$/, '');
-const API = `${API_HOST}/api/auth`;
+const API = `${BACKEND_BASE_URL}/api/auth`;
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(() => {

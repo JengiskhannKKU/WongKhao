@@ -3,10 +3,9 @@
  * Uses fetch to talk to the Express backend at localhost:3001.
  * Exports the same `localStore` name so pages don't need to change their import variable.
  */
+import { BACKEND_BASE_URL } from '@/lib/backendBaseUrl';
 
-const runtimeEnv = /** @type {Record<string, string | undefined>} */ ((/** @type {any} */ (import.meta)).env || {});
-const API_HOST = runtimeEnv.VITE_BACKEND_BASE_URL || 'http://localhost:3001';
-const BASE_URL = `${API_HOST}/api`;
+const BASE_URL = `${BACKEND_BASE_URL}/api`;
 
 function createEntity(entityName) {
     async function parseError(res, fallback) {
