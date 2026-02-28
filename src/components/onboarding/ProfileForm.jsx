@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Icon from '@/components/ui/Icon';
 
@@ -25,24 +25,91 @@ const spiceLevels = [
 ];
 
 const activityLevels = [
-  { value: 'sedentary', label: 'นั่งทำงานเป็นส่วนใหญ่', desc: 'แทบไม่ได้ออกกำลังกาย' },
-  { value: 'light', label: 'ออกกำลังกายน้อย', desc: '1-3 วัน/สัปดาห์' },
-  { value: 'moderate', label: 'ออกกำลังกายปานกลาง', desc: '3-5 วัน/สัปดาห์' },
-  { value: 'active', label: 'ออกกำลังกายหนัก', desc: '6-7 วัน/สัปดาห์' }
+  { value: 'sedentary', label: 'นั่งทำงานเป็นส่วนใหญ่', desc: 'แทบไม่ได้ออกกำลังกาย', multiplier: 1.2 },
+  { value: 'light', label: 'ออกกำลังกายน้อย', desc: '1-3 วัน/สัปดาห์', multiplier: 1.375 },
+  { value: 'moderate', label: 'ออกกำลังกายปานกลาง', desc: '3-5 วัน/สัปดาห์', multiplier: 1.55 },
+  { value: 'active', label: 'ออกกำลังกายหนัก', desc: '6-7 วัน/สัปดาห์', multiplier: 1.725 },
 ];
 
 const genders = [
   { value: 'male', label: 'ชาย' },
   { value: 'female', label: 'หญิง' },
-  { value: 'other', label: 'อื่นๆ / ไม่ระบุ' }
+  { value: 'other', label: 'อื่นๆ' }
 ];
+
+// --- Health Profile Constants ---
+const primaryGoals = [
+  { value: 'lose_weight', label: 'ลดน้ำหนัก', icon: 'trending_down', color: 'bg-orange-100 text-orange-700' },
+  { value: 'build_muscle', label: 'เพิ่มกล้ามเนื้อ', icon: 'fitness_center', color: 'bg-indigo-100 text-indigo-700' },
+  { value: 'stay_healthy', label: 'ดูแลสุขภาพทั่วไป', icon: 'spa', color: 'bg-emerald-100 text-emerald-700' },
+  { value: 'control_disease', label: 'ควบคุมโรค', icon: 'medical_services', color: 'bg-rose-100 text-rose-700' },
+];
+
+const chronicDiseaseOptions = [
+  { value: 'diabetes_1', label: 'เบาหวานประเภท 1' },
+  { value: 'diabetes_2', label: 'เบาหวานประเภท 2' },
+  { value: 'hypertension', label: 'ความดันโลหิตสูง' },
+  { value: 'dyslipidemia', label: 'ไขมันในเลือดสูง' },
+  { value: 'kidney_disease', label: 'โรคไต' },
+  { value: 'heart_disease', label: 'โรคหัวใจ' },
+  { value: 'thyroid', label: 'ภาวะไทรอยด์' },
+  { value: 'pcos', label: 'PCOS' },
+  { value: 'gout', label: 'โรคเก๊าท์' },
+];
+
+const allergyOptions = [
+  { value: 'peanuts', label: 'ถั่วลิสง' },
+  { value: 'seafood', label: 'อาหารทะเล' },
+  { value: 'milk', label: 'นม' },
+  { value: 'eggs', label: 'ไข่' },
+  { value: 'gluten', label: 'กลูเตน' },
+  { value: 'soy', label: 'ถั่วเหลือง' },
+];
+
+const religiousOptions = [
+  { value: 'halal', label: 'ฮาลาล' },
+  { value: 'vegetarian', label: 'มังสวิรัติ' },
+  { value: 'vegan', label: 'วีแกน' },
+  { value: 'jay', label: 'เจ' },
+];
+
+// Helper: calculate BMR (Mifflin-St Jeor)
+function calcBMR(weight, height, age, gender) {
+  const w = parseFloat(weight);
+  const h = parseFloat(height);
+  const a = parseFloat(age);
+  if (!w || !h || !a || w <= 0 || h <= 0 || a <= 0) return 0;
+  if (gender === 'male') return Math.round(10 * w + 6.25 * h - 5 * a + 5);
+  if (gender === 'female') return Math.round(10 * w + 6.25 * h - 5 * a - 161);
+  return Math.round(10 * w + 6.25 * h - 5 * a - 78); // average for 'other'
+}
+
+// Helper: calculate TDEE (Total Daily Energy Expenditure)
+function calcTDEE(bmr, activityLevel) {
+  const act = activityLevels.find(a => a.value === activityLevel);
+  if (!bmr || !act) return 0;
+  return Math.round(bmr * act.multiplier);
+}
+
+// Helper: calculate age from birthday string
+function calcAge(birthday) {
+  if (!birthday) return '';
+  const birth = new Date(birthday);
+  const today = new Date();
+  let age = today.getFullYear() - birth.getFullYear();
+  const m = today.getMonth() - birth.getMonth();
+  if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
+  return age > 0 ? age : '';
+}
 
 export default function ProfileForm({ onSubmit }) {
   const [step, setStep] = useState(0);
+  const [customAllergy, setCustomAllergy] = useState('');
   const [formData, setFormData] = useState({
     // Basic Info
     full_name: '',
     email: '',
+    birthday: '',
     // Demographics & Metrics
     age: '',
     gender: '',
@@ -61,7 +128,50 @@ export default function ProfileForm({ onSubmit }) {
     monthly_scans: 0,
     monthly_chat_messages: 0,
     bmi: 0,
+
+    // --- Health Profile fields ---
+    // Body metrics (extra)
+    waist_cm: '',
+    body_fat_pct: '',
+    // Health goals (expanded)
+    primary_goal: '',
+    target_weight_kg: '',
+    daily_calorie_target: '',
+    // Chronic diseases
+    chronic_diseases: [],
+    // Allergies & restrictions
+    food_allergies: [],
+    religious_restrictions: [],
+    medications_affecting_diet: '',
   });
+
+  // Auto-calculate age from birthday
+  const computedAge = useMemo(() => calcAge(formData.birthday), [formData.birthday]);
+
+  // Keep age in sync with birthday
+  useEffect(() => {
+    if (computedAge !== '') {
+      setFormData(prev => ({ ...prev, age: String(computedAge) }));
+    }
+  }, [computedAge]);
+
+  // Auto-calculate BMI, BMR, TDEE
+  const bmi = useMemo(() => {
+    const h = parseFloat(formData.height_cm) / 100;
+    const w = parseFloat(formData.weight_kg);
+    if (h > 0 && w > 0) return parseFloat((w / (h * h)).toFixed(1));
+    return 0;
+  }, [formData.height_cm, formData.weight_kg]);
+
+  const bmr = useMemo(() =>
+    calcBMR(formData.weight_kg, formData.height_cm, formData.age, formData.gender),
+    [formData.weight_kg, formData.height_cm, formData.age, formData.gender]
+  );
+
+  const tdee = useMemo(() =>
+    calcTDEE(bmr, formData.activity_level),
+    [bmr, formData.activity_level]
+  );
 
   const toggleHealthGoal = (goal) => {
     setFormData(prev => ({
@@ -72,35 +182,71 @@ export default function ProfileForm({ onSubmit }) {
     }));
   };
 
-  const handleSubmit = () => {
-    // Calculate BMI before submit
-    const h = parseFloat(formData.height_cm) / 100;
-    const w = parseFloat(formData.weight_kg);
-    let bmi = 0;
-    if (h > 0 && w > 0) {
-      bmi = parseFloat((w / (h * h)).toFixed(1));
-    }
+  const toggleArrayField = (field, value) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: prev[field].includes(value)
+        ? prev[field].filter(v => v !== value)
+        : [...prev[field], value]
+    }));
+  };
 
-    // Map health_goals to single 'goal' text based on user request (or just join them)
+  const addCustomAllergy = () => {
+    const trimmed = customAllergy.trim();
+    if (trimmed && !formData.food_allergies.includes(trimmed)) {
+      setFormData(prev => ({
+        ...prev,
+        food_allergies: [...prev.food_allergies, trimmed]
+      }));
+    }
+    setCustomAllergy('');
+  };
+
+  const handleSubmit = () => {
     const goalText = formData.health_goals.join(', ');
 
     const finalData = {
       ...formData,
       bmi,
-      goal: goalText || 'healthy'
+      bmr,
+      age: computedAge ? parseInt(computedAge) : (formData.age ? parseInt(formData.age) : null),
+      goal: goalText || 'healthy',
+      // Serialize arrays as JSON strings for the DB
+      chronic_diseases: JSON.stringify(formData.chronic_diseases),
+      food_allergies: JSON.stringify(formData.food_allergies),
+      religious_restrictions: JSON.stringify(formData.religious_restrictions),
+      // Auto-fill calorie target if not set manually
+      daily_calorie_target: formData.daily_calorie_target ? parseInt(formData.daily_calorie_target) : tdee,
+      target_weight_kg: formData.target_weight_kg ? parseFloat(formData.target_weight_kg) : null,
+      waist_cm: formData.waist_cm ? parseFloat(formData.waist_cm) : null,
+      body_fat_pct: formData.body_fat_pct ? parseFloat(formData.body_fat_pct) : null,
     };
 
     onSubmit(finalData);
   };
 
   const canProceed = () => {
-    if (step === 0) return formData.full_name.trim() !== '';
-    if (step === 1) return formData.age && formData.gender && formData.height_cm && formData.weight_kg;
+    if (step === 0) return formData.full_name.trim() !== '' && formData.birthday !== '';
+    if (step === 1) return (formData.age || computedAge) && formData.gender && formData.height_cm && formData.weight_kg;
     if (step === 2) return formData.activity_level !== '';
     if (step === 3) return formData.region !== '';
     if (step === 4) return formData.health_goals.length > 0;
-    return true; // Step 5 (Spice) has default
+    // Steps 5-9 are all optional / have defaults
+    return true;
   };
+
+  // --- Stat Badge Component ---
+  const StatBadge = ({ icon, label, value, unit, color = 'emerald' }) => (
+    <div className={`flex items-center gap-3 p-3 rounded-2xl bg-${color}-50 border border-${color}-100`}>
+      <div className={`w-10 h-10 rounded-xl bg-${color}-100 flex items-center justify-center`}>
+        <Icon name={icon} className={`w-5 h-5 text-${color}-600`} />
+      </div>
+      <div>
+        <p className="text-xs text-slate-500">{label}</p>
+        <p className={`text-lg font-bold text-${color}-700`}>{value} <span className="text-sm font-normal">{unit}</span></p>
+      </div>
+    </div>
+  );
 
   const steps = [
     // Step 0: Basic Info
@@ -128,6 +274,21 @@ export default function ProfileForm({ onSubmit }) {
             className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl focus:border-emerald-500 focus:bg-white focus:outline-none transition-colors text-slate-700 placeholder-slate-400"
           />
         </div>
+        <div>
+          <label className="block text-sm font-bold text-slate-700 mb-2 px-1">วันเกิด</label>
+          <input
+            type="date"
+            value={formData.birthday}
+            onChange={(e) => setFormData({ ...formData, birthday: e.target.value })}
+            max={new Date().toISOString().split('T')[0]}
+            className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl focus:border-emerald-500 focus:bg-white focus:outline-none transition-colors text-slate-700 placeholder-slate-400"
+          />
+          {computedAge !== '' && (
+            <p className="text-sm text-emerald-600 mt-2 px-1 font-medium">
+              🎂 อายุ {computedAge} ปี
+            </p>
+          )}
+        </div>
       </div>
     </motion.div>,
 
@@ -150,17 +311,17 @@ export default function ProfileForm({ onSubmit }) {
             ))}
           </div>
         </div>
-        <div className="flex gap-4">
-          <div className="flex-1">
-            <label className="block text-sm font-bold text-slate-700 mb-2 px-1">อายุ (ปี)</label>
-            <input
-              type="number"
-              value={formData.age}
-              onChange={(e) => setFormData({ ...formData, age: e.target.value })}
-              className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl focus:border-emerald-500 focus:bg-white focus:outline-none text-slate-700 placeholder-slate-400"
-            />
+        {computedAge !== '' && (
+          <div className="flex items-center gap-3 p-3 rounded-2xl bg-emerald-50 border border-emerald-100">
+            <div className="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center">
+              <Icon name="cake" className="w-5 h-5 text-emerald-600" />
+            </div>
+            <div>
+              <p className="text-xs text-slate-500">อายุ (คำนวณจากวันเกิด)</p>
+              <p className="text-lg font-bold text-emerald-700">{computedAge} <span className="text-sm font-normal">ปี</span></p>
+            </div>
           </div>
-        </div>
+        )}
         <div className="flex gap-4">
           <div className="flex-1">
             <label className="block text-sm font-bold text-slate-700 mb-2 px-1">ส่วนสูง (ซม.)</label>
@@ -279,26 +440,259 @@ export default function ProfileForm({ onSubmit }) {
         ))}
       </div>
     </motion.div>,
+
+    // =====================================================
+    // Step 6: ข้อมูลร่างกายเพิ่มเติม (Extra Body Metrics)
+    // =====================================================
+    <motion.div key="body-extra" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-4">
+      <h2 className="text-2xl font-bold text-emerald-700">ข้อมูลร่างกายเพิ่มเติม</h2>
+      <p className="text-slate-500 text-sm mt-2 leading-relaxed">ข้อมูลเพิ่มเติมเพื่อการวิเคราะห์ที่แม่นยำยิ่งขึ้น (ไม่บังคับ)</p>
+
+      {/* Auto-calculated stats */}
+      <div className="grid grid-cols-2 gap-3 mt-4">
+        <div className="flex items-center gap-3 p-3 rounded-2xl bg-emerald-50 border border-emerald-100">
+          <div className="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center">
+            <Icon name="monitor_weight" className="w-5 h-5 text-emerald-600" />
+          </div>
+          <div>
+            <p className="text-xs text-slate-500">BMI</p>
+            <p className="text-lg font-bold text-emerald-700">{bmi || '—'}</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-3 p-3 rounded-2xl bg-blue-50 border border-blue-100">
+          <div className="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center">
+            <Icon name="local_fire_department" className="w-5 h-5 text-blue-600" />
+          </div>
+          <div>
+            <p className="text-xs text-slate-500">BMR</p>
+            <p className="text-lg font-bold text-blue-700">{bmr || '—'} <span className="text-xs font-normal">kcal</span></p>
+          </div>
+        </div>
+      </div>
+
+      <div className="space-y-4 mt-4">
+        <div>
+          <label className="block text-sm font-bold text-slate-700 mb-2 px-1">รอบเอว (ซม.)</label>
+          <input
+            type="number"
+            value={formData.waist_cm}
+            onChange={(e) => setFormData({ ...formData, waist_cm: e.target.value })}
+            placeholder="เช่น 80"
+            className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl focus:border-emerald-500 focus:bg-white focus:outline-none text-slate-700 placeholder-slate-400"
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-bold text-slate-700 mb-2 px-1">% ไขมันในร่างกาย</label>
+          <input
+            type="number"
+            step="0.1"
+            value={formData.body_fat_pct}
+            onChange={(e) => setFormData({ ...formData, body_fat_pct: e.target.value })}
+            placeholder="เช่น 25.0"
+            className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl focus:border-emerald-500 focus:bg-white focus:outline-none text-slate-700 placeholder-slate-400"
+          />
+        </div>
+      </div>
+    </motion.div>,
+
+    // =====================================================
+    // Step 7: เป้าหมายสุขภาพ (Primary Goal & Targets)
+    // =====================================================
+    <motion.div key="health-goal" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-4">
+      <h2 className="text-2xl font-bold text-emerald-700">เป้าหมายหลักของคุณ</h2>
+      <p className="text-slate-500 text-sm mt-2 leading-relaxed">เลือกเป้าหมายที่ต้องการมากที่สุด</p>
+
+      <div className="space-y-3 mt-4">
+        {primaryGoals.map(goal => {
+          const selected = formData.primary_goal === goal.value;
+          return (
+            <button
+              key={goal.value}
+              onClick={() => setFormData(prev => ({ ...prev, primary_goal: goal.value }))}
+              className={`w-full p-4 rounded-2xl border flex items-center gap-4 transition-all ${selected
+                ? 'border-emerald-500 bg-emerald-50 shadow-sm'
+                : 'border-slate-200 bg-slate-50 hover:bg-slate-100'
+                }`}
+            >
+              <div className={`w-12 h-12 rounded-xl ${goal.color} flex items-center justify-center`}>
+                <Icon name={goal.icon} className="w-6 h-6" />
+              </div>
+              <span className={`font-bold text-lg ${selected ? 'text-emerald-700' : 'text-slate-700'}`}>{goal.label}</span>
+              {selected && <span className="ml-auto text-emerald-600 text-xl font-bold">✓</span>}
+            </button>
+          );
+        })}
+      </div>
+
+      <div className="space-y-4 mt-4">
+        <div>
+          <label className="block text-sm font-bold text-slate-700 mb-2 px-1">เป้าหมายน้ำหนัก (กก.)</label>
+          <input
+            type="number"
+            step="0.1"
+            value={formData.target_weight_kg}
+            onChange={(e) => setFormData({ ...formData, target_weight_kg: e.target.value })}
+            placeholder="เช่น 65"
+            className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl focus:border-emerald-500 focus:bg-white focus:outline-none text-slate-700 placeholder-slate-400"
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-bold text-slate-700 mb-2 px-1">เป้าหมายแคลอรีต่อวัน</label>
+          <input
+            type="number"
+            value={formData.daily_calorie_target}
+            onChange={(e) => setFormData({ ...formData, daily_calorie_target: e.target.value })}
+            placeholder={tdee ? `แนะนำ ${tdee} kcal` : 'คำนวณอัตโนมัติ'}
+            className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl focus:border-emerald-500 focus:bg-white focus:outline-none text-slate-700 placeholder-slate-400"
+          />
+          {tdee > 0 && (
+            <p className="text-xs text-slate-400 mt-1 px-1">
+              คำนวณจาก BMR × ระดับกิจกรรม = <span className="font-semibold text-emerald-600">{tdee} kcal/วัน</span> (ว่างไว้เพื่อใช้ค่านี้)
+            </p>
+          )}
+        </div>
+      </div>
+    </motion.div>,
+
+    // =====================================================
+    // Step 8: โรคประจำตัว (Chronic Diseases)
+    // =====================================================
+    <motion.div key="diseases" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-4">
+      <h2 className="text-2xl font-bold text-emerald-700">โรคประจำตัว</h2>
+      <p className="text-slate-500 text-sm mt-2 leading-relaxed">เลือกโรคประจำตัวที่มี เพื่อให้เราแนะนำอาหารที่เหมาะสม (ไม่บังคับ)</p>
+
+      <div className="flex flex-wrap gap-2 mt-4">
+        {chronicDiseaseOptions.map(d => {
+          const selected = formData.chronic_diseases.includes(d.value);
+          return (
+            <button
+              key={d.value}
+              onClick={() => toggleArrayField('chronic_diseases', d.value)}
+              className={`px-4 py-2.5 rounded-full border text-sm font-medium transition-all ${selected
+                ? 'border-rose-400 bg-rose-50 text-rose-700 shadow-sm'
+                : 'border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100'
+                }`}
+            >
+              {selected && <span className="mr-1">✓</span>}
+              {d.label}
+            </button>
+          );
+        })}
+      </div>
+
+      {formData.chronic_diseases.length > 0 && (
+        <div className="mt-3 p-3 bg-amber-50 border border-amber-200 rounded-2xl">
+          <p className="text-sm text-amber-700">
+            <span className="font-bold">📋 เลือกแล้ว:</span> {formData.chronic_diseases.map(d => chronicDiseaseOptions.find(o => o.value === d)?.label).join(', ')}
+          </p>
+        </div>
+      )}
+    </motion.div>,
+
+    // =====================================================
+    // Step 9: อาหารที่แพ้/ข้อจำกัด (Allergies & Restrictions)
+    // =====================================================
+    <motion.div key="allergies" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-5">
+      <h2 className="text-2xl font-bold text-emerald-700">อาหารที่แพ้ / ข้อจำกัด</h2>
+      <p className="text-slate-500 text-sm mt-2 leading-relaxed">ช่วยให้เราหลีกเลี่ยงเมนูที่ไม่เหมาะกับคุณ (ไม่บังคับ)</p>
+
+      {/* Food allergies */}
+      <div>
+        <label className="block text-sm font-bold text-slate-700 mb-2 px-1">อาหารที่แพ้</label>
+        <div className="flex flex-wrap gap-2">
+          {allergyOptions.map(a => {
+            const selected = formData.food_allergies.includes(a.value);
+            return (
+              <button
+                key={a.value}
+                onClick={() => toggleArrayField('food_allergies', a.value)}
+                className={`px-4 py-2.5 rounded-full border text-sm font-medium transition-all ${selected
+                  ? 'border-orange-400 bg-orange-50 text-orange-700 shadow-sm'
+                  : 'border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100'
+                  }`}
+              >
+                {selected && <span className="mr-1">✓</span>}
+                {a.label}
+              </button>
+            );
+          })}
+        </div>
+        {/* Custom allergy input */}
+        <div className="flex gap-2 mt-3">
+          <input
+            type="text"
+            value={customAllergy}
+            onChange={(e) => setCustomAllergy(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && addCustomAllergy()}
+            placeholder="พิมพ์เพิ่มเติม..."
+            className="flex-1 p-3 bg-slate-50 border border-slate-200 rounded-2xl focus:border-emerald-500 focus:bg-white focus:outline-none text-sm text-slate-700 placeholder-slate-400"
+          />
+          <button
+            onClick={addCustomAllergy}
+            className="px-4 py-3 bg-emerald-100 text-emerald-700 rounded-2xl text-sm font-bold hover:bg-emerald-200 transition-colors"
+          >
+            เพิ่ม
+          </button>
+        </div>
+        {/* Show custom allergies */}
+        {formData.food_allergies.filter(a => !allergyOptions.find(o => o.value === a)).length > 0 && (
+          <div className="flex flex-wrap gap-2 mt-2">
+            {formData.food_allergies.filter(a => !allergyOptions.find(o => o.value === a)).map(a => (
+              <span key={a} className="px-3 py-1.5 rounded-full bg-orange-50 text-orange-700 text-sm font-medium border border-orange-200 flex items-center gap-1">
+                {a}
+                <button onClick={() => toggleArrayField('food_allergies', a)} className="ml-1 text-orange-400 hover:text-orange-700">✕</button>
+              </span>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Religious restrictions */}
+      <div>
+        <label className="block text-sm font-bold text-slate-700 mb-2 px-1">ข้อจำกัดทางศาสนา / ไลฟ์สไตล์</label>
+        <div className="flex flex-wrap gap-2">
+          {religiousOptions.map(r => {
+            const selected = formData.religious_restrictions.includes(r.value);
+            return (
+              <button
+                key={r.value}
+                onClick={() => toggleArrayField('religious_restrictions', r.value)}
+                className={`px-4 py-2.5 rounded-full border text-sm font-medium transition-all ${selected
+                  ? 'border-purple-400 bg-purple-50 text-purple-700 shadow-sm'
+                  : 'border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100'
+                  }`}
+              >
+                {selected && <span className="mr-1">✓</span>}
+                {r.label}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Medications */}
+      <div>
+        <label className="block text-sm font-bold text-slate-700 mb-2 px-1">ยาที่ใช้อยู่ที่กระทบการกิน</label>
+        <input
+          type="text"
+          value={formData.medications_affecting_diet}
+          onChange={(e) => setFormData({ ...formData, medications_affecting_diet: e.target.value })}
+          placeholder="เช่น Warfarin (ห้ามกินผักสีเขียวเยอะ)"
+          className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl focus:border-emerald-500 focus:bg-white focus:outline-none text-slate-700 placeholder-slate-400 text-sm"
+        />
+      </div>
+    </motion.div>,
   ];
 
   return (
     <div className="min-h-screen bg-slate-100 flex flex-col font-sans">
-      {/* Top Banner (Emerald theme) */}
-      <div className="bg-emerald-500 py-4 flex justify-center items-center shadow-sm">
-        <div className="flex items-center gap-2 text-white font-black text-2xl">
-          <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-emerald-500 shadow-sm">
-            <Icon name="restaurant_menu" className="w-6 h-6" />
-          </div>
-          <span>WongKhao</span>
-        </div>
-      </div>
 
       <div className="flex-1 px-4 py-6 flex flex-col items-center">
         {/* White Card Container */}
         <div className="bg-white rounded-[24px] shadow-sm border border-slate-200 w-full max-w-sm p-6 relative">
 
-          {/* Progress Bar (Optional, but good for UX) */}
-          <div className="flex gap-1.5 mb-6">
+          {/* Progress Bar */}
+          <div className="flex gap-1 mb-6">
             {steps.map((_, i) => (
               <div
                 key={i}
@@ -307,8 +701,11 @@ export default function ProfileForm({ onSubmit }) {
             ))}
           </div>
 
+          {/* Step label */}
+          <p className="text-xs text-slate-400 text-right mb-2">{step + 1} / {steps.length}</p>
+
           {/* Current Step Content */}
-          <div className="min-h-[320px]">
+          <div className="min-h-[320px] max-h-[55vh] overflow-y-auto pr-1">
             {steps[step]}
           </div>
 

@@ -19,6 +19,18 @@ export default function Onboarding() {
         sodium_limit: 1500,
         points: 0,
         streak_days: 1,
+        // Health profile fields
+        birthday: formData.birthday || null,
+        waist_cm: formData.waist_cm || null,
+        body_fat_pct: formData.body_fat_pct || null,
+        bmr: formData.bmr || null,
+        primary_goal: formData.primary_goal || null,
+        target_weight_kg: formData.target_weight_kg || null,
+        daily_calorie_target: formData.daily_calorie_target || null,
+        chronic_diseases: formData.chronic_diseases || null,
+        food_allergies: formData.food_allergies || null,
+        religious_restrictions: formData.religious_restrictions || null,
+        medications_affecting_diet: formData.medications_affecting_diet || null,
       };
 
       const savedProfile = await localStore.entities.UserProfile.update(user.id, profileData);
@@ -31,6 +43,7 @@ export default function Onboarding() {
       setLoading(false);
     }
   };
+
 
   return <ProfileForm onSubmit={handleSubmit} />;
 }
