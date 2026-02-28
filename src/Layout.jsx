@@ -1,11 +1,11 @@
 import FluidNavBar from '@/components/ui/FluidNavBar';
 
 const navItems = [
-  { path: 'home', icon: 'home', label: 'หน้าแรก' },
-  { path: 'discover', icon: 'search', label: 'ค้นหา' },
-  { path: 'create', icon: 'add', label: '', isAction: true }, // The center button
-  { path: 'notifications', icon: 'notifications', label: 'การแจ้งเตือน' },
-  { path: 'profile', icon: 'person', label: 'ฉัน' }
+  { path: 'home',      icon: 'home',           label: 'หน้าแรก'  },
+  { path: 'discover',  icon: 'explore',         label: 'ค้นหา'    },
+  { path: 'MealPlan',  icon: 'calendar_month',  label: 'แผนอาหาร' },
+  { path: 'community', icon: 'group',           label: 'ชุมชน'    },
+  { path: 'profile',   icon: 'person',          label: 'โปรไฟล์'  },
 ];
 
 export default function Layout({ children, currentPageName }) {
