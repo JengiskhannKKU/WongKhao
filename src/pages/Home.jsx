@@ -4,10 +4,104 @@ import { motion } from 'framer-motion';
 import { localStore } from '@/api/apiStore';
 import { createPageUrl } from '@/utils';
 import { useAuth } from '@/lib/AuthContext';
-import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/Icon';
+import FeedPostCard from '@/components/feed/FeedPostCard';
 
-const categories = ['ทั้งหมด', 'ของคาว', 'ของหวาน', 'เครื่องดื่ม'];
+// Demo feed data — shows recipe posts from users who cooked swiped recipes
+const demoFeedPosts = [
+  {
+    id: 1,
+    userName: 'สมชาย คำดี',
+    avatar: null,
+    badge: 'สายเฮลตี้',
+    hoursAgo: 2,
+    caption: 'ลองทำตามสูตรที่ปรับแล้ว ลดเค็มจัด แต่ยังอร่อยเหมือนเดิม! 🔥\nใช้น้ำปลาลดโซเดียม + เพิ่มมะนาวชดเชย',
+    menuName: 'ส้มตำปลาร้า สูตรลดเค็ม',
+    image: 'https://images.unsplash.com/photo-1562565652-a0d8f0c59eb4?w=800&q=80',
+    sodiumReduced: 22,
+    caloriesReduced: null,
+    likes: 47,
+    comments: 12,
+    shares: 3,
+    topComment: {
+      name: 'วิภา',
+      text: 'น่ากินมากเลยค่ะ! จะลองทำบ้าง 🥰'
+    }
+  },
+  {
+    id: 2,
+    userName: 'ปิยะ รุ่งเรือง',
+    avatar: null,
+    badge: null,
+    hoursAgo: 5,
+    caption: 'วันนี้ทำข้าวผัดคลีนเอง สูตรจากแอปวงข้าว ไม่ใส่ผงชูรส เลย ลดแคลด้วย 💪',
+    menuName: 'ข้าวผัดคลีน',
+    image: 'https://images.unsplash.com/photo-1603133872878-684f208fb84b?w=800&q=80',
+    sodiumReduced: null,
+    caloriesReduced: 15,
+    likes: 23,
+    comments: 5,
+    shares: 1,
+    topComment: {
+      name: 'กิตติ',
+      text: 'สูตรนี้โปรตีนสูงดีมากครับ! 💪'
+    }
+  },
+  {
+    id: 3,
+    userName: 'มานี ใจดี',
+    avatar: null,
+    badge: '7 วัน Streak 🔥',
+    hoursAgo: 8,
+    caption: 'ต้มยำกุ้งสูตรใหม่ ลดน้ำตาลและโซเดียม ครอบครัวทานกันทั้งบ้าน ชอบมากค่ะ ❤️',
+    menuName: 'ต้มยำกุ้ง สูตรครอบครัว',
+    image: 'https://images.unsplash.com/photo-1559314809-0d155014e29e?w=800&q=80',
+    sodiumReduced: 35,
+    caloriesReduced: 10,
+    likes: 89,
+    comments: 24,
+    shares: 8,
+    topComment: {
+      name: 'สมชาย',
+      text: 'สูตรครอบครัวนี้เด็ดครับ เด็กๆ ก็กินได้เลย 👍'
+    }
+  },
+  {
+    id: 4,
+    userName: 'กิตติ สุขสม',
+    avatar: null,
+    badge: null,
+    hoursAgo: 12,
+    caption: 'ผัดกะเพราหมูสับ swap สูตรจากแอป ใช้ซีอิ๊วขาวลดเกลือแทนน้ำปลา อร่อยไม่แพ้กัน!',
+    menuName: 'ผัดกะเพราหมูสับ สูตรลดเค็ม',
+    image: 'https://images.unsplash.com/photo-1628867389140-5e608027aeb8?w=800&q=80',
+    sodiumReduced: 28,
+    caloriesReduced: 5,
+    likes: 34,
+    comments: 8,
+    shares: 2,
+    topComment: null
+  },
+  {
+    id: 5,
+    userName: 'วิภา สดใส',
+    avatar: null,
+    badge: 'สายคลีน',
+    hoursAgo: 18,
+    caption: 'สลัดอกไก่ย่างสูตรเฮลตี้ โปรตีนแน่นมาก ทำง่ายด้วย 🥗',
+    menuName: 'สลัดอกไก่ย่าง',
+    image: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=800&q=80',
+    sodiumReduced: null,
+    caloriesReduced: 20,
+    likes: 56,
+    comments: 15,
+    shares: 4,
+    topComment: {
+      name: 'ปิยะ',
+      text: 'คลีนๆ แบบนี้ชอบเลย!'
+    }
+  }
+];
 
 const collections = [
   { id: 1, label: 'อาหารไทย', img: 'https://images.unsplash.com/photo-1559314809-0d155014e29e?w=150&h=150&fit=crop&q=80' },
@@ -42,6 +136,22 @@ export default function Home() {
   const { user } = useAuth();
   const [userProfile, setUserProfile] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState('foryou');
+  const [activeCategory, setActiveCategory] = useState('all');
+
+  const categories = [
+    { id: 'all', label: 'All', icon: '✨' },
+    { id: 'fruits', label: 'Fruits', icon: '🍎' },
+    { id: 'bread', label: 'Bread', icon: '🍞' },
+    { id: 'vegetable', label: 'Vegetable', icon: '🥬' },
+    { id: 'fish', label: 'Fish', icon: '🐟' },
+    { id: 'meat', label: 'Meat', icon: '🍖' },
+    { id: 'drinks', label: 'Drinks', icon: '🥤' },
+    { id: 'seafood', label: 'Sea Food', icon: '🐙' },
+    { id: 'ice_cream', label: 'Ice cream', icon: '🍦' },
+    { id: 'juice', label: 'Juice', icon: '🍹' },
+    { id: 'jam', label: 'Jam', icon: '🍓' },
+  ];
 
   useEffect(() => {
     checkProfile();
@@ -73,11 +183,11 @@ export default function Home() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-white">
+      <div className="min-h-screen flex items-center justify-center bg-white">
         <motion.div
           animate={{ rotate: 360 }}
           transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-          className="w-8 h-8 border-2 border-slate-800 border-t-transparent rounded-full"
+          className="w-8 h-8 border-2 border-emerald-600 border-t-transparent rounded-full"
         />
       </div>
     );
@@ -113,18 +223,32 @@ export default function Home() {
           <span className="text-base">ค้นหาเมนูอาหาร...</span>
         </button>
 
-        <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide mb-6">
-          {categories.map((cat, index) => (
-            <button
-              key={cat}
-              className={`px-5 py-2.5 rounded-full whitespace-nowrap text-sm font-semibold transition-all ${index === 0
-                ? 'bg-emerald-700 text-white shadow-md shadow-emerald-700/20'
-                : 'bg-white text-slate-500 border border-slate-200 hover:border-emerald-300'
-                }`}
-            >
-              {cat}
+        <div className="mb-6">
+          <div className="flex items-center justify-between mb-3 px-1">
+            <h2 className="text-xl font-bold text-slate-800">Categories</h2>
+            <button className="flex items-center gap-1.5 px-3 py-1 rounded-full border border-emerald-500 text-emerald-600 text-[11px] font-bold bg-white hover:bg-emerald-50 transition-colors shadow-sm">
+              <Icon name="filter_list" className="w-3 h-3" />
+              Filter
             </button>
-          ))}
+          </div>
+          <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide px-1">
+            {categories.map((cat) => (
+              <button
+                key={cat.id}
+                onClick={() => setActiveCategory(cat.id)}
+                className={`flex flex-col items-center justify-center min-w-[70px] h-[78px] rounded-2xl transition-all shadow-sm shrink-0 border
+                  ${activeCategory === cat.id
+                    ? 'border-emerald-500 bg-emerald-50 ring-1 ring-emerald-500 shadow-emerald-500/20'
+                    : 'border-slate-100 bg-white hover:bg-slate-50'
+                  }`}
+              >
+                <span className="text-[26px] mb-1 leading-none">{cat.icon}</span>
+                <span className={`text-[11px] font-medium leading-tight ${activeCategory === cat.id ? 'text-emerald-700 font-bold' : 'text-slate-600'}`}>
+                  {cat.label}
+                </span>
+              </button>
+            ))}
+          </div>
         </div>
 
         <div className="grid grid-cols-4 gap-3 mb-8">
@@ -213,13 +337,13 @@ export default function Home() {
           transition={{ delay: 0.25 }}
           className="mt-6"
         >
-          <Button
+          <button
             onClick={handleStart}
-            className="w-full h-14 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white rounded-2xl shadow-xl shadow-emerald-200 text-base font-medium"
+            className="w-full h-14 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white rounded-2xl shadow-xl shadow-emerald-200 text-base font-medium flex justify-center items-center"
           >
             {userProfile ? 'ไปดูเมนูวันนี้' : 'เริ่มต้นใช้งาน'}
             <Icon name="chevron_right" className="w-5 h-5 ml-2" />
-          </Button>
+          </button>
 
           {userProfile && (
             <div className="mt-4 flex items-center justify-center gap-2 text-sm text-slate-500">

@@ -10,110 +10,71 @@ export default function FluidNavBar({ navItems, currentPageName }) {
 
     // Sync active index with URL changes
     useEffect(() => {
-        const index = navItems.findIndex(item => item.path === currentPageName.toLowerCase());
+        const index = navItems.findIndex(item => item.path === currentPageName.toLowerCase() && !item.isAction);
         if (index !== -1) {
             setActiveIndex(index);
         }
     }, [currentPageName, navItems]);
 
-    const handleNav = (index, path) => {
+    const handleNav = (index, item) => {
+        if (item.isAction) {
+            // Placeholder for create post action
+            alert("Create post clicked!");
+            return;
+        }
+
         setActiveIndex(index);
-        // Slight delay allows animation to start before routing
         setTimeout(() => {
-            navigate(createPageUrl(path));
-        }, 150);
+            navigate(createPageUrl(item.path));
+        }, 100);
     };
 
-    // Calculate position for the cutout based on active index
-    // Assuming equal distribution and dynamic width
-    const itemWidth = 100 / navItems.length;
-    const cutoutLeftPercent = (activeIndex * itemWidth) + (itemWidth / 2);
-
     return (
-        <div className="fixed bottom-0 left-0 right-0 w-full z-50 pointer-events-none pb-0">
-            {/* The main wrapper. Using w-full but keeping centering if needed, or remove max-w to span full width */}
-            <div className="relative w-full h-20 pointer-events-auto bg-transparent mx-auto sm:max-w-md">
+        <div className="fixed bottom-0 left-0 right-0 w-full z-50 bg-white border-t border-slate-100 pb-safe">
+            <div className="max-w-md mx-auto h-[60px] flex justify-between items-center px-4">
+                {navItems.map((item, index) => {
+                    const isCenterBtn = item.isAction;
+                    // Find actual active index among non-action items
+                    const isActive = !isCenterBtn && index === activeIndex;
 
-                {/* Floating Active Circle (The Button) */}
-                <motion.div
-                    // Changed from -translate-y-3 to -translate-y-1 to sit lower into the notch
-                    className="absolute top-0 w-[60px] h-[60px] rounded-full flex items-center justify-center -translate-y-1 -translate-x-1/2 z-20"
-                    initial={false}
-                    animate={{ left: `${cutoutLeftPercent}%` }}
-                    transition={{ type: "spring", stiffness: 350, damping: 25, mass: 0.8 }}
-                >
-                    <div className="w-[60px] h-[60px] rounded-full bg-[#1B4332] flex items-center justify-center shadow-lg relative overflow-hidden">
-                        <Icon
-                            name={navItems[activeIndex]?.icon}
-                            filled={true}
-                            className="w-7 h-7 text-white"
-                        />
-                    </div>
-                </motion.div>
-
-                {/* Background Layer with Precise SVG Curve */}
-                <div className="absolute bottom-0 w-full h-[72px] overflow-hidden drop-shadow-[0_-4px_20px_rgba(0,0,0,0.06)]">
-                    <svg
-                        width="100%"
-                        height="100%"
-                        viewBox="0 0 400 72"
-                        preserveAspectRatio="none"
-                        className="absolute bottom-0 w-full h-full text-white"
-                    >
-                        <defs>
-                            <mask id="hole-mask">
-                                <rect width="100%" height="100%" fill="white" />
-                                <motion.g
-                                    initial={false}
-                                    animate={{ x: `calc(${cutoutLeftPercent}% - 60px)` }}
-                                    transition={{ type: "spring", stiffness: 350, damping: 25, mass: 0.8 }}
-                                >
-                                    <path
-                                        d="M 0,0 
-                                           C 30,0 35,38 60,38 
-                                           C 85,38 90,0 120,0 
-                                           L 120,-20 L 0,-20 Z"
-                                        fill="black"
-                                    />
-                                </motion.g>
-                            </mask>
-                        </defs>
-                        <rect x="0" y="0" width="100%" height="100%" fill="currentColor" mask="url(#hole-mask)" />
-                    </svg>
-                </div>
-
-                {/* Navigation Items container */}
-                {/* Changed top-6 to top-2 to pull the icons up and give text room at the bottom */}
-                <div className="absolute inset-0 top-2 h-[70px] flex justify-around items-center px-2 z-30">
-                    {navItems.map((item, index) => {
-                        const isActive = index === activeIndex;
-
+                    if (isCenterBtn) {
                         return (
                             <button
                                 key={item.path}
-                                onClick={() => handleNav(index, item.path)}
-                                className="flex-1 h-full flex flex-col items-center justify-center relative outline-none tap-transparent group"
+                                onClick={() => handleNav(index, item)}
+                                className="flex flex-col items-center justify-center outline-none tap-transparent shrink-0 mx-2"
                             >
-                                <div className={`flex flex-col items-center justify-center transition-all duration-200 pt-1 ${isActive ? 'opacity-0 scale-50' : 'opacity-100 scale-100'}`}>
-                                    {/* Icon */}
-                                    <Icon
-                                        name={item.icon}
-                                        filled={false}
-                                        className={`w-[26px] h-[26px] text-slate-400 group-hover:text-emerald-700 transition-colors`}
-                                    />
-                                    {/* Label: Increased size to text-xs and font-bold */}
-                                    <span className="text-xs font-bold mt-1 text-slate-500 group-hover:text-emerald-800 tracking-wide transition-colors">
-                                        {item.label}
-                                    </span>
+                                <div className="w-[42px] h-[32px] rounded-xl bg-[#fbbf24] flex items-center justify-center shadow-sm -mt-2">
+                                    <Icon name={item.icon} className="w-6 h-6 text-black" filled={true} />
                                 </div>
                             </button>
                         );
-                    })}
-                </div>
+                    }
+
+                    return (
+                        <button
+                            key={item.path}
+                            onClick={() => handleNav(index, item)}
+                            className="flex-1 h-full flex flex-col items-center justify-center relative outline-none tap-transparent group"
+                        >
+                            <div className="flex flex-col items-center justify-center pt-1 w-full gap-0.5">
+                                <Icon
+                                    name={item.icon}
+                                    filled={isActive}
+                                    className={`w-6 h-6 transition-colors ${isActive ? 'text-black' : 'text-slate-400'}`}
+                                />
+                                <span className={`text-[10px] font-medium transition-colors ${isActive ? 'text-black font-bold' : 'text-slate-500'}`}>
+                                    {item.label}
+                                </span>
+                            </div>
+                        </button>
+                    );
+                })}
             </div>
-            {/* Global style for tap higlight removal */}
+            {/* Global style for tap higlight removal and safe area padding iOS */}
             <style>{`
                 .tap-transparent { -webkit-tap-highlight-color: transparent; }
+                .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
             `}</style>
         </div>
     );

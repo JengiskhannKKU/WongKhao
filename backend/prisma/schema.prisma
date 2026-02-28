@@ -13,11 +13,30 @@ model UserProfile {
   password        String?
   name            String?
   age             Int?
+  birthday        String?
   health_goal     String?
   sodium_limit    Int?     @default(1500)
   streak_days     Int?     @default(1)
   points          Int?     @default(0)
   created_date    DateTime @default(now())
+
+  // Body metrics
+  waist_cm        Float?
+  body_fat_pct    Float?
+  bmr             Float?
+
+  // Health goals (expanded)
+  primary_goal         String?
+  target_weight_kg     Float?
+  daily_calorie_target Int?
+
+  // Chronic diseases (JSON array as string)
+  chronic_diseases     String?
+
+  // Allergies & restrictions (JSON arrays as strings)
+  food_allergies              String?
+  religious_restrictions      String?
+  medications_affecting_diet  String?
 }
 
 model Menu {
