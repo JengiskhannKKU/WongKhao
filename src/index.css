@@ -4,8 +4,7 @@
 
 @font-face {
   font-family: 'TH-Chara';
-  src: url('@/TH-Chara/TH-Chara ver 2.00.ttf') format('truetype'),
-    url('@/TH-Chara/TH-Chara ver 2.00.otf') format('opentype');
+  src: url('@/TH-Chara/TH-Chara ver 2.00.otf') format('opentype');
   font-weight: normal;
   font-style: normal;
   font-display: swap;

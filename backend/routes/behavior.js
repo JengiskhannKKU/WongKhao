@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import {
+  getNeo4jDatabase,
   hasNeo4jConfig,
   normalizeRecords,
   runRead,
@@ -86,10 +87,19 @@ async function guardReady(_req, res, next) {
 }
 
 router.get('/health', async (_req, res) => {
+  if (hasNeo4jConfig() && !graphReady) {
+    try {
+      await ensureConstraints();
+    } catch {
+      // handled by graphReady=false response below
+    }
+  }
+
   res.json({
     ok: true,
     neo4jConfigured: hasNeo4jConfig(),
     graphReady,
+    neo4jDatabase: hasNeo4jConfig() ? getNeo4jDatabase() : null,
   });
 });
 
