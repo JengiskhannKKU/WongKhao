@@ -8,6 +8,7 @@ import { BrowserRouter as Router, Route, Routes, Navigate, useLocation } from 'r
 import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import SplashScreen from '@/components/SplashScreen';
+import CommunityPostDetail from './pages/CommunityPostDetail';
 
 const PUBLIC_PAGES = ['Login', 'Register'];
 
@@ -65,6 +66,13 @@ function App() {
                   }
                 />
               ))}
+              <Route path="/CommunityPostDetail/:id" element={
+                <ProtectedRoute>
+                  <LayoutWrapper currentPageName="CommunityPostDetail">
+                    <CommunityPostDetail />
+                  </LayoutWrapper>
+                </ProtectedRoute>
+              } />
               <Route path="*" element={<PageNotFound />} />
             </Routes>
           </Router>

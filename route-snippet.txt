@@ -1,0 +1,2 @@
+﻿  <Route path=\
+/CommunityPostDetail/:id\ element={<LayoutWrapper currentPageName=\CommunityPostDetail\><CommunityPostDetail /></LayoutWrapper>} />
