@@ -36,7 +36,7 @@ export default function Community() {
         localStore.entities.ChallengeParticipant.list(),
         localStore.entities.ProvinceScore.list(),
       ]);
-      setPosts(postsData.sort((a, b) => new Date(b.created_date) - new Date(a.created_date)));
+      setPosts(postsData.sort((a, b) => new Date(b.created_date).getTime() - new Date(a.created_date).getTime()));
       setChallenges(challengesData);
       setParticipants(participantsData);
       setJoinedChallenges(participantsData.map(p => p.challenge_id));
@@ -278,6 +278,7 @@ export default function Community() {
                         key={challenge.id}
                         challenge={challenge}
                         isJoined={false}
+                        progress={0}
                         onJoin={handleJoinChallenge}
                       />
                     ))}

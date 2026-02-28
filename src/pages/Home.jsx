@@ -110,24 +110,78 @@ const collections = [
   { id: 4, label: 'ยอดฮิต', img: 'https://images.unsplash.com/photo-1565557623262-b51c2513a641?w=150&h=150&fit=crop&q=80' }
 ];
 
-const popularMenus = [
+const communityPosts = [
   {
-    id: 'm1',
-    name: 'ผัดกะเพราคลีน',
-    price: '฿89',
-    rating: '4.8',
-    reviews: '120 รีวิว',
-    time: '15 นาที',
-    img: 'https://images.unsplash.com/photo-1559314809-0d155014e29e?w=300&h=300&fit=crop&q=80'
+    id: 1,
+    title: 'แจกสูตรลดน้ำหนัก 1 เดือน ฉบับคนขี้เกียจออกกำลังกาย 💖',
+    image: 'https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=400&q=80',
+    user: 'Healthy Girl',
+    avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop&q=80',
+    likes: 1887,
   },
   {
-    id: 'm2',
-    name: 'ข้าวยำสมุนไพร',
-    price: '฿95',
-    rating: '4.7',
-    reviews: '96 รีวิว',
-    time: '20 นาที',
-    img: 'https://images.unsplash.com/photo-1628867389140-5e608027aeb8?w=300&h=300&fit=crop&q=80'
+    id: 2,
+    title: 'แจกทริคหมักอกไก่ให้นุ่มฉ่ำ ไม่แห้งฝืดคอ 🍗',
+    image: 'https://images.unsplash.com/photo-1598514982205-f36b96d1e8d4?w=400&q=80', // Fixed URL
+    user: 'Chef Mai',
+    avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&h=100&fit=crop&q=80',
+    likes: 1954,
+  },
+  {
+    id: 3,
+    title: 'เมนูไข่ลดน้ำหนัก ทำง่าย อร่อย ไม่จำเจ 🥚✨',
+    image: 'https://images.unsplash.com/photo-1559314809-0d155014e29e?w=400&q=80',
+    user: 'Egg Lover',
+    avatar: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=100&h=100&fit=crop&q=80',
+    likes: 2405,
+  },
+  {
+    id: 4,
+    title: '5 ไอเดียข้าวกล่องมื้อเที่ยง แคลน้อยแต่อิ่มนาน 🍱',
+    image: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400&q=80',
+    user: 'Bento Master',
+    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&q=80',
+    likes: 2649,
+  },
+  {
+    id: 5,
+    title: 'สูตรน้ำจิ้มสุกี้ลดโซเดียม อร่อยไม่อ้วน! 🌶️',
+    image: 'https://images.unsplash.com/photo-1551218808-94e220e084d2?w=400&q=80', // Fixed URL
+    user: 'Spicy Queen',
+    avatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=100&h=100&fit=crop&q=80',
+    likes: 3120,
+  },
+  {
+    id: 6,
+    title: 'แจกสูตรสมูทตี้โบวล์ กินแทนมื้อเช้าสดชื่นมาก 🍓🥣',
+    image: 'https://images.unsplash.com/photo-1494597564530-871f2b93ac55?w=400&q=80',
+    user: 'Fruit Lover',
+    avatar: 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=100&h=100&fit=crop&q=80',
+    likes: 4502,
+  },
+  {
+    id: 7,
+    title: 'รวบรวมเมนูเส้นบุก แคลต่ำ กินเท่าไหร่ก็ไม่ผิด 🍜',
+    image: 'https://images.unsplash.com/photo-1552611052-33e04de081de?w=400&q=80', // Fixed URL
+    user: 'Noodle Fan',
+    avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&q=80',
+    likes: 5890,
+  },
+  {
+    id: 8,
+    title: 'ทำกิมจิโฮมเมดกินเอง ลดเค็ม ลดน้ำตาล 🥬',
+    image: 'https://images.unsplash.com/photo-1583224964978-225ddb1ca266?w=400&q=80',
+    user: 'Kimchi Master',
+    avatar: 'https://images.unsplash.com/photo-1531427186611-ecfd6d936c79?w=100&h=100&fit=crop&q=80',
+    likes: 1245,
+  },
+  {
+    id: 9,
+    title: 'แชร์ไอเดียขนมคลีน ทำจากข้าวโอ๊ต 🍪',
+    image: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=400&q=80',
+    user: 'Baker Girl',
+    avatar: 'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=100&h=100&fit=crop&q=80',
+    likes: 890,
   }
 ];
 
@@ -139,19 +193,7 @@ export default function Home() {
   const [activeTab, setActiveTab] = useState('foryou');
   const [activeCategory, setActiveCategory] = useState('all');
 
-  const categories = [
-    { id: 'all', label: 'All', icon: '✨' },
-    { id: 'fruits', label: 'Fruits', icon: '🍎' },
-    { id: 'bread', label: 'Bread', icon: '🍞' },
-    { id: 'vegetable', label: 'Vegetable', icon: '🥬' },
-    { id: 'fish', label: 'Fish', icon: '🐟' },
-    { id: 'meat', label: 'Meat', icon: '🍖' },
-    { id: 'drinks', label: 'Drinks', icon: '🥤' },
-    { id: 'seafood', label: 'Sea Food', icon: '🐙' },
-    { id: 'ice_cream', label: 'Ice cream', icon: '🍦' },
-    { id: 'juice', label: 'Juice', icon: '🍹' },
-    { id: 'jam', label: 'Jam', icon: '🍓' },
-  ];
+
 
   useEffect(() => {
     checkProfile();
@@ -223,51 +265,8 @@ export default function Home() {
           <span className="text-base">ค้นหาเมนูอาหาร...</span>
         </button>
 
-        <div className="mb-6">
-          <div className="flex items-center justify-between mb-3 px-1">
-            <h2 className="text-xl font-bold text-slate-800">Categories</h2>
-            <button className="flex items-center gap-1.5 px-3 py-1 rounded-full border border-emerald-500 text-emerald-600 text-[11px] font-bold bg-white hover:bg-emerald-50 transition-colors shadow-sm">
-              <Icon name="filter_list" className="w-3 h-3" />
-              Filter
-            </button>
-          </div>
-          <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide px-1">
-            {categories.map((cat) => (
-              <button
-                key={cat.id}
-                onClick={() => setActiveCategory(cat.id)}
-                className={`flex flex-col items-center justify-center min-w-[70px] h-[78px] rounded-2xl transition-all shadow-sm shrink-0 border
-                  ${activeCategory === cat.id
-                    ? 'border-emerald-500 bg-emerald-50 ring-1 ring-emerald-500 shadow-emerald-500/20'
-                    : 'border-slate-100 bg-white hover:bg-slate-50'
-                  }`}
-              >
-                <span className="text-[26px] mb-1 leading-none">{cat.icon}</span>
-                <span className={`text-[11px] font-medium leading-tight ${activeCategory === cat.id ? 'text-emerald-700 font-bold' : 'text-slate-600'}`}>
-                  {cat.label}
-                </span>
-              </button>
-            ))}
-          </div>
-        </div>
 
-        <div className="grid grid-cols-4 gap-3 mb-8">
-          {collections.map((item) => (
-            <button
-              key={item.id}
-              onClick={() => navigate(createPageUrl('Discover'))}
-              className="flex flex-col items-center gap-2 text-center"
-            >
-              <div className="w-16 h-16 rounded-full bg-emerald-50 p-1">
-                <img src={item.img} alt={item.label} className="w-full h-full object-cover rounded-full" />
-              </div>
-              <span className="text-[11px] font-semibold text-slate-600 leading-tight">{item.label}</span>
-            </button>
-          ))}
-        </div>
-
-        <div className="mb-8">
-          <h3 className="font-bold text-lg text-slate-800 mb-4">โปรโมชั่นเด็ด</h3>
+        <div className="mb-8 flex flex-col gap-4">
           <div className="bg-emerald-800 rounded-3xl p-5 text-white flex relative overflow-hidden shadow-lg shadow-emerald-900/20 min-h-[170px]">
             <div className="absolute top-0 right-0 w-32 h-full bg-white/10 skew-x-12 translate-x-10" />
             <div className="z-10 w-3/5">
@@ -287,75 +286,60 @@ export default function Home() {
               />
             </div>
           </div>
-        </div>
 
-        <div>
-          <div className="flex justify-between items-end mb-4">
-            <h3 className="font-bold text-lg text-slate-800">เมนูยอดนิยม</h3>
-            <button
-              onClick={() => navigate(createPageUrl('Discover'))}
-              className="text-sm font-semibold text-emerald-600"
-            >
-              ดูทั้งหมด
-            </button>
+          <div className="bg-emerald-800 rounded-3xl p-5 text-white flex relative overflow-hidden shadow-lg shadow-emerald-900/20 min-h-[170px]">
+            <div className="absolute top-0 right-0 w-32 h-full bg-white/10 skew-x-12 translate-x-10" />
+            <div className="z-10 w-3/5">
+              <h4 className="text-xl font-bold leading-tight mb-2">มื้ออร่อยสุขภาพดี<br />ที่คุณไม่ควรพลาด!</h4>
+              <button
+                onClick={handleStart}
+                className="bg-white text-emerald-800 px-4 py-1.5 rounded-full text-sm font-bold mt-2 shadow-sm"
+              >
+                เริ่มเลือกรสชาติ
+              </button>
+            </div>
+            <div className="absolute right-[-20px] bottom-0 w-40 h-40">
+              <img
+                src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=300&h=300&fit=crop&q=80"
+                alt="Healthy Bowl"
+                className="w-full h-full object-cover rounded-tl-full rounded-bl-full shadow-2xl"
+              />
+            </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            {popularMenus.map((menu) => (
-              <div key={menu.id} className="bg-white rounded-3xl p-3 shadow-[0_8px_30px_rgb(0,0,0,0.04)] relative">
-                <button className="absolute top-4 right-4 z-10 w-8 h-8 bg-white/90 backdrop-blur rounded-full flex items-center justify-center shadow-sm">
-                  <Icon name="favorite" className="w-4 h-4 text-slate-300" />
-                </button>
-                <div className="w-full aspect-square rounded-2xl overflow-hidden mb-3 relative">
-                  <img src={menu.img} alt={menu.name} className="w-full h-full object-cover" />
-                  <div className="absolute bottom-2 left-2 bg-white/90 backdrop-blur-md px-2 py-1 rounded-lg flex items-center gap-1">
-                    <Icon name="schedule" className="w-3 h-3 text-emerald-600" />
-                    <span className="text-[10px] font-bold text-slate-700">{menu.time}</span>
+        </div>
+
+        <div className="mb-4">
+
+
+          <div className="columns-2 gap-3 space-y-3">
+            {communityPosts.map((post) => (
+              <motion.div
+                whileHover={{ y: -4, scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                key={post.id}
+                className="bg-white rounded-[16px] overflow-hidden shadow-sm border border-slate-100 relative group cursor-pointer inline-block w-full break-inside-avoid"
+              >
+                <div className="w-full relative">
+                  <img src={post.image} alt={post.title} className="w-full h-auto object-cover" />
+                </div>
+                <div className="p-3">
+                  <h4 className="font-medium text-[13px] text-slate-800 mb-3 leading-snug line-clamp-2">{post.title}</h4>
+                  <div className="flex items-center justify-between mt-auto w-full">
+                    <div className="flex items-center gap-1.5 overflow-hidden flex-1">
+                      <img src={post.avatar} alt={post.user} className="w-5 h-5 rounded-full object-cover flex-shrink-0" />
+                      <span className="text-[10px] text-slate-500 font-medium truncate">{post.user}</span>
+                    </div>
+                    <div className="flex items-center gap-1 text-slate-400 flex-shrink-0 ml-1">
+                      <Icon name="favorite_border" className="w-3.5 h-3.5" />
+                      <span className="text-[10px]">{post.likes}</span>
+                    </div>
                   </div>
                 </div>
-                <h4 className="font-bold text-sm text-slate-800 mb-1 leading-tight line-clamp-1">{menu.name}</h4>
-                <div className="flex items-center gap-1 mb-2">
-                  <Icon name="star" filled className="w-3 h-3 text-amber-400" />
-                  <span className="text-[10px] font-semibold text-slate-600">
-                    {menu.rating} <span className="text-slate-400 font-normal">({menu.reviews})</span>
-                  </span>
-                </div>
-                <div className="flex items-center justify-between mt-auto">
-                  <div className="bg-emerald-600 text-white px-2 py-0.5 rounded-lg text-xs font-bold">{menu.price}</div>
-                  <button className="text-emerald-700">
-                    <Icon name="open_in_new" className="w-5 h-5" />
-                  </button>
-                </div>
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.25 }}
-          className="mt-6"
-        >
-          <button
-            onClick={handleStart}
-            className="w-full h-14 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white rounded-2xl shadow-xl shadow-emerald-200 text-base font-medium flex justify-center items-center"
-          >
-            {userProfile ? 'ไปดูเมนูวันนี้' : 'เริ่มต้นใช้งาน'}
-            <Icon name="chevron_right" className="w-5 h-5 ml-2" />
-          </button>
-
-          {userProfile && (
-            <div className="mt-4 flex items-center justify-center gap-2 text-sm text-slate-500">
-              <Icon name="favorite" className="w-4 h-4 text-rose-400" filled />
-              <span>Day {userProfile.streak_days || 1} • {userProfile.points || 0} คะแนน</span>
-            </div>
-          )}
-        </motion.div>
-
-        <p className="text-center text-xs text-slate-400 mt-4">
-          ปรับสูตรอาหาร • ลดโซเดียม • ดูแลสุขภาพ
-        </p>
       </div>
     </div>
   );
