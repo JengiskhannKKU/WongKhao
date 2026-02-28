@@ -319,7 +319,7 @@ export default function Home() {
             <div className="absolute -top-10 -right-10 w-40 h-40 bg-white/5 rounded-full blur-2xl flex-shrink-0" />
 
             <div className="relative z-10 w-[55%] flex flex-col justify-center">
-              <h4 className="text-[19px] font-black leading-tight mb-2 tracking-tight">
+              <h4 className="text-[19px] font-bold leading-tight mb-2 tracking-tight">
                 มื้ออร่อยสุขภาพดี
                 <br />
                 ที่คุณปรับเปลี่ยนได้!
@@ -358,7 +358,7 @@ export default function Home() {
             <div className="absolute -top-10 -right-10 w-40 h-40 bg-white/10 rounded-full blur-2xl flex-shrink-0" />
 
             <div className="relative z-10 w-[55%] flex flex-col justify-center">
-              <h4 className="text-[19px] font-black leading-tight mb-2 tracking-tight drop-shadow-sm">
+              <h4 className="text-[19px] font-bold leading-tight mb-2 tracking-tight drop-shadow-sm">
                 วางแผนการกิน
                 <br />
                 ในแบบของคุณเอง

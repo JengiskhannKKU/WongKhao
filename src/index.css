@@ -3,8 +3,8 @@
 @tailwind utilities;
 
 @font-face {
-  font-family: 'TH-Chara';
-  src: url('@/TH-Chara/TH-Chara ver 2.00.otf') format('opentype');
+  font-family: "TH-Chara";
+  src: url("@/TH-Chara/TH-Chara ver 2.00.otf") format("opentype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
@@ -94,8 +94,6 @@
   }
 }
 
-
-
 @layer base {
   * {
     @apply border-border outline-ring/50;
@@ -103,9 +101,8 @@
 
   body {
     @apply bg-background text-foreground;
-    font-family: 'TH-Chara', 'Kanit', sans-serif;
-    font-size: 20px;
-    /* Adjusted slightly size considering general spacing, we can make it 22px again if needed */
-    color: #1A1A1A;
+    font-family: "Kanit", sans-serif;
+    font-size: 19px;
+    color: #1a1a1a;
   }
 }

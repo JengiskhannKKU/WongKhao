@@ -15,7 +15,13 @@ model UserProfile {
   age             Int?
   birthday        String?
   health_goal     String?
+  health_goals    String?
+  ncd_targets     String?
   sodium_limit    Int?     @default(1500)
+  blood_certificate_name        String?
+  blood_certificate_data        String?
+  blood_certificate_mime        String?
+  blood_certificate_uploaded_at DateTime?
   streak_days     Int?     @default(1)
   points          Int?     @default(0)
   created_date    DateTime @default(now())
