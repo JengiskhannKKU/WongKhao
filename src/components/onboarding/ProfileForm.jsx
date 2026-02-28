@@ -4,7 +4,7 @@ import Icon from '@/components/ui/Icon';
 
 const regions = [
   { value: 'north', label: 'ภาคเหนือ', image: 'https://images.unsplash.com/photo-1671073454416-a037f3211e80?w=300&h=200&fit=crop&q=80' },
-  { value: 'northeast', label: 'ภาคอีสาน', image: 'https://images.unsplash.com/photo-1528360983277-13d401cdc186?w=300&h=200&fit=crop&q=80' },
+  { value: 'northeast', label: 'ภาคอีสาน', image: 'https://images.unsplash.com/photo-1722995690313-9ef561d30143?q=80&w=692&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D' },
   { value: 'central', label: 'ภาคกลาง', image: 'https://images.unsplash.com/photo-1582468546235-9bf31e5bc4a1?w=300&h=200&fit=crop&q=80' },
   { value: 'south', label: 'ภาคใต้', image: 'https://images.unsplash.com/photo-1516690561799-46d8f74f9abf?w=300&h=200&fit=crop&q=80' },
 ];
