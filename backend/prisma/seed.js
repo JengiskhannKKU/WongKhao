@@ -1,5 +1,12 @@
 import { PrismaClient } from '@prisma/client';
+import { randomBytes, scryptSync } from 'crypto';
 const prisma = new PrismaClient();
+
+function hashPassword(password) {
+    const salt = randomBytes(16).toString('hex');
+    const hash = scryptSync(password, salt, 64).toString('hex');
+    return `${salt}:${hash}`;
+}
 
 async function upsertMany(model, items, idField = 'id') {
     for (const item of items) {
@@ -13,6 +20,18 @@ async function upsertMany(model, items, idField = 'id') {
 
 async function main() {
     console.log('Seeding database...');
+
+    // Hardcoded test users
+    await prisma.userProfile.upsert({
+        where: { email: 'test@test.com' },
+        update: {},
+        create: { email: 'test@test.com', password: hashPassword('1234'), name: 'Test User' },
+    });
+    await prisma.userProfile.upsert({
+        where: { email: 'admin@wongkhao.com' },
+        update: {},
+        create: { email: 'admin@wongkhao.com', password: hashPassword('admin1234'), name: 'Admin' },
+    });
 
     await upsertMany(prisma.menu, [
         { id: 'menu1', name: 'ต้มยำกุ้ง', category: 'soup', sodium_mg: 1200, calories: 180, province: 'กรุงเทพ', region: 'central', description: 'ต้มยำกุ้งสูตรดั้งเดิม' },
