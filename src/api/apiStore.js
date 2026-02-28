@@ -56,7 +56,13 @@ function createLocalEntity(entityName) {
         update: async (id, data) => {
             const items = load();
             const idx = items.findIndex(i => String(i.id) === String(id));
-            if (idx === -1) throw new Error(`${entityName} ${id} not found`);
+            if (idx === -1) {
+                // Upsert: create if not found
+                const newItem = { ...data, id, created_date: data.created_date || new Date().toISOString() };
+                items.push(newItem);
+                save(items);
+                return newItem;
+            }
             items[idx] = { ...items[idx], ...data };
             save(items);
             return items[idx];
@@ -82,8 +88,7 @@ function createLocalEntity(entityName) {
         get: async (id) => {
             const items = load();
             const found = items.find(i => String(i.id) === String(id));
-            if (!found) throw new Error(`${entityName} ${id} not found`);
-            return found;
+            return found || null;
         },
     };
 }
