@@ -398,9 +398,6 @@ export default function MealPlan() {
                     <p className="text-sm text-emerald-300 font-medium">สรุปโภชนาการวันนี้</p>
                     <p className="text-3xl font-bold mt-0.5">3 มื้อ</p>
                   </div>
-                  <div className="w-12 h-12 bg-emerald-800/50 rounded-2xl flex items-center justify-center">
-                    <Icon name="restaurant_menu" className="w-7 h-7 text-emerald-300" />
-                  </div>
                 </div>
                 <SummaryStrip totals={todayTotals} />
               </div>
