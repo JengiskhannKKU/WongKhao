@@ -39,6 +39,57 @@ function withBullet(text) {
     return `• ${cleaned}`;
 }
 
+function tryParseJson(raw) {
+    if (!raw || typeof raw !== "string") return null;
+
+    const cleaned = raw.replace(/```json\s*/gi, "").replace(/```/g, "").trim();
+    if (!cleaned) return null;
+
+    try {
+        return JSON.parse(cleaned);
+    } catch {
+        // continue with best-effort extraction
+    }
+
+    const firstBrace = cleaned.indexOf("{");
+    const lastBrace = cleaned.lastIndexOf("}");
+    if (firstBrace >= 0 && lastBrace > firstBrace) {
+        const maybeJson = cleaned.slice(firstBrace, lastBrace + 1);
+        try {
+            return JSON.parse(maybeJson);
+        } catch {
+            // continue to fallback
+        }
+    }
+
+    return null;
+}
+
+function inferBulletsFromText(raw) {
+    const lines = String(raw || "")
+        .split("\n")
+        .map((line) => line.trim())
+        .filter(Boolean);
+
+    if (!lines.length) return [];
+
+    const ingredientPattern = /(กรัม|g\b|มล|ml\b|ช้อนชา|ช้อนโต๊ะ|ถ้วย|ฟอง|ชิ้น|ลูก|ซอง|กำมือ|tsp|tbsp)/i;
+    const bulletLikePattern = /^([•\-*]|\d+[.)])\s*/;
+
+    const candidateBullets = lines
+        .filter((line) => ingredientPattern.test(line) || bulletLikePattern.test(line))
+        .map(withBullet)
+        .filter(Boolean);
+
+    if (candidateBullets.length) return candidateBullets;
+
+    // Last-resort: keep first useful lines as bullets to avoid hard failure.
+    return lines
+        .slice(0, 8)
+        .map(withBullet)
+        .filter(Boolean);
+}
+
 export async function adjustRecipeByAI(menu, userPrompt, userProfile = null) {
     const primaryGoal = userProfile?.health_goal || "reduce_sodium";
     const ncdTargets = parseList(userProfile?.ncd_targets);
@@ -90,13 +141,10 @@ export async function adjustRecipeByAI(menu, userPrompt, userProfile = null) {
         throw new Error("AI returned empty response");
     }
 
-    // Strip markdown code fences if the model wraps the JSON
-    const cleaned = raw.replace(/```json\s*/gi, "").replace(/```/g, "").trim();
-
-    const result = JSON.parse(cleaned);
+    const result = tryParseJson(raw);
 
     // New format with ingredient bullets.
-    if (Array.isArray(result.ingredients)) {
+    if (result && Array.isArray(result.ingredients)) {
         const ingredientBullets = result.ingredients
             .map(withBullet)
             .filter(Boolean);
@@ -120,7 +168,7 @@ export async function adjustRecipeByAI(menu, userPrompt, userProfile = null) {
     }
 
     // Backward compatibility if model returns older format.
-    if (Array.isArray(result.modifications) && Number.isFinite(Number(result.tasteRetention))) {
+    if (result && Array.isArray(result.modifications) && Number.isFinite(Number(result.tasteRetention))) {
         const bulletMods = result.modifications
             .map(withBullet)
             .filter(Boolean);
@@ -136,5 +184,16 @@ export async function adjustRecipeByAI(menu, userPrompt, userProfile = null) {
         };
     }
 
-    throw new Error("Unexpected AI response shape");
+    const inferredBullets = inferBulletsFromText(raw);
+    if (inferredBullets.length) {
+        return {
+            modifications: [
+                "วัตถุดิบ (Bullet Points)",
+                ...inferredBullets,
+            ],
+            tasteRetention: 80,
+        };
+    }
+
+    throw new Error("AI response could not be parsed");
 }
