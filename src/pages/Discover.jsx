@@ -349,17 +349,17 @@ export default function Discover() {
 
           {/* Premium Stage Indicator */}
           <div className="flex flex-col items-end">
-            <div className="bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 bg-[length:200%_auto] animate-[gradient_3s_ease-in-out_infinite] text-white px-2.5 py-1 rounded-full flex items-center gap-1 shadow-md shadow-amber-500/30 border border-yellow-300">
+            <div className="bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 bg-[length:200%_auto] animate-[gradient_3s_ease-in-out_infinite] text-white px-3 py-1 rounded-full flex items-center justify-center gap-1 shadow-md shadow-amber-500/30 border border-yellow-300">
               <Icon
                 name="workspace_premium"
-                className="w-[14px] h-[14px] text-yellow-50 drop-shadow-sm"
+                className="text-[18px] leading-none text-yellow-50 drop-shadow-sm flex-shrink-0"
               />
-              <span className="text-[11px] font-bold tracking-widest uppercase">
+              <span className="text-[12px] font-extrabold tracking-widest uppercase leading-none">
                 Premium
               </span>
             </div>
-            <p className="text-[11px] text-slate-500 font-medium mt-1 pr-1 flex items-center gap-1">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+            <p className="text-[13px] text-slate-700 font-bold mt-1.5 pr-1 flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
               Stage 1: เพิ่งเริ่ม
             </p>
           </div>
