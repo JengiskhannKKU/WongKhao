@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { toast } from "sonner";
@@ -141,12 +141,46 @@ const sampleMenus = [
   },
 ];
 
-const quickPrompts = [
-  { label: "🧂 ลดเค็ม", prompt: "ลดโซเดียมลงให้มากที่สุด แต่ยังคงรสชาติ" },
-  { label: "💪 เพิ่มโปรตีน", prompt: "เพิ่มโปรตีนให้เหมาะกับคนออกกำลังกาย" },
-  { label: "🌿 คลีน", prompt: "ทำให้เป็นสูตรคลีน ไม่ใส่ผงชูรส ไม่ใส่น้ำตาล" },
-  { label: "👶 เด็กกินได้", prompt: "ปรับสูตรให้เด็กกินได้ ลดเผ็ด ลดเค็ม" },
-];
+const goalLabelMap = {
+  reduce_sodium: "ลดโซเดียม",
+  lose_weight: "ลดน้ำหนัก",
+  eat_clean: "กินคลีน",
+  heart_health: "ดูแลหัวใจ",
+  control_sugar: "ควบคุมน้ำตาล",
+  reduce_cholesterol: "ลดไขมันในเลือด",
+  kidney_care: "ดูแลไต",
+  build_muscle: "เพิ่มกล้ามเนื้อ",
+  maintain_weight: "รักษาน้ำหนัก",
+  gut_health: "ดูแลลำไส้",
+  boost_energy: "เพิ่มพลังงาน",
+  high_protein: "เพิ่มโปรตีน",
+  calcium: "เสริมแคลเซียม",
+};
+
+const goalPromptMap = {
+  reduce_sodium: "ลดโซเดียมให้ต่ำกว่า 600mg คงรสชาติเดิมให้มากที่สุด",
+  lose_weight: "ลดแคลอรีให้น้อยกว่า 350 kcal ลดไขมัน ไม่เพิ่มน้ำตาล",
+  eat_clean: "ปรับเป็นสูตรคลีน ไม่ใส่ผงชูรส น้ำตาล น้ำมันพืช",
+  heart_health: "ลดโซเดียม ลดไขมันอิ่มตัว เพิ่มผัก เหมาะกับการดูแลหัวใจ",
+  control_sugar: "ลดน้ำตาลและคาร์โบไฮเดรต เหมาะกับผู้ควบคุมระดับน้ำตาลในเลือด",
+  reduce_cholesterol: "ลดไขมันอิ่มตัว เพิ่มไฟเบอร์ เหมาะกับการลดคอเลสเตอรอล",
+  kidney_care: "ลดโซเดียม โพแทสเซียม และฟอสฟอรัส เหมาะกับการดูแลไต",
+  build_muscle: "เพิ่มโปรตีนให้ได้อย่างน้อย 35g เหมาะกับคนออกกำลังกายสร้างกล้ามเนื้อ",
+  maintain_weight: "คงแคลอรีอยู่ในระดับสมดุล สารอาหารครบถ้วน",
+  gut_health: "เพิ่มไฟเบอร์ ลดอาหารแปรรูป เหมาะกับการดูแลระบบย่อยอาหาร",
+  boost_energy: "เพิ่มคาร์โบไฮเดรตเชิงซ้อน วิตามิน เพื่อเพิ่มพลังงาน",
+  high_protein: "เพิ่มโปรตีนให้สูงสุดเท่าที่ทำได้ ลดคาร์โบไฮเดรต",
+  calcium: "เพิ่มแหล่งแคลเซียม เช่น เต้าหู้ งา ผักสีเขียว",
+};
+
+function buildPersonalizedPrompt(menu, userProfile) {
+  const goal = userProfile?.health_goal;
+  const base = goalPromptMap[goal] || "ปรับสูตรให้มีประโยชน์สูงสุด สมดุลสารอาหาร";
+  const sodiumNote = userProfile?.sodium_limit
+    ? ` โซเดียมรวมทั้งมื้อไม่เกิน ${userProfile.sodium_limit}mg`
+    : "";
+  return base + sodiumNote;
+}
 
 const syncStyles = {
   idle: "border-slate-200 bg-white text-slate-600",
@@ -178,14 +212,12 @@ export default function Discover() {
   const [selectedMood, setSelectedMood] = useState(null);
   const [showMoodSelector, setShowMoodSelector] = useState(false);
   const [userProfile, setUserProfile] = useState(null);
-  const [modifications, setModifications] = useState([]);
-  const [tasteRetention, setTasteRetention] = useState(85);
+  const [defaultRecipe, setDefaultRecipe] = useState(null);
+  const [personalizedRecipe, setPersonalizedRecipe] = useState(null);
+  const [activeView, setActiveView] = useState("default");
   const [impacts, setImpacts] = useState({ sodium: -22, sugar: -15, calories: -10, bp_risk: -6 });
-  const [aiPrompt, setAiPrompt] = useState("");
   const [aiLoading, setAiLoading] = useState(false);
   const [defaultLoading, setDefaultLoading] = useState(false);
-  const [showAiInput, setShowAiInput] = useState(false);
-  const textareaRef = useRef(null);
   const [syncDebug, setSyncDebug] = useState({
     status: trackingConfig.enabled ? "idle" : "disabled",
     message: trackingConfig.enabled
@@ -199,10 +231,9 @@ export default function Discover() {
   }, [authUser?.id]);
 
   useEffect(() => {
-    setModifications([]);
-    setTasteRetention(85);
-    setShowAiInput(false);
-    setAiPrompt("");
+    setDefaultRecipe(null);
+    setPersonalizedRecipe(null);
+    setActiveView("default");
 
     const menu = filteredMenus[currentIndex];
     if (!menu) return;
@@ -213,8 +244,7 @@ export default function Discover() {
     adjustRecipeByAI(menu, "แสดงสูตรอาหารต้นตำรับพร้อมส่วนผสมและวิธีทำแบบดั้งเดิม", userProfile)
       .then((result) => {
         if (!cancelled) {
-          setModifications(result.modifications);
-          setTasteRetention(result.tasteRetention);
+          setDefaultRecipe({ modifications: result.modifications, tasteRetention: result.tasteRetention });
         }
       })
       .catch((err) => console.error("Default recipe error:", err))
@@ -353,27 +383,26 @@ export default function Discover() {
     }
   };
 
-  const handleAiPrompt = async (prompt) => {
-    if (!prompt.trim() || !currentMenu) return;
+  const handlePersonalizedRecipe = async () => {
+    if (!currentMenu) return;
+    const prompt = buildPersonalizedPrompt(currentMenu, userProfile);
     setAiLoading(true);
     try {
       const result = await adjustRecipeByAI(currentMenu, prompt, userProfile);
-      setModifications(result.modifications);
-      setTasteRetention(result.tasteRetention);
+      setPersonalizedRecipe({ modifications: result.modifications, tasteRetention: result.tasteRetention });
+      setActiveView("personalized");
       void trackAdjustmentEvent({
         menu: currentMenu,
-        adjustType: "ai_prompt",
+        adjustType: "personalized",
         source: "ai",
         prompt,
         impacts,
         tasteRetention: result.tasteRetention,
       });
-      setAiPrompt("");
-      setShowAiInput(false);
-      toast.success("AI ปรับสูตรเรียบร้อย!");
+      toast.success("AI ปรับสูตรเฉพาะสำหรับคุณแล้ว!");
     } catch (error) {
-      console.error("AI adjustment error:", error);
-      toast.error("ไม่สามารถปรับสูตรด้วย AI ได้ กรุณาลองใหม่");
+      console.error("AI personalized error:", error);
+      toast.error("ไม่สามารถปรับสูตรได้ กรุณาลองใหม่");
     } finally {
       setAiLoading(false);
     }
@@ -381,12 +410,11 @@ export default function Discover() {
 
   const handleAction = (actionType) => {
     if (actionType === "swap") {
-      setShowAiInput(true);
-      setTimeout(() => textareaRef.current?.focus(), 100);
+      handlePersonalizedRecipe();
     } else if (actionType === "menu") {
-      const currentMenu = filteredMenus[currentIndex];
-      if (!currentMenu?.region) return;
-      setSelectedRegion(currentMenu.region);
+      const activeMenu = filteredMenus[currentIndex];
+      if (!activeMenu?.region) return;
+      setSelectedRegion(activeMenu.region);
       setCurrentIndex(0);
     } else if (
       actionType === "like" ||
@@ -401,6 +429,9 @@ export default function Discover() {
   };
 
   const currentMenu = filteredMenus[currentIndex];
+  const displayedRecipe = activeView === "personalized" ? personalizedRecipe : defaultRecipe;
+  const displayedModifications = displayedRecipe?.modifications ?? [];
+  const displayedTasteRetention = displayedRecipe?.tasteRetention ?? 85;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#E8F5E9] to-[#FFFFFF] pt-12 pb-24">
@@ -508,11 +539,39 @@ export default function Discover() {
         </div>
 
         {/* Modifications Result */}
-        {(defaultLoading || modifications.length > 0) && (
+        {(defaultLoading || defaultRecipe) && (
           <div className="mt-3 bg-emerald-50 rounded-2xl border border-emerald-100 px-4 py-4">
-            <h3 className="text-sm font-bold text-emerald-800 mb-3">
-              {defaultLoading ? "กำลังโหลดสูตรอาหาร..." : "สูตรอาหาร ✨"}
-            </h3>
+            {/* Header + Toggle */}
+            <div className="flex items-center justify-between mb-3">
+              {defaultLoading ? (
+                <h3 className="text-sm font-bold text-emerald-800">กำลังโหลดสูตรอาหาร...</h3>
+              ) : personalizedRecipe ? (
+                <div className="flex bg-emerald-100 rounded-xl p-0.5 gap-0.5 w-full">
+                  <button
+                    onClick={() => setActiveView("default")}
+                    className={`flex-1 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                      activeView === "default"
+                        ? "bg-white text-emerald-800 shadow-sm"
+                        : "text-emerald-600"
+                    }`}
+                  >
+                    📖 สูตรต้นตำรับ
+                  </button>
+                  <button
+                    onClick={() => setActiveView("personalized")}
+                    className={`flex-1 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                      activeView === "personalized"
+                        ? "bg-white text-violet-700 shadow-sm"
+                        : "text-emerald-600"
+                    }`}
+                  >
+                    ✨ สูตรที่ปรับ
+                  </button>
+                </div>
+              ) : (
+                <h3 className="text-sm font-bold text-emerald-800">สูตรต้นตำรับ 📖</h3>
+              )}
+            </div>
 
             {defaultLoading && (
               <div className="space-y-2.5">
@@ -526,25 +585,30 @@ export default function Discover() {
             )}
 
             {!defaultLoading && (
-              <>
+              <motion.div
+                key={activeView}
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.2 }}
+              >
                 {/* Taste retention bar */}
                 <div className="mb-3 bg-emerald-100/60 rounded-xl p-3">
                   <div className="flex justify-between items-center mb-1.5">
                     <span className="text-xs font-bold text-emerald-800">🎯 คงรสชาติ</span>
-                    <span className="text-sm font-black text-emerald-700">{tasteRetention}%</span>
+                    <span className="text-sm font-black text-emerald-700">{displayedTasteRetention}%</span>
                   </div>
                   <div className="h-2 bg-emerald-200 rounded-full overflow-hidden">
                     <motion.div
                       className="h-full bg-gradient-to-r from-emerald-500 to-emerald-600 rounded-full"
                       initial={{ width: 0 }}
-                      animate={{ width: `${tasteRetention}%` }}
+                      animate={{ width: `${displayedTasteRetention}%` }}
                       transition={{ duration: 0.8, ease: "easeOut" }}
                     />
                   </div>
                 </div>
 
                 <div className="space-y-2">
-                  {modifications.map((mod, idx) => {
+                  {displayedModifications.map((mod, idx) => {
                     let emoji = "✅";
                     if (mod.includes("น้ำปลา") || mod.includes("โซเดียม") || mod.includes("เค็ม")) emoji = "🧂";
                     else if (mod.includes("ผัก") || mod.includes("ออร์แกนิค")) emoji = "🥦";
@@ -566,109 +630,43 @@ export default function Discover() {
                     );
                   })}
                 </div>
-              </>
+              </motion.div>
             )}
           </div>
         )}
 
-        {/* Inline AI Recipe Section */}
-        <div className="mt-3 bg-white rounded-2xl border border-slate-100 overflow-hidden">
-          <div className="px-4 pt-4 pb-3">
-            <div className="flex items-center gap-2 mb-3">
-              <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center flex-shrink-0">
-                <Icon name="auto_awesome" className="w-4 h-4 text-white" />
-              </div>
-              <div>
-                <h3 className="text-sm font-bold text-slate-800">ปรับสูตรด้วย AI</h3>
-                <p className="text-xs text-slate-500">บอก AI ว่าอยากปรับยังไง</p>
-              </div>
+        {/* Personalized AI Button */}
+        <div className="mt-3 bg-white rounded-2xl border border-violet-100 px-4 py-4">
+          <div className="flex items-center gap-2 mb-3">
+            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center flex-shrink-0">
+              <Icon name="auto_awesome" className="text-[18px] text-white" />
             </div>
-
-            {/* Current menu context */}
-            {currentMenu && (
-              <div className="bg-slate-50 rounded-xl p-3 mb-3 flex items-center gap-3">
-                <img
-                  src={currentMenu.image_url}
-                  alt={currentMenu.name_th}
-                  className="w-10 h-10 rounded-lg object-cover flex-shrink-0"
-                />
-                <div className="flex-1 min-w-0">
-                  <p className="font-bold text-sm text-slate-800 truncate">{currentMenu.name_th}</p>
-                  <p className="text-xs text-slate-500">{currentMenu.calories} kcal • โซเดียม: {currentMenu.sodium_level}</p>
-                </div>
-              </div>
-            )}
-
-            {/* Quick prompt chips */}
-            <div className="flex flex-wrap gap-2 mb-3">
-              {quickPrompts.map((qp, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => {
-                    setAiPrompt(qp.prompt);
-                    setShowAiInput(true);
-                    setTimeout(() => textareaRef.current?.focus(), 100);
-                  }}
-                  disabled={aiLoading}
-                  className="px-3 py-1.5 bg-violet-50 hover:bg-violet-100 text-violet-700 text-xs font-medium rounded-full border border-violet-100 transition-all disabled:opacity-50"
-                >
-                  {qp.label}
-                </button>
-              ))}
+            <div>
+              <h3 className="text-sm font-bold text-slate-800">สูตรเฉพาะสำหรับคุณ</h3>
+              <p className="text-xs text-slate-500">
+                {userProfile?.health_goal
+                  ? `เป้าหมาย: ${goalLabelMap[userProfile.health_goal] ?? userProfile.health_goal}`
+                  : "ตั้งค่าเป้าหมายใน Profile เพื่อรับสูตรที่ตรงกว่านี้"}
+              </p>
             </div>
-
-            {/* Toggle textarea button */}
-            {!showAiInput && (
-              <button
-                onClick={() => setShowAiInput(true)}
-                className="w-full py-2.5 rounded-xl border border-violet-200 text-violet-600 text-xs font-medium flex items-center justify-center gap-1.5 hover:bg-violet-50 transition-colors"
-              >
-                <Icon name="edit" className="w-3.5 h-3.5" />
-                พิมพ์คำขอของคุณเอง
-              </button>
-            )}
-
-            {/* Textarea + submit */}
-            {showAiInput && (
+          </div>
+          <button
+            onClick={handlePersonalizedRecipe}
+            disabled={aiLoading || defaultLoading}
+            className="w-full py-3 rounded-xl bg-gradient-to-r from-violet-600 to-purple-600 text-white font-semibold text-sm flex items-center justify-center gap-2 shadow-lg shadow-violet-200 active:scale-[0.98] transition-all disabled:opacity-50"
+          >
+            {aiLoading ? (
               <>
-                <textarea
-                  ref={textareaRef}
-                  value={aiPrompt}
-                  onChange={(e) => setAiPrompt(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" && !e.shiftKey) {
-                      e.preventDefault();
-                      handleAiPrompt(aiPrompt);
-                    }
-                  }}
-                  disabled={aiLoading}
-                  placeholder='เช่น "ลดโซเดียมลง ไม่ใส่ผงชูรส" หรือ "เพิ่มโปรตีน"'
-                  rows={3}
-                  className="w-full resize-none rounded-xl border border-violet-200 bg-white px-4 py-3 text-sm text-slate-700 placeholder:text-slate-400 focus:border-violet-400 focus:outline-none focus:ring-2 focus:ring-violet-100 transition-all disabled:opacity-50"
-                />
-                <button
-                  onClick={() => handleAiPrompt(aiPrompt)}
-                  disabled={aiLoading || !aiPrompt.trim()}
-                  className={`w-full mt-2 py-3 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 transition-all ${aiPrompt.trim() && !aiLoading
-                      ? "bg-gradient-to-r from-violet-600 to-purple-600 text-white shadow-lg shadow-violet-200 active:scale-[0.98]"
-                      : "bg-slate-200 text-slate-400 cursor-not-allowed"
-                    }`}
-                >
-                  {aiLoading ? (
-                    <>
-                      <Icon name="progress_activity" className="w-5 h-5 animate-spin" />
-                      กำลังปรับสูตร...
-                    </>
-                  ) : (
-                    <>
-                      <Icon name="auto_awesome" className="w-5 h-5" />
-                      ปรับสูตรด้วย AI
-                    </>
-                  )}
-                </button>
+                <Icon name="progress_activity" className="text-[20px] animate-spin" />
+                กำลังปรับสูตร...
+              </>
+            ) : (
+              <>
+                <Icon name="auto_awesome" className="text-[20px]" />
+                ปรับสูตรให้เหมาะกับฉัน
               </>
             )}
-          </div>
+          </button>
         </div>
 
 

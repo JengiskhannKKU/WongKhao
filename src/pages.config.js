@@ -47,8 +47,6 @@
  *
  * The mainPage value must match a key in the PAGES object exactly.
  */
-import Community from "./pages/Community";
-import CommunityPostDetail from "./pages/CommunityPostDetail";
 import Discover from "./pages/Discover";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
@@ -61,7 +59,6 @@ import CreatePost from "./pages/CreatePost";
 import __Layout from "./Layout.jsx";
 
 export const PAGES = {
-  Community: Community,
   CreatePost: CreatePost,
   Discover: Discover,
   Home: Home,

@@ -5,7 +5,6 @@ const navItems = [
   { path: "discover",   icon: "explore",         label: "ค้นหา"    },
   { path: "CreatePost", icon: "add_circle",      label: "โพสต์"    },
   { path: "MealPlan",   icon: "calendar_month",  label: "แผนอาหาร" },
-  { path: "community",  icon: "group",           label: "ชุมชน"    },
   { path: "profile",    icon: "person",          label: "โปรไฟล์"  },
 ];
 
