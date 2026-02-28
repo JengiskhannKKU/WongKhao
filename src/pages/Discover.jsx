@@ -480,9 +480,21 @@ export default function Discover() {
           </AnimatePresence>
         </div>
 
+
         {/* Actions */}
         <div className="mt-6">
           <SwipeActions onAction={handleAction} />
+        </div>
+
+        {/* Order Button */}
+        <div className="mt-3">
+          <button
+            onClick={() => navigate(createPageUrl("Order"))}
+            className="w-full rounded-2xl bg-gradient-to-r from-emerald-500 to-green-500 px-3 py-3 text-sm font-bold text-white flex items-center justify-center gap-2 shadow-lg shadow-emerald-200 active:scale-[0.98] transition-all"
+          >
+            <Icon name="shopping_bag" className="w-5 h-5" />
+            สั่งอาหารเลย
+          </button>
         </div>
 
         <div className="mt-3">
@@ -637,11 +649,10 @@ export default function Discover() {
                 <button
                   onClick={() => handleAiPrompt(aiPrompt)}
                   disabled={aiLoading || !aiPrompt.trim()}
-                  className={`w-full mt-2 py-3 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 transition-all ${
-                    aiPrompt.trim() && !aiLoading
+                  className={`w-full mt-2 py-3 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 transition-all ${aiPrompt.trim() && !aiLoading
                       ? "bg-gradient-to-r from-violet-600 to-purple-600 text-white shadow-lg shadow-violet-200 active:scale-[0.98]"
                       : "bg-slate-200 text-slate-400 cursor-not-allowed"
-                  }`}
+                    }`}
                 >
                   {aiLoading ? (
                     <>
@@ -660,7 +671,7 @@ export default function Discover() {
           </div>
         </div>
 
-        
+
 
         {/* Hint */}
         <div className="bg-white rounded-2xl p-3 mt-4 border border-slate-100">
@@ -685,8 +696,8 @@ export default function Discover() {
             <span className="text-[10px] opacity-80">
               {syncDebug.at
                 ? new Date(syncDebug.at).toLocaleTimeString("th-TH", {
-                    hour12: false,
-                  })
+                  hour12: false,
+                })
                 : "--:--:--"}
             </span>
           </div>
