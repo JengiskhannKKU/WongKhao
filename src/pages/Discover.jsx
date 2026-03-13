@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { toast } from "sonner";
 import { adjustRecipeByAI } from "@/lib/openai";
+import { generateBotnoiAudio } from "@/lib/botnoi";
 import { localStore } from "@/api/apiStore";
 import { createPageUrl } from "@/utils";
 import Icon from "@/components/ui/Icon";
@@ -17,6 +18,9 @@ import MenuCard from "@/components/swipe/MenuCard";
 import SwipeActions from "@/components/swipe/SwipeActions";
 import RegionFilter from "@/components/swipe/RegionFilter";
 import MoodSelector from "@/components/swipe/MoodSelector";
+import VoiceActorSelect, { BOTNOI_VOICES } from "@/components/ui/VoiceActorSelect";
+import VoicePlayButton from "@/components/ui/VoicePlayButton";
+import BotnoiAvatarVideo from "@/components/ui/BotnoiAvatarVideo";
 
 const fallbackImagesByRegion = {
   north:
@@ -218,6 +222,10 @@ export default function Discover() {
   const [impacts, setImpacts] = useState({ sodium: -22, sugar: -15, calories: -10, bp_risk: -6 });
   const [aiLoading, setAiLoading] = useState(false);
   const [defaultLoading, setDefaultLoading] = useState(false);
+  const [playingAudioId, setPlayingAudioId] = useState(null);
+  const [activeAudioObj, setActiveAudioObj] = useState(null);
+  const [audioLoadingId, setAudioLoadingId] = useState(null);
+  const [selectedVoiceActorId, setSelectedVoiceActorId] = useState("8"); // Default Ava V2
   const [syncDebug, setSyncDebug] = useState({
     status: trackingConfig.enabled ? "idle" : "disabled",
     message: trackingConfig.enabled
@@ -252,6 +260,16 @@ export default function Discover() {
 
     return () => { cancelled = true; };
   }, [currentIndex, selectedRegion]);
+
+  useEffect(() => {
+    return () => {
+      // Cleanup any playing audio when component unmounts
+      if (activeAudioObj) {
+        activeAudioObj.pause();
+        activeAudioObj.currentTime = 0;
+      }
+    };
+  }, [activeAudioObj]);
 
   const loadData = async () => {
     try {
@@ -435,10 +453,57 @@ export default function Discover() {
     }
   };
 
+  const handlePlayAudio = async (text, id) => {
+    // If playing the same id, toggle pause/play (or just stop)
+    if (playingAudioId === id && activeAudioObj) {
+      activeAudioObj.pause();
+      activeAudioObj.currentTime = 0;
+      setPlayingAudioId(null);
+      setActiveAudioObj(null);
+      return;
+    }
+
+    // Stop current audio if playing something else
+    if (activeAudioObj) {
+      activeAudioObj.pause();
+      activeAudioObj.currentTime = 0;
+      setPlayingAudioId(null);
+    }
+
+    try {
+      setAudioLoadingId(id);
+      const data = await generateBotnoiAudio(text, { speaker: selectedVoiceActorId });
+      if (data && data.audio_url) {
+        const audio = new Audio(data.audio_url);
+        audio.onended = () => {
+          setPlayingAudioId(null);
+          setActiveAudioObj(null);
+        };
+        setActiveAudioObj(audio);
+        setPlayingAudioId(id);
+        setAudioLoadingId(null);
+        audio.play().catch(e => {
+          console.error("Audio playback failed:", e);
+          toast.error("ไม่สามารถเล่นเสียงได้");
+          setPlayingAudioId(null);
+        });
+      } else {
+        throw new Error("No audio URL returned");
+      }
+    } catch (error) {
+      console.error("TTS Error:", error);
+      toast.error("เกิดข้อผิดพลาดในการสร้างเสียงบอทน้อย");
+      setAudioLoadingId(null);
+      setPlayingAudioId(null);
+    }
+  };
+
   const currentMenu = filteredMenus[currentIndex];
   const displayedRecipe = activeView === "personalized" ? personalizedRecipe : defaultRecipe;
   const displayedModifications = displayedRecipe?.modifications ?? [];
   const displayedTasteRetention = displayedRecipe?.tasteRetention ?? 85;
+
+  const currentVoiceActor = BOTNOI_VOICES.find(v => v.id === selectedVoiceActorId) || BOTNOI_VOICES[0];
 
   let currentSection = "ingredients";
   const parsedIngredients = [];
@@ -691,10 +756,37 @@ export default function Discover() {
                   </div>
                 </div>
 
+                {/* Voice Actor Selection */}
+                <VoiceActorSelect
+                  selectedId={selectedVoiceActorId}
+                  onSelect={(id) => {
+                    setSelectedVoiceActorId(id);
+                    // Stop playing audio when voice changes to avoid confusion
+                    if (activeAudioObj) {
+                      activeAudioObj.pause();
+                      activeAudioObj.currentTime = 0;
+                      setPlayingAudioId(null);
+                      setActiveAudioObj(null);
+                    }
+                  }}
+                />
+
                 {parsedIngredients.length > 0 && (
                   <div className="mb-4">
-                    <h4 className="text-sm font-bold text-emerald-900 mb-3 ml-1">วัตถุดิบ (Ingredients)</h4>
+                    <div className="flex items-center justify-between mb-3 ml-1">
+                      <h4 className="text-sm font-bold text-emerald-900">วัตถุดิบ (Ingredients)</h4>
+                      <VoicePlayButton
+                        text={parsedIngredients.map(ing => `${ing.name} ${ing.amount}`).join(" ")}
+                        audioId="ingredients"
+                        isPlaying={playingAudioId === 'ingredients'}
+                        isLoading={audioLoadingId === 'ingredients'}
+                        onPlay={handlePlayAudio}
+                        label="ฟังวัตถุดิบทั้งหมด"
+                      />
+                    </div>
                     <div className="flex overflow-x-auto gap-2.5 pb-2 scrollbar-hide snap-x">
+
+
                       {parsedIngredients.map((ing, idx) => (
                         <motion.div
                           key={idx}
@@ -719,8 +811,19 @@ export default function Discover() {
 
                 {parsedSteps.length > 0 && (
                   <div>
-                    <h4 className="text-sm font-bold text-emerald-900 mb-3 ml-1 mt-4">ขั้นตอนวิธีทำ (Steps)</h4>
+                    <div className="flex items-center justify-between mb-3 ml-1 mt-4">
+                      <h4 className="text-sm font-bold text-emerald-900">ขั้นตอนวิธีทำ (Steps)</h4>
+                      <VoicePlayButton
+                        text={parsedSteps.map(step => step.replace(/^\d+\.\s*/, '')).join(" ")}
+                        audioId="all_steps"
+                        isPlaying={playingAudioId === 'all_steps'}
+                        isLoading={audioLoadingId === 'all_steps'}
+                        onPlay={handlePlayAudio}
+                        label="ฟังขั้นตอนทั้งหมด"
+                      />
+                    </div>
                     <div className="space-y-3">
+
                       {parsedSteps.map((step, idx) => (
                         <motion.div
                           key={idx}
@@ -738,16 +841,49 @@ export default function Discover() {
                           </div>
 
                           {/* Right Content */}
-                          <div className="flex-1 min-w-0 pt-0.5 z-10">
+                          <div className="flex-1 min-w-0 pt-0.5 z-10 pr-6">
                             <div className="flex justify-between items-start mb-0.5">
                               <span className="font-bold text-slate-800 text-[13px]">ขั้นตอนที่ {idx + 1}</span>
                             </div>
                             <p className="text-slate-600 text-[12px] leading-relaxed">
                               {step.replace(/^\d+\.\s*/, '')}
                             </p>
+                            
+                            <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                              <VoicePlayButton
+                                text={step.replace(/^\d+\.\s*/, '')}
+                                audioId={`step_${idx}`}
+                                isPlaying={playingAudioId === `step_${idx}`}
+                                isLoading={audioLoadingId === `step_${idx}`}
+                                onPlay={handlePlayAudio}
+                                size="small"
+                              />
+                            </div>
+
+                            {/* Mockup Video Frame */}
+                            <div className="mt-3 w-full pr-0">
+                              <BotnoiAvatarVideo
+                                voiceId={selectedVoiceActorId}
+                                text={step.replace(/^\d+\.\s*/, '')}
+                                isPlaying={playingAudioId === `step_${idx}`}
+                                onClose={(e) => {
+                                  e?.stopPropagation();
+                                  if (activeAudioObj) {
+                                    activeAudioObj.pause();
+                                    activeAudioObj.currentTime = 0;
+                                  }
+                                  setPlayingAudioId(null);
+                                  setActiveAudioObj(null);
+                                }}
+                                actorName={currentVoiceActor?.name}
+                                actorImage={currentVoiceActor?.image}
+                                actorFallbackColor={currentVoiceActor?.fallbackColor}
+                              />
+                            </div>
                           </div>
                         </motion.div>
                       ))}
+
                     </div>
                   </div>
                 )}
