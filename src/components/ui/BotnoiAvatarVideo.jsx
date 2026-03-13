@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Icon from "@/components/ui/Icon";
 
@@ -9,12 +9,26 @@ export default function BotnoiAvatarVideo({
   onClose,
   actorName,
   actorImage,
-  actorFallbackColor
+  actorFallbackColor,
+  videoUrl
 }) {
   const [dots, setDots] = useState("");
+  const videoRef = useRef(null);
 
   useEffect(() => {
-    if (!isPlaying) return;
+    if (!isPlaying) {
+      if (videoRef.current) {
+        videoRef.current.pause();
+      }
+      return;
+    }
+    
+    // Play video if available
+    if (videoUrl && videoRef.current) {
+      videoRef.current.currentTime = 0;
+      videoRef.current.play().catch(e => console.error("Error playing video:", e));
+    }
+
     const interval = setInterval(() => {
       setDots(prev => prev.length >= 3 ? "" : prev + ".");
     }, 500);
@@ -72,60 +86,73 @@ export default function BotnoiAvatarVideo({
                   </button>
                 </div>
 
-                {/* Center Avatar / 'Talking' Subject */}
-                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                  <div className="relative">
-                    {/* Pulsing Rings (Talking Effect) */}
-                    <motion.div
-                      className="absolute inset-0 rounded-full border-2 border-violet-400/40"
-                      animate={{ 
-                        scale: [1, 1.5, 2],
-                        opacity: [0.6, 0.2, 0]
-                      }}
-                      transition={{ 
-                        duration: 1.5, 
-                        repeat: Infinity,
-                        ease: "easeOut",
-                        delay: 0
-                      }}
+                {/* Center Content (Avatar or Real Video) */}
+                <div className={`absolute inset-0 flex items-center justify-center ${videoUrl ? '' : 'pointer-events-none'}`}>
+                  {videoUrl ? (
+                    <video
+                      ref={videoRef}
+                      src={videoUrl}
+                      className="w-full h-full object-cover z-0 absolute inset-0"
+                      muted
+                      loop
+                      playsInline
                     />
-                    <motion.div
-                      className="absolute inset-0 rounded-full border-2 border-fuchsia-400/40"
-                      animate={{ 
-                        scale: [1, 1.8, 2.5],
-                        opacity: [0.5, 0.1, 0]
-                      }}
-                      transition={{ 
-                        duration: 1.5, 
-                        repeat: Infinity,
-                        ease: "easeOut",
-                        delay: 0.5
-                      }}
-                    />
+                  ) : (
+                    <div className="relative">
+                      {/* Pulsing Rings (Talking Effect) */}
+                      <motion.div
+                        className="absolute inset-0 rounded-full border-2 border-violet-400/40"
+                        animate={{ 
+                          scale: [1, 1.5, 2],
+                          opacity: [0.6, 0.2, 0]
+                        }}
+                        transition={{ 
+                          duration: 1.5, 
+                          repeat: Infinity,
+                          ease: "easeOut",
+                          delay: 0
+                        }}
+                      />
+                      <motion.div
+                        className="absolute inset-0 rounded-full border-2 border-fuchsia-400/40"
+                        animate={{ 
+                          scale: [1, 1.8, 2.5],
+                          opacity: [0.5, 0.1, 0]
+                        }}
+                        transition={{ 
+                          duration: 1.5, 
+                          repeat: Infinity,
+                          ease: "easeOut",
+                          delay: 0.5
+                        }}
+                      />
 
-                    {/* Avatar Image */}
-                    <div className={`w-20 h-20 rounded-full overflow-hidden border-[3px] border-violet-500 shadow-[0_0_20px_rgba(139,92,246,0.5)] z-10 relative bg-slate-800 flex flex-col items-center justify-center ${!actorImage && actorFallbackColor ? actorFallbackColor.replace('text-', 'text-white bg-').replace('100', '600') : ''}`}>
-                      {actorImage ? (
-                        <img 
-                          src={actorImage} 
-                          alt="Voice Actor" 
-                          className="w-full h-full object-cover"
-                          onError={(e) => {
-                            e.target.style.display = 'none';
-                            e.target.nextElementSibling.style.display = 'flex';
-                          }}
-                        />
-                      ) : null}
-                      <div className={`absolute inset-0 items-center justify-center text-2xl font-bold ${actorImage ? "hidden" : "flex"}`}>
-                        {actorName ? actorName[0] : "?"}
-                      </div>
+                      {/* Avatar Image */}
+                      <div className={`w-20 h-20 rounded-full overflow-hidden border-[3px] border-violet-500 shadow-[0_0_20px_rgba(139,92,246,0.5)] z-10 relative bg-slate-800 flex flex-col items-center justify-center ${!actorImage && actorFallbackColor ? actorFallbackColor.replace('text-', 'text-white bg-').replace('100', '600') : ''}`}>
+                        {actorImage ? (
+                          <img 
+                            src={actorImage} 
+                            alt="Voice Actor" 
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              e.target.style.display = 'none';
+                              if (e.target.nextElementSibling) {
+                                e.target.nextElementSibling.style.display = 'flex';
+                              }
+                            }}
+                          />
+                        ) : null}
+                        <div className={`absolute inset-0 items-center justify-center text-2xl font-bold ${actorImage ? "hidden" : "flex"}`}>
+                          {actorName ? actorName[0] : "?"}
+                        </div>
 
-                      {/* Small Mic Icon overlay */}
-                      <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-emerald-500 rounded-full border-2 border-slate-900 flex items-center justify-center">
-                        <Icon name="mic" className="text-[12px] text-white" />
+                        {/* Small Mic Icon overlay */}
+                        <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-emerald-500 rounded-full border-2 border-slate-900 flex items-center justify-center">
+                          <Icon name="mic" className="text-[12px] text-white" />
+                        </div>
                       </div>
                     </div>
-                  </div>
+                  )}
                 </div>
 
                 {/* Footer Subtitles overlay */}

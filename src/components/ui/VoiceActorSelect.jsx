@@ -9,8 +9,7 @@ export const BOTNOI_VOICES = [
     age: "Adult",
     type: "เล่าเรื่อง",
     tags: ["🇹🇭 + อื่นๆ"],
-    image:
-      "https://media.discordapp.net/attachments/1126759715978416170/1146740620188749874/ava.png",
+    image: "",
     fallbackColor: "bg-pink-100 text-pink-600",
   },
   {
@@ -20,8 +19,7 @@ export const BOTNOI_VOICES = [
     age: "Adult",
     type: "เล่าเรื่อง",
     tags: ["🇹🇭 + อื่นๆ"],
-    image:
-      "https://media.discordapp.net/attachments/1126759715978416170/1146740621216337960/somchok.png",
+    image: "",
     fallbackColor: "bg-blue-100 text-blue-600",
   },
   {
@@ -31,8 +29,7 @@ export const BOTNOI_VOICES = [
     age: "Adult",
     type: "เล่าเรื่อง",
     tags: ["🇹🇭 + อื่นๆ"],
-    image:
-      "https://media.discordapp.net/attachments/1126759715978416170/1146740621535105024/leo.png",
+    image: "",
     fallbackColor: "bg-indigo-100 text-indigo-600",
   },
   {
@@ -42,8 +39,7 @@ export const BOTNOI_VOICES = [
     age: "Teen",
     type: "บรรยาย",
     tags: ["🇬🇧🇹🇭 + อื่นๆ"],
-    image:
-      "https://media.discordapp.net/attachments/1126759715978416170/1146740621920985160/nadia.png",
+    image: "",
     fallbackColor: "bg-cyan-100 text-cyan-600",
   },
   {
@@ -53,8 +49,7 @@ export const BOTNOI_VOICES = [
     age: "Teen",
     type: "บรรยาย",
     tags: ["🇹🇭 + อื่นๆ"],
-    image:
-      "https://media.discordapp.net/attachments/1126759715978416170/1146740622340411422/neo.png",
+    image: "",
     fallbackColor: "bg-green-100 text-green-600",
   },
   {
@@ -64,7 +59,7 @@ export const BOTNOI_VOICES = [
     age: "Child",
     type: "เล่าเรื่อง",
     tags: ["🇹🇭 + อื่นๆ"],
-    image: "https://media.discordapp.net/attachments/1126759715978416170/1146741753695207434/bo.png",
+    image: "",
     fallbackColor: "bg-yellow-100 text-yellow-700",
   },
   {

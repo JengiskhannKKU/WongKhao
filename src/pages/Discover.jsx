@@ -505,6 +505,20 @@ export default function Discover() {
 
   const currentVoiceActor = BOTNOI_VOICES.find(v => v.id === selectedVoiceActorId) || BOTNOI_VOICES[0];
 
+  // Helper to map mockup videos from /botnoi_material/ to step indexes
+  const getMockupVideoUrlForStep = (idx) => {
+    // 1-based index for matching
+    const stepNum = idx + 1;
+    if (stepNum === 1) return '/botnoi_material/1_noodles.mp4';
+    if (stepNum === 2) return '/botnoi_material/2_noodles.mp4';
+    if (stepNum === 4 || stepNum === 3) return '/botnoi_material/4_seasoning.mp4'; // Use 4 for 3 as well if short
+    if (stepNum === 5) return '/botnoi_material/5_noodles.mp4';
+    if (stepNum === 6) return '/botnoi_material/6_serve.mp4';
+    // Fallback or blank if no specific video matches
+    return null; 
+  };
+
+
   let currentSection = "ingredients";
   const parsedIngredients = [];
   const parsedSteps = [];
@@ -878,6 +892,7 @@ export default function Discover() {
                                 actorName={currentVoiceActor?.name}
                                 actorImage={currentVoiceActor?.image}
                                 actorFallbackColor={currentVoiceActor?.fallbackColor}
+                                videoUrl={getMockupVideoUrlForStep(idx)}
                               />
                             </div>
                           </div>
